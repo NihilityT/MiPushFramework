@@ -23,6 +23,7 @@ import top.trumeet.common.db.EventDb;
 import top.trumeet.common.db.RegisteredApplicationDb;
 import top.trumeet.common.event.Event;
 import top.trumeet.common.register.RegisteredApplication;
+import top.trumeet.common.utils.CustomNotifyIcon;
 import top.trumeet.common.utils.Utils;
 
 public class XMPushService extends IntentService {
@@ -38,7 +39,9 @@ public class XMPushService extends IntentService {
         if (Constants.CONFIGURATIONS_UPDATE_ACTION.equals(intent.getAction())) {
             if (!PushControllerUtils.isAppMainProc(this)) {
                 boolean success = Configurations.getInstance().init(this,
-                        ConfigCenter.getInstance().getConfigurationDirectory(this));
+                        ConfigCenter.getInstance().getConfigurationDirectory(this))
+                        && CustomNotifyIcon.getInstance().init(this,
+                        ConfigCenter.getInstance().getCustomNotifyIconPath(this));
                 Utils.makeText(this, "configurations loaded: " + success, Toast.LENGTH_SHORT);
             }
             return;

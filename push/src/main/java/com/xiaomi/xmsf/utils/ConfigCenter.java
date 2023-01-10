@@ -11,6 +11,7 @@ import com.xiaomi.xmsf.push.service.XMPushService;
 import com.xiaomi.xmsf.push.utils.Configurations;
 
 import top.trumeet.common.Constants;
+import top.trumeet.common.utils.CustomNotifyIcon;
 
 
 /**
@@ -60,7 +61,20 @@ public class ConfigCenter {
                 .commit();
     }
 
+    public Uri getCustomNotifyIconPath(Context ctx) {
+        String uri = getSharedPreferences(ctx).getString("CustomNotifyIconPath", null);
+        return uri == null ? null : Uri.parse(uri);
+    }
+
+    public boolean setCustomNotifyIconPath(Context ctx, Uri treeUri) {
+        return getSharedPreferences(ctx).edit()
+                .putString("CustomNotifyIconPath", treeUri.toString())
+                .commit();
+    }
+
     public void loadConfigurations(Context context) {
+        CustomNotifyIcon.getInstance().init(context,
+                ConfigCenter.getInstance().getCustomNotifyIconPath(context));
         Configurations.getInstance().init(context,
                 ConfigCenter.getInstance().getConfigurationDirectory(context));
         Intent intent = new Intent();

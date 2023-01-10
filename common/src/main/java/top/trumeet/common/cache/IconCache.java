@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import androidx.collection.LruCache;
 import androidx.core.graphics.drawable.IconCompat;
 
+import top.trumeet.common.utils.CustomNotifyIcon;
 import top.trumeet.common.utils.ImgUtils;
 
 /**
@@ -74,6 +75,12 @@ public class IconCache {
         return new AbstractCacheAspect<IconCompat>(mIconMemoryCaches) {
             @Override
             IconCompat gen() {
+                Bitmap customIconBitmap = CustomNotifyIcon.getInstance().tryGetIconBitmap(pkg);
+                if (customIconBitmap != null) {
+                    int dip2px = dip2px(ctx, 64);
+                    return callback.convert(ctx, ImgUtils.scaleImage(customIconBitmap, dip2px, dip2px));
+                }
+
                 Bitmap rawIconBitmap = getRawIconBitmap(ctx, pkg);
                 if (rawIconBitmap == null) {
                     return null;
@@ -89,6 +96,11 @@ public class IconCache {
         return new AbstractCacheAspect<Integer>(appColorCache) {
             @Override
             Integer gen() {
+                int customColor = CustomNotifyIcon.getInstance().tryGetIconColor(pkg);
+                if (customColor != -1) {
+                    return customColor;
+                }
+
                 Bitmap rawIconBitmap = getRawIconBitmap(ctx, pkg);
                 if (rawIconBitmap == null) {
                     return -1;

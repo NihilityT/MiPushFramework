@@ -53,6 +53,18 @@ public class SettingsFragment extends PreferenceFragment {
                     getActivity().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)));
             return true;
         });
+
+        Preference notifyIconPath = getPreference("custom_notify_icon_path");
+        Uri treePath = ConfigCenter.getInstance().getCustomNotifyIconPath(getActivity());
+        if (treePath != null) {
+            notifyIconPath.setSummary(treePath.toString());
+        }
+        notifyIconPath.setOnPreferenceClickListener(iconPath -> {
+            openDocument(Uri.fromFile(
+                    getActivity().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+            ));
+            return true;
+        });
     }
 
     private void addItem(boolean value, Preference.OnPreferenceChangeListener listener,
@@ -96,6 +108,17 @@ public class SettingsFragment extends PreferenceFragment {
         startActivityForResult(intent, 123);
     }
 
+    private void openDocument(Uri documentUri) {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/json");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, documentUri);
+        }
+
+        startActivityForResult(intent, 124);
+    }
+
     @SuppressLint("WrongConstant")
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -110,6 +133,17 @@ public class SettingsFragment extends PreferenceFragment {
             preference.setSummary(uri.toString());
             ConfigCenter.getInstance().setConfigurationDirectory(getContext(), uri);
             ConfigCenter.getInstance().loadConfigurations(getActivity());
+        }
+        if (requestCode == 124 && resultCode == Activity.RESULT_OK && data != null) {
+            Uri uri = data.getData();
+            final int takeFlags = data.getFlags()
+                    & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            getContext().getContentResolver().takePersistableUriPermission(uri, takeFlags);
+            Preference preference = getPreference("custom_notify_icon_path");
+            preference.setSummary(uri.toString());
+            ConfigCenter.getInstance().setCustomNotifyIconPath(getContext(), uri);
+            // ConfigCenter.getInstance().loadConfigurations(getActivity());
         }
     }
 }

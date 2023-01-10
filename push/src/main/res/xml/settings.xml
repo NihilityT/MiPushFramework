@@ -16,6 +16,10 @@
             android:key="configuration_directory"
             android:title="@string/settings_configuration_directory" />
 
+        <Preference
+            android:key="custom_notify_icon_path"
+            android:title="Custom Notify Icon Path" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/settings_debug">

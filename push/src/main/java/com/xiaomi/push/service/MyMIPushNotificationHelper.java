@@ -41,6 +41,7 @@ import java.util.Set;
 import top.trumeet.common.Constants;
 import top.trumeet.common.db.RegisteredApplicationDb;
 import top.trumeet.common.register.RegisteredApplication;
+import top.trumeet.common.utils.CustomNotifyIcon;
 import top.trumeet.common.utils.Utils;
 
 /**
@@ -80,8 +81,11 @@ public class MyMIPushNotificationHelper {
                 tryLoadConfigurations = true;
                 boolean success = false;
                 try {
-                    success = Configurations.getInstance().init(context,
-                            ConfigCenter.getInstance().getConfigurationDirectory(context));
+                    success =
+                            Configurations.getInstance().init(context,
+                            ConfigCenter.getInstance().getConfigurationDirectory(context))
+                            && CustomNotifyIcon.getInstance().init(context,
+                            ConfigCenter.getInstance().getCustomNotifyIconPath(context));
                 } catch (Exception e) {
                     Utils.makeText(context, e.toString(), Toast.LENGTH_LONG);
                 }
