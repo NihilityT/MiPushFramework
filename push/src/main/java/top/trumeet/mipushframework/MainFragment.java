@@ -125,7 +125,7 @@ public class MainFragment extends Fragment implements OnConnectStatusChangedList
                         if (mBroadcaster.hasFragment(FRAGMENT_EVENT)) {
                             return mBroadcaster.getFragment(FRAGMENT_EVENT);
                         }
-                        EventFragment eventFragment = new EventFragment();
+                        EventFragment eventFragment = new EventFragment(null);
                         mBroadcaster.registerFragment(FRAGMENT_EVENT, eventFragment);
                         return eventFragment;
                     case 1:

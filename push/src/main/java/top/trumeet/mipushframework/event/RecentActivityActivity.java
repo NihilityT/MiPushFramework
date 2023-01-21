@@ -17,9 +17,7 @@ public class RecentActivityActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(android.R.id.content,
-                            EventFragment.newInstance(getIntent()
-                            .getDataString()))
+                    .add(android.R.id.content, new EventFragment(getIntent().getDataString()))
                     .commitAllowingStateLoss();
         }
         getSupportActionBar()

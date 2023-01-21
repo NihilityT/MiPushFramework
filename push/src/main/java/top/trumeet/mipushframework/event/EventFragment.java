@@ -1,12 +1,18 @@
 package top.trumeet.mipushframework.event;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SearchView;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -16,6 +22,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.List;
+
+import com.xiaomi.xmsf.R;
 
 import me.drakeet.multitype.Items;
 import me.drakeet.multitype.MultiTypeAdapter;
@@ -39,31 +47,29 @@ public class EventFragment extends Fragment implements SwipeRefreshLayout.OnRefr
      * Already load page
      */
     private int mLoadPage;
-    private String mTargetPackage;
-
+    private String mQuery = null;
     private LoadTask mLoadTask;
 
-    public static EventFragment newInstance (String targetPackage) {
-        EventFragment fragment = new EventFragment();
-        Bundle args = new Bundle();
-        args.putString(EXTRA_TARGET_PACKAGE, targetPackage);
-        fragment.setArguments(args);
-        return fragment;
-    }
+		public EventFragment(String query) {
+			setQuery(query);
+		}
+
+		void setQuery(String query) {
+			mQuery = query;
+			if (mQuery != null && mQuery.length() == 0) mQuery = null;
+		}
 
     @Override
     public void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mTargetPackage = getArguments() == null ? null :
-                getArguments().getString(EXTRA_TARGET_PACKAGE);
-        boolean isSpecificApp = (mTargetPackage != null); // from "Recent Activity"
+				boolean isSpecificApp = mQuery != null;
+				setHasOptionsMenu(!isSpecificApp);
         mAdapter = new MultiTypeAdapter();
         mAdapter.register(Event.class, new EventItemBinder(isSpecificApp));
     }
 
     SwipeRefreshLayout swipeRefreshLayout;
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         RecyclerView view = new RecyclerView(getActivity());
@@ -84,6 +90,41 @@ public class EventFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.addView(view);
         return swipeRefreshLayout;
+    }
+
+		@Override
+		public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+			super.onCreateOptionsMenu(menu, inflater);
+
+			menu.findItem(R.id.action_enable).setVisible(false);
+			menu.findItem(R.id.action_help).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+
+			MenuItem searchItem = menu.findItem(R.id.action_search);
+			searchItem.setVisible(true);
+
+			SearchView searchView = (SearchView) searchItem.getActionView();
+			SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+			searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+			searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+				@Override
+				public boolean onQueryTextChange(String newText) {
+					setQuery(newText);
+					onRefresh();
+					return true;
+				}
+				@Override
+				public boolean onQueryTextSubmit(String query) {
+					return true;
+				}
+			});
+		}
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_search) {
+					((SearchView)item.getActionView()).setIconified(false);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -135,7 +176,7 @@ public class EventFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         @Override
         protected List<Event> doInBackground(Integer... integers) {
             mSignal = new CancellationSignal();
-            return EventDb.query(mTargetPackage, mTargetPage,
+            return EventDb.query(mQuery, mTargetPage,
                     getActivity(), mSignal);
         }
 
