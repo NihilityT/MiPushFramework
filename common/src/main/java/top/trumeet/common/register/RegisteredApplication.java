@@ -67,6 +67,8 @@ public class RegisteredApplication implements Parcelable {
 
     private boolean showPassThrough;
 
+    public boolean existServices = false;
+
     protected RegisteredApplication(Parcel in) {
         if (in.readByte() == 0) {
             id = null;

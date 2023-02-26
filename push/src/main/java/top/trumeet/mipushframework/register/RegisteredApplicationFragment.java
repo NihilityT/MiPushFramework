@@ -1,5 +1,7 @@
 package top.trumeet.mipushframework.register;
 
+import static top.trumeet.common.Constants.TAG;
+
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -8,17 +10,20 @@ import android.content.pm.ServiceInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CancellationSignal;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.github.promeg.pinyinhelper.Pinyin;
+import com.xiaomi.xmsf.R;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,7 +36,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 import me.drakeet.multitype.Items;
 import me.drakeet.multitype.MultiTypeAdapter;
@@ -39,16 +43,9 @@ import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.db.EventDb;
 import top.trumeet.common.db.RegisteredApplicationDb;
 import top.trumeet.common.register.RegisteredApplication;
-
-import com.github.promeg.pinyinhelper.Pinyin;
-import com.xiaomi.xmsf.BuildConfig;
-import com.xiaomi.xmsf.R;
 import top.trumeet.mipushframework.utils.MiPushManifestChecker;
 import top.trumeet.mipushframework.widgets.Footer;
 import top.trumeet.mipushframework.widgets.FooterItemBinder;
-
-import static top.trumeet.common.Constants.SERVICE_APP_NAME;
-import static top.trumeet.common.Constants.TAG;
 
 /**
  * Created by Trumeet on 2017/8/26.
@@ -184,18 +181,23 @@ public class RegisteredApplicationFragment extends Fragment implements SwipeRefr
                     String currentAppPkgName = info.packageName;
                     if (info.services == null) info.services = new ServiceInfo[]{};
 
+                    RegisteredApplication application = null;
+                    boolean existServices = finalChecker != null && finalChecker.checkServices(info);
                     if (registeredPkgs.containsKey(currentAppPkgName)) {
-                        RegisteredApplication application = registeredPkgs.get(currentAppPkgName);
+                        application = registeredPkgs.get(currentAppPkgName);
                         application.setRegisteredType(actuallyRegisteredPkgs.contains(currentAppPkgName) ? 1 : 2);
                         res.add(application);
-                    } else if (finalChecker != null && finalChecker.checkServices(info)) {
+                    } else if (existServices) {
                         // checkReceivers will use Class#forName, but we can't change our classloader to target app's.
-                        RegisteredApplication application = new RegisteredApplication();
+                        application = new RegisteredApplication();
                         application.setPackageName(currentAppPkgName);
                         application.setRegisteredType(0);
                         res.add(application);
                     } else {
                         Log.d(TAG, "not use mipush : " + currentAppPkgName);
+                    }
+                    if (application != null) {
+                        application.existServices = existServices;
                     }
                 });
             }

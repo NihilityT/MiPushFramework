@@ -27,6 +27,11 @@ public class RegisteredApplicationBinder extends BaseAppsBinder<RegisteredApplic
         fillData(item.getPackageName(), true,
                 holder);
         //todo res color
+        int ErrorColor = Color.parseColor("#FFF41804");
+        if (!item.existServices) {
+            holder.status.setText("MiPush Services not found");
+            holder.status.setTextColor(ErrorColor);
+        }
         switch (item.getRegisteredType()) {
             case 1: {
                 holder.text2.setText(R.string.app_registered);
@@ -35,7 +40,7 @@ public class RegisteredApplicationBinder extends BaseAppsBinder<RegisteredApplic
             }
             case 2: {
                 holder.text2.setText(R.string.app_registered_error);
-                holder.text2.setTextColor(Color.parseColor("#FFF41804"));
+                holder.text2.setTextColor(ErrorColor);
                 break;
             }
             case 0: {
