@@ -102,6 +102,13 @@
             android:label="@string/helplib_title"
             android:theme="@style/HelpTheme.DayNight" />
 
+        <activity android:name="top.trumeet.mipushframework.DispatchActivity"
+                android:exported="true"
+                android:taskAffinity=".dispatch"
+                android:allowTaskReparenting="true"
+                android:autoRemoveFromRecents="true"
+                android:excludeFromRecents="true" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="top.trumeet.mipushframework.fileprovider"

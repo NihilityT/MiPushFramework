@@ -22,6 +22,7 @@ import static top.trumeet.common.utils.NotificationUtils.getExtraField;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -73,6 +74,7 @@ import top.trumeet.common.cache.IconCache;
 import top.trumeet.common.db.RegisteredApplicationDb;
 import top.trumeet.common.register.RegisteredApplication;
 import top.trumeet.common.utils.Utils;
+import top.trumeet.mipushframework.DispatchActivity;
 
 /**
  * @author zts1993
@@ -113,6 +115,7 @@ public class MyMIPushNotificationHelper {
     private static final String NOTIFICATION_STYLE_BUTTON_RIGHT_WEB_URI = "notification_style_button_right_web_uri";
     private static final String NOTIFICATION_STYLE_TYPE = "notification_style_type";
 
+    public static final String MIPUSH_EXTRA_INTENT_PAYLOAD = "mipush_serviceIntent";
 
     private static boolean tryLoadConfigurations = false;
 
@@ -504,7 +507,28 @@ public class MyMIPushNotificationHelper {
         intent.putExtra(FROM_NOTIFICATION, true);
         intent.putExtras(extra);
         intent.addCategory(String.valueOf(metaInfo.getNotifyId()));
-        return PendingIntent.getService(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent notifyIntent = MyPushMessageHandler.getJumpIntent(context, container);
+        if (notifyIntent == null) {
+            return PendingIntent.getService(context, notificationId, intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+        }
+        notifyIntent.putExtra(MIPUSH_EXTRA_INTENT_PAYLOAD, intent);
+        notifyIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        Intent launchIntent = new Intent(notifyIntent);
+        launchIntent.getExtras().clear();
+
+        Intent dispatchActivity = new Intent(context, DispatchActivity.class);
+        dispatchActivity.putExtras(intent);
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        stackBuilder.addNextIntentWithParentStack(launchIntent);
+        stackBuilder.addNextIntentWithParentStack(dispatchActivity);
+        stackBuilder.addNextIntentWithParentStack(notifyIntent);
+
+        return stackBuilder.getPendingIntent(0,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
     }
 
     /**

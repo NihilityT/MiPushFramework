@@ -171,7 +171,7 @@ public class MyPushMessageHandler extends IntentService {
     }
 
 
-    private static Intent getJumpIntent(Context context, XmPushActionContainer container) {
+    public static Intent getJumpIntent(Context context, XmPushActionContainer container) {
         Intent intent = MyMIPushNotificationHelper.getSdkIntent(context, container);
         if (intent == null) {
             intent = getJumpIntentFromPkg(context, container.packageName);
