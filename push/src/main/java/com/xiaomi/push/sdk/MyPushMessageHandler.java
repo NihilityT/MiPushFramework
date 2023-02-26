@@ -149,10 +149,10 @@ public class MyPushMessageHandler extends IntentService {
     }
 
 
-    private static Intent getJumpIntent(Context context, String targetPackage, XmPushActionContainer container) {
-        Intent intent = MyMIPushNotificationHelper.getSdkIntent(context, targetPackage, container);
+    private static Intent getJumpIntent(Context context, XmPushActionContainer container) {
+        Intent intent = MyMIPushNotificationHelper.getSdkIntent(context, container);
         if (intent == null) {
-            intent = getJumpIntentFromPkg(context, targetPackage);
+            intent = getJumpIntentFromPkg(context, container.packageName);
         }
         return intent;
     }
@@ -203,7 +203,7 @@ public class MyPushMessageHandler extends IntentService {
             if (!iTopActivity.isAppForeground(context, targetPackage)) {
                 logger.d(packageInfo(targetPackage, "app is not at front , let's pull up"));
 
-                Intent intent = getJumpIntent(context, targetPackage, container);
+                Intent intent = getJumpIntent(context, container);
 
                 if (intent == null) {
                     throw new RuntimeException("can not get default activity for " + targetPackage);

@@ -261,7 +261,7 @@ public class MyMIPushNotificationHelper {
                 notificationBuilder.setStyle(style);
 
                 String key = group.getKey() != null ? group.getKey() : group.getName().toString();
-                Intent intent = getSdkIntent(context, packageName, container);
+                Intent intent = getSdkIntent(context, container);
                 if (intent == null) {
                     PackageManager packageManager = context.getPackageManager();
                     intent = packageManager.getLaunchIntentForPackage(packageName);
@@ -433,7 +433,7 @@ public class MyMIPushNotificationHelper {
                 localBuilder.addAction(new NotificationCompat.Action(i, "Jump", pendingIntentJump));
             }
 
-            Intent sdkIntentJump = getSdkIntent(xmPushService, packageName, buildContainer);
+            Intent sdkIntentJump = getSdkIntent(xmPushService, buildContainer);
             if (sdkIntentJump != null) {
                 PendingIntent pendingIntent = PendingIntent.getActivity(xmPushService, 0, sdkIntentJump, PendingIntent.FLAG_UPDATE_CURRENT);
                 localBuilder.addAction(new NotificationCompat.Action(i, "SDK Intent", pendingIntent));
@@ -495,7 +495,8 @@ public class MyMIPushNotificationHelper {
     /**
      * @see com.xiaomi.mipush.sdk.PushMessageProcessor#getNotificationMessageIntent
      */
-    public static Intent getSdkIntent(Context context, String pkgName, XmPushActionContainer container) {
+    public static Intent getSdkIntent(Context context, XmPushActionContainer container) {
+        String pkgName = container.packageName;
         PushMetaInfo paramPushMetaInfo = container.getMetaInfo();
         Map<String, String> extra = paramPushMetaInfo.getExtra();
         if (extra == null) {
