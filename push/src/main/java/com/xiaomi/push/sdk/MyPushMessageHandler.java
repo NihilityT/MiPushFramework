@@ -1,24 +1,29 @@
 package com.xiaomi.push.sdk;
 
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Build.VERSION_CODES.P;
+
 import android.app.IntentService;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.os.IBinder;
+
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
 import com.catchingnow.icebox.sdk_client.IceBox;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.xiaomi.push.service.MIPushEventProcessor;
 import com.xiaomi.push.service.MIPushNotificationHelper;
 import com.xiaomi.push.service.MyMIPushNotificationHelper;
 import com.xiaomi.push.service.PushConstants;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
-import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
 import com.xiaomi.xmsf.push.notification.NotificationController;
 import com.xiaomi.xmsf.utils.ConfigCenter;
 
@@ -30,9 +35,6 @@ import top.trumeet.common.ita.ITopActivity;
 import top.trumeet.common.ita.TopActivityFactory;
 import top.trumeet.common.register.RegisteredApplication;
 import top.trumeet.common.utils.Utils;
-
-import static android.os.Build.VERSION.SDK_INT;
-import static android.os.Build.VERSION_CODES.P;
 
 /**
  * @author zts1993
@@ -60,34 +62,49 @@ public class MyPushMessageHandler extends IntentService {
             return;
         }
 
-        final XmPushActionContainer container = new XmPushActionContainer();
-        try {
-            XmPushThriftSerializeUtils.convertByteArrayToThriftObject(container, payload);
-        } catch (Throwable var3) {
-            logger.e(var3);
+        final XmPushActionContainer container = MIPushEventProcessor.buildContainer(payload);
+        if (container == null) {
             return;
         }
 
         try {
             if (startService(this, container, payload) != null) {
-                int notificationId = intent.getIntExtra(Constants.INTENT_NOTIFICATION_ID, 0);
-                String notificationGroup = intent.getStringExtra(Constants.INTENT_NOTIFICATION_GROUP);
-                boolean groupOfSession = intent.getBooleanExtra(Constants.INTENT_NOTIFICATION_GROUP_OF_SESSION, false);
-
-                RegisteredApplication application = RegisteredApplicationDb.registerApplication(
-                        container.getPackageName(), false, this, null);
-                boolean isClearAllNotificationsOfSession = groupOfSession &&
-                        application != null &&
-                        application.isGroupNotificationsForSameSession() &&
-                        application.isClearAllNotificationsOfSession();
-
-                NotificationController.cancel(this, container,
-                        notificationId, notificationGroup, isClearAllNotificationsOfSession);
+                cancelNotification(this, intent.getExtras(), container);
             }
         } catch (Exception e) {
             logger.e(e.getLocalizedMessage(), e);
         }
 
+    }
+
+    public static void cancelNotification(Context context, Bundle bundle) {
+        byte[] payload = bundle.getByteArray(PushConstants.MIPUSH_EXTRA_PAYLOAD);
+        if (payload == null) {
+            logger.e("mipush_payload is null");
+            return;
+        }
+
+        final XmPushActionContainer container = MIPushEventProcessor.buildContainer(payload);
+        if (container == null) {
+            return;
+        }
+        cancelNotification(context, bundle, container);
+    }
+
+    public static void cancelNotification(Context context, Bundle bundle, XmPushActionContainer container) {
+        int notificationId = bundle.getInt(Constants.INTENT_NOTIFICATION_ID, 0);
+        String notificationGroup = bundle.getString(Constants.INTENT_NOTIFICATION_GROUP);
+        boolean groupOfSession = bundle.getBoolean(Constants.INTENT_NOTIFICATION_GROUP_OF_SESSION, false);
+
+        RegisteredApplication application = RegisteredApplicationDb.registerApplication(
+                container.getPackageName(), false, context, null);
+        boolean isClearAllNotificationsOfSession = groupOfSession &&
+                application != null &&
+                application.isGroupNotificationsForSameSession() &&
+                application.isClearAllNotificationsOfSession();
+
+        NotificationController.cancel(context, container,
+                notificationId, notificationGroup, isClearAllNotificationsOfSession);
     }
 
     public static void launchApp(Context context, XmPushActionContainer container) {
