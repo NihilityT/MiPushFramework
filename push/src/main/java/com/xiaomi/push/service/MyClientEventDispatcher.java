@@ -88,13 +88,6 @@ public class MyClientEventDispatcher extends ClientEventDispatcher {
         super.notifyPacketArrival(xMPushService, str, blob);
     }
 
-    public static int getNotificationId(Context context, XmPushActionContainer paramXmPushActionContainer) {
-        final PushMetaInfo metaInfo = paramXmPushActionContainer.getMetaInfo();
-        String id = metaInfo.isSetNotifyId() ? String.valueOf(metaInfo.getNotifyId()) : metaInfo.getId();
-        String idWithPackage = MIPushNotificationHelper.getTargetPackage(paramXmPushActionContainer) + "_" + id;
-        return idWithPackage.hashCode();
-    }
-
     /**
      * 处理收到的消息
      */

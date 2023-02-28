@@ -241,7 +241,7 @@ public class MyMIPushNotificationHelper {
         boolean useMessagingStyle = message != null &&
                 getExtraField(metaInfo.getExtra(), EXTRA_USE_MESSAGING_STYLE, null) != null;
 
-        int notificationId = MyClientEventDispatcher.getNotificationId(context, container);
+        int notificationId = getNotificationId(container);
         if (isGroupOfSession && !useMessagingStyle) {
             notificationId = (notificationId + "_" + System.currentTimeMillis()).hashCode();
         }
@@ -396,6 +396,21 @@ public class MyMIPushNotificationHelper {
         final Intent targetIntent = buildTargetIntentWithoutExtras(buildContainer.getPackageName(), metaInfo);
         final PendingIntent pi = PendingIntent.getService(xmPushService, 0, targetIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         localBuilder.getExtras().putParcelable("mipush.target", pi);
+    }
+
+    public static int getNotificationId(XmPushActionContainer container) {
+        final PushMetaInfo metaInfo = container.getMetaInfo();
+        String id = metaInfo.isSetNotifyId() ? String.valueOf(metaInfo.getNotifyId()) : metaInfo.getId();
+        String idWithPackage = MIPushNotificationHelper.getTargetPackage(container) + "_" + id;
+        return idWithPackage.hashCode();
+    }
+
+    public static String getNotificationTag(String packageName) {
+        return "mipush_" + packageName;
+    }
+
+    public static String getNotificationTag(XmPushActionContainer container) {
+        return getNotificationTag(container.packageName);
     }
 
     private static String getGroupName(Context xmPushService, XmPushActionContainer buildContainer) {

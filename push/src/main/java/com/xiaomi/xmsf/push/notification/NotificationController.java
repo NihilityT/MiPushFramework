@@ -1,5 +1,6 @@
 package com.xiaomi.xmsf.push.notification;
 
+import static com.xiaomi.push.service.MyMIPushNotificationHelper.getNotificationTag;
 import static com.xiaomi.push.service.MyNotificationIconHelper.KiB;
 import static top.trumeet.common.utils.NotificationUtils.EXTRA_CHANNEL_DESCRIPTION;
 import static top.trumeet.common.utils.NotificationUtils.EXTRA_CHANNEL_ID;
@@ -48,8 +49,6 @@ import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.push.utils.IconConfigurations;
 import com.xiaomi.xmsf.utils.ColorUtil;
-
-import org.json.JSONException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -239,7 +238,8 @@ public class NotificationController {
 
         notificationBuilder.setAutoCancel(true);
         Notification notification = notificationBuilder.build();
-        getNotificationManagerEx().notify(packageName, null, notificationId, notification);
+        getNotificationManagerEx().notify(
+                packageName, getNotificationTag(packageName), notificationId, notification);
         return notification;
     }
 
@@ -287,10 +287,12 @@ public class NotificationController {
 
     public static void cancel(Context context, XmPushActionContainer container,
                               int notificationId, String notificationGroup, boolean clearGroup) {
-        getNotificationManagerEx().cancel(container.getPackageName(), null, notificationId);
+        getNotificationManagerEx().cancel(container.getPackageName(),
+                getNotificationTag(container), notificationId);
 
         if (clearGroup) {
-            getNotificationManagerEx().cancel(container.getPackageName(), null, notificationGroup.hashCode());
+            getNotificationManagerEx().cancel(container.getPackageName(),
+                    getNotificationTag(container), notificationGroup.hashCode());
             return;
         }
 
