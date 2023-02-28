@@ -126,6 +126,11 @@ public class MyPushMessageHandler extends IntentService {
     public static ComponentName startService(Context context, XmPushActionContainer container, byte[] payload) {
         launchApp(context, container);
 
+        return forwardToTargetApplication(context, payload);
+    }
+
+    public static ComponentName forwardToTargetApplication(Context context, byte[] payload) {
+        XmPushActionContainer container = MIPushEventProcessor.buildContainer(payload);
         PushMetaInfo metaInfo = container.getMetaInfo();
         String targetPackage = container.getPackageName();
 
