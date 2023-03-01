@@ -409,6 +409,12 @@ public class Configurations {
             }
             return null;
         });
+        methods.put("replace", () -> {
+            String src = evaluated.optString(1);
+            String ptn = evaluated.optString(2);
+            String rep = evaluated.optString(3);
+            return src.replaceAll(ptn, rep);
+        });
 
         Callable ret = methods.get(method);
         return ret == null ? null : ret.run();
