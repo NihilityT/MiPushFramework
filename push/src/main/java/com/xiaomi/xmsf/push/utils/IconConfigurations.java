@@ -1,7 +1,7 @@
 package com.xiaomi.xmsf.push.utils;
 
-import static com.xiaomi.xmsf.push.utils.Configurations.getJsonExceptionMessage;
-import static com.xiaomi.xmsf.push.utils.Configurations.readTextFromUri;
+import static com.xiaomi.xmsf.push.utils.ConfigurationsLoader.getJsonExceptionMessage;
+import static com.xiaomi.xmsf.push.utils.ConfigurationsLoader.readTextFromUri;
 
 import android.content.Context;
 import android.graphics.Bitmap;

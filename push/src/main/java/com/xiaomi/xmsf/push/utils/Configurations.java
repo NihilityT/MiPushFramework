@@ -2,54 +2,31 @@ package com.xiaomi.xmsf.push.utils;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Pair;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.documentfile.provider.DocumentFile;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
-import com.xiaomi.xmsf.utils.ConfigCenter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import top.trumeet.common.utils.Utils;
 
 public class Configurations {
     private static final Logger logger = XLog.tag(Configurations.class.getSimpleName()).build();
-
-    private String version;
-    private Map<String, List<Object>> packageConfigs = new HashMap<>();
-
+    private ConfigurationsLoader loader = null;
     private static Configurations instance = null;
-    private Context mContext = null;
-    private Uri mTreeUri = null;
-    private DocumentFile mDocumentFile = null;
-    private long mLastLoadTime = 0;
 
     public static Configurations getInstance() {
         if (instance == null) {
@@ -59,7 +36,6 @@ public class Configurations {
                 }
             }
         }
-        instance.reInitIfDirectoryUpdated();
         return instance;
     }
 
@@ -68,158 +44,8 @@ public class Configurations {
     }
 
     public boolean init(Context context, Uri treeUri) {
-        mLastLoadTime = System.currentTimeMillis();
-        packageConfigs.clear();
-        do {
-            if (context == null || treeUri == null) {
-                break;
-            }
-            List<Pair<DocumentFile, JSONException>> exceptions = new ArrayList<>();
-            List<DocumentFile> loadedFiles = new ArrayList<>();
-            parseDirectory(context, treeUri, exceptions, loadedFiles);
-
-            if (!loadedFiles.isEmpty() && ConfigCenter.getInstance().isShowConfigurationListOnLoaded(context)) {
-                StringBuilder loadedList = new StringBuilder("loaded configuration list:");
-                for (DocumentFile file : loadedFiles) {
-                    loadedList.append('\n');
-                    loadedList.append(file.getName());
-                }
-                Utils.makeText(context, loadedList, Toast.LENGTH_SHORT);
-            }
-            if (!exceptions.isEmpty()) {
-                for (Pair<DocumentFile, JSONException> pair : exceptions) {
-                    StringBuilder errmsg = getJsonExceptionMessage(context, pair);
-                    Utils.makeText(context, errmsg.toString(), Toast.LENGTH_LONG);
-                }
-                break;
-            }
-            return true;
-        } while (false);
-        return false;
-    }
-
-    @NonNull
-    public static StringBuilder getJsonExceptionMessage(Context context, Pair<DocumentFile, JSONException> pair) {
-        DocumentFile file = pair.first;
-        JSONException e = pair.second;
-        e.printStackTrace();
-
-        StringBuilder errmsg = new StringBuilder(e.toString());
-        Pattern pattern = Pattern.compile(" character (\\d+) of ");
-        Matcher matcher = pattern.matcher(errmsg.toString());
-        if (matcher.find()) {
-            int pos = Integer.parseInt(matcher.group(1));
-            String json = readTextFromUri(context, file.getUri());
-            String[] beforeErr = json.substring(0, pos).split("\n");
-            int errorLine = beforeErr.length;
-            int errorColumn = beforeErr[beforeErr.length - 1].length();
-            String exceptionMessage = errmsg.substring(0, matcher.start())
-                    .replace("org.json.JSONException: ", "")
-                    .replaceFirst("(after )(.*)( at)", "$1\"$2\"$3");
-            errmsg = new StringBuilder(String.format("%s line %d column %d", exceptionMessage, errorLine, errorColumn));
-
-            String[] jsonLine = json.split("\n");
-            jsonLine[errorLine - 1] = jsonLine[errorLine - 1].substring(0, errorColumn - 1) +
-                    "┋" +
-                    jsonLine[errorLine - 1].substring(errorColumn - 1);
-            for (int i = Math.max(0, errorLine - 2); i <= Math.min(jsonLine.length - 1, errorLine); ++i) {
-                errmsg.append('\n');
-                errmsg.append(i + 1);
-                errmsg.append(": ");
-                errmsg.append(jsonLine[i]);
-            }
-        }
-        errmsg.insert(0, file.getName() + "\n");
-        return errmsg;
-    }
-
-    private boolean parseDirectory(Context context, Uri treeUri, List<Pair<DocumentFile, JSONException>> exceptions, List<DocumentFile> loadedFiles) {
-        DocumentFile documentFile = DocumentFile.fromTreeUri(context, treeUri);
-        if (documentFile == null) {
-            return true;
-        }
-        mContext = context;
-        mTreeUri = treeUri;
-        mDocumentFile = documentFile;
-        DocumentFile[] files = documentFile.listFiles();
-        for (DocumentFile file : files) {
-            if (!"application/json".equals(file.getType())) {
-                continue;
-            }
-            String json = readTextFromUri(context, file.getUri());
-            try {
-                parse(json);
-                loadedFiles.add(file);
-            } catch (JSONException e) {
-                exceptions.add(new Pair<>(file, e));
-            }
-        }
-        return false;
-    }
-
-    private void parse(String json) throws JSONException {
-        JSONObject jsonObject = new JSONObject(json);
-        version = jsonObject.getString("version");
-        JSONObject packageConfigsObj = jsonObject.getJSONObject("configs");
-        Iterator<String> packageNames = packageConfigsObj.keys();
-        while (packageNames.hasNext()) {
-            String packageName = packageNames.next();
-            JSONArray configsObj = packageConfigsObj.getJSONArray(packageName);
-            packageConfigs.put(packageName, parseConfigs(configsObj));
-        }
-    }
-
-    @NonNull
-    private ArrayList<Object> parseConfigs(JSONArray configsObj) throws JSONException {
-        ArrayList<Object> configs = new ArrayList<>();
-        for (int i = 0; i < configsObj.length(); ++i) {
-            Object config = configsObj.get(i);
-            if (config instanceof JSONArray) {
-                configs.add(config);
-            } else if (config instanceof String) {
-                configs.add(config);
-            } else {
-                configs.add(parseConfig(configsObj.getJSONObject(i)));
-            }
-        }
-        return configs;
-    }
-
-    @NonNull
-    private PackageConfig parseConfig(JSONObject configObj) throws JSONException {
-        PackageConfig config = new PackageConfig(this);
-        if (!configObj.isNull(PackageConfig.KEY_META_INFO)) {
-            config.metaInfoObj = configObj.getJSONObject(PackageConfig.KEY_META_INFO);
-        }
-        if (!configObj.isNull(PackageConfig.KEY_NEW_META_INFO)) {
-            config.newMetaInfoObj = configObj.getJSONObject(PackageConfig.KEY_NEW_META_INFO);
-        }
-        if (!configObj.isNull(PackageConfig.KEY_OPERATION)) {
-            String operations = configObj.getString(PackageConfig.KEY_OPERATION);
-            config.operation = new HashSet<>(Arrays.asList(operations.split("[\\s|]+")));
-        }
-        if (!configObj.isNull(PackageConfig.KEY_STOP)) {
-            config.stop = configObj.getBoolean(PackageConfig.KEY_STOP);
-        }
-        return config;
-    }
-
-
-    public static String readTextFromUri(Context context, Uri uri) {
-        StringBuilder stringBuilder = new StringBuilder();
-        try (InputStream inputStream = context.getContentResolver().openInputStream(uri);
-             BufferedReader reader = new BufferedReader(
-                     new InputStreamReader(Objects.requireNonNull(inputStream)))) {
-            char[] buffer = new char[1024];
-            int len;
-            while ((len = reader.read(buffer)) != -1) {
-                stringBuilder.append(buffer, 0, len);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Utils.makeText(context, e.toString(), Toast.LENGTH_LONG);
-        }
-        return stringBuilder.toString();
+        loader = new ConfigurationsLoader();
+        return loader.init(context, treeUri);
     }
 
     public Set<String> handle(String packageName, PushMetaInfo metaInfo)
@@ -227,7 +53,7 @@ public class Configurations {
         String[] checkPkgs = new String[]{"^", packageName, "$"};
         Set<String> operations = new HashSet<>();
         for (String pkg : checkPkgs) {
-            List<Object> configs = packageConfigs.get(pkg);
+            List<Object> configs = loader.getConfigs().get(pkg);
             logger.d("package: " + packageName + ", config count: " + (configs == null ? 0 : configs.size()));
             boolean stop = doHandle(metaInfo, configs, operations);
             if (stop) {
@@ -262,12 +88,12 @@ public class Configurations {
                         Object value = evaluate(configItem, metaInfo);
                         if (value instanceof JSONObject) {
                             refConfigs = new ArrayList<>();
-                            refConfigs.add(parseConfig((JSONObject) value));
+                            refConfigs.add(loader.parseConfig((JSONObject) value));
                         } else if (value != null) {
-                            refConfigs = packageConfigs.get(value.toString());
+                            refConfigs = loader.getConfigs().get(value.toString());
                         }
                     } else {
-                        refConfigs = packageConfigs.get(configItem);
+                        refConfigs = loader.getConfigs().get(configItem);
                     }
                     if (refConfigs != null) {
                         boolean stop = doHandle(metaInfo, refConfigs, operations);
@@ -292,21 +118,12 @@ public class Configurations {
                         return true;
                     }
                 } else {
-                    List<Object> refConfigs = packageConfigs.get(configItem);
+                    List<Object> refConfigs = loader.getConfigs().get(configItem);
                     return match(metaInfo, refConfigs, matched);
                 }
             }
         }
         return false;
-    }
-
-    private void reInitIfDirectoryUpdated() {
-        if (mContext == null || mTreeUri == null || mDocumentFile == null) {
-            return;
-        }
-        if (mDocumentFile.lastModified() > mLastLoadTime) {
-            init(mContext, mTreeUri);
-        }
     }
 
     @FunctionalInterface
@@ -348,12 +165,12 @@ public class Configurations {
                     JSONArray clause = expr.optJSONArray(i);
                     Object test = clause.opt(0);
                     if (test instanceof JSONObject) {
-                        if (parseConfig((JSONObject) test).match(metaInfo)) {
+                        if (loader.parseConfig((JSONObject) test).match(metaInfo)) {
                             return clause.opt(1);
                         }
                     }
                     if (test instanceof String) {
-                        if (match(metaInfo, packageConfigs.get(test), new ArrayList<>())) {
+                        if (match(metaInfo, loader.getConfigs().get(test), new ArrayList<>())) {
                             return clause.opt(1);
                         }
                     }
