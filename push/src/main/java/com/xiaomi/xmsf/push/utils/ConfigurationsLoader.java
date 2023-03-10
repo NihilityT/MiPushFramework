@@ -74,6 +74,7 @@ public class ConfigurationsLoader {
             if (!exceptions.isEmpty()) {
                 for (Pair<DocumentFile, JSONException> pair : exceptions) {
                     StringBuilder errmsg = getJsonExceptionMessage(context, pair);
+                    logger.e(errmsg);
                     Utils.makeText(context, errmsg.toString(), Toast.LENGTH_LONG);
                 }
                 break;
