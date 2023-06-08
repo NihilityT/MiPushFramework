@@ -390,40 +390,6 @@ public class ManagePermissionsActivity extends AppCompatActivity {
                     null,
                     screen);
 
-
-            PreferenceCategory category = new PreferenceCategory(getActivity(), null, moe.shizuku.preference.R.attr.preferenceCategoryStyle,
-                    R.style.Preference_Category_Material);
-            category.setTitle(R.string.permissions);
-            if (mApplicationItem.getRegisteredType() == 0) {
-                category.setEnabled(false);
-            }
-            screen.addPreference(category);
-
-            addItem(mApplicationItem.getAllowReceivePush(),
-                    (preference, newValue) -> {
-                        mApplicationItem.setAllowReceivePush(((Boolean) newValue));
-                        return true;
-                    },
-                    getString(R.string.permission_allow_receive),
-                    category);
-
-            addItem(mApplicationItem.isAllowReceiveCommand(),
-                    (preference, newValue) -> {
-                        mApplicationItem.setAllowReceiveCommand(((Boolean) newValue));
-                        return true;
-                    },
-                    getString(R.string.permission_allow_receive_command),
-                    category);
-
-            addItem(mApplicationItem.getAllowReceiveRegisterResult(),
-                    (preference, newValue) -> {
-                        mApplicationItem.setAllowReceiveRegisterResult(((Boolean) newValue));
-                        return true;
-                    },
-                    getString(R.string.permission_allow_receive_register_result),
-                    category);
-
-
             if (Build.VERSION.SDK_INT >= O) {
                 String mipushGroup = NotificationUtils.getGroupIdByPkg(mApplicationItem.getPackageName());
 

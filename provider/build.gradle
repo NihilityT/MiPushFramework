@@ -21,7 +21,7 @@ android {
 
     greendao{
         // Must upgrade version code!
-        schemaVersion 14
+        schemaVersion 15
         daoPackage 'top.trumeet.mipush.provider.gen.db'
         targetGenDir 'src/main/java'
     }

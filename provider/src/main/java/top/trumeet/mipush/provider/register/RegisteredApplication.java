@@ -47,9 +47,6 @@ public class RegisteredApplication implements Parcelable {
         }
         packageName = in.readString();
         type = in.readInt();
-        allowReceivePush = in.readByte() != 0;
-        allowReceiveRegisterResult = in.readByte() != 0;
-        allowReceiveCommand = in.readByte() != 0;
     }
 
     public static final Creator<RegisteredApplication> CREATOR = new Creator<RegisteredApplication>() {
@@ -79,9 +76,6 @@ public class RegisteredApplication implements Parcelable {
         }
         parcel.writeString(packageName);
         parcel.writeInt(type);
-        parcel.writeByte((byte) (allowReceivePush ? 1 : 0));
-        parcel.writeByte((byte) (allowReceiveRegisterResult ? 1 : 0));
-        parcel.writeByte((byte) (allowReceiveCommand ? 1 : 0));
     }
 
     @IntDef({Type.ASK, Type.ALLOW, Type.DENY, Type.ALLOW_ONCE})
@@ -105,15 +99,6 @@ public class RegisteredApplication implements Parcelable {
     @Type
     @Property(nameInDb = "type")
     private int type = Type.ASK;
-
-    @Property(nameInDb = "allow_receive_push")
-    private boolean allowReceivePush;
-
-    @Property(nameInDb = "allow_receive_register_result")
-    private boolean allowReceiveRegisterResult;
-
-    @Property(nameInDb = "allow_receive_command_without_register_result")
-    private boolean allowReceiveCommand;
 
     @Property(nameInDb = "notification_on_register")
     private boolean notificationOnRegister;
@@ -144,16 +129,12 @@ public class RegisteredApplication implements Parcelable {
     @Transient
     public Date lastReceiveTime = new Date(0);
 
-    @Generated(hash = 1523571055)
-    public RegisteredApplication(Long id, String packageName, int type, boolean allowReceivePush,
-            boolean allowReceiveRegisterResult, boolean allowReceiveCommand, boolean notificationOnRegister,
+    @Generated(hash = 350716982)
+    public RegisteredApplication(Long id, String packageName, int type, boolean notificationOnRegister,
             boolean groupNotificationsForSameSession, boolean clearAllNotificationsOfSession, boolean showPassThrough) {
         this.id = id;
         this.packageName = packageName;
         this.type = type;
-        this.allowReceivePush = allowReceivePush;
-        this.allowReceiveRegisterResult = allowReceiveRegisterResult;
-        this.allowReceiveCommand = allowReceiveCommand;
         this.notificationOnRegister = notificationOnRegister;
         this.groupNotificationsForSameSession = groupNotificationsForSameSession;
         this.clearAllNotificationsOfSession = clearAllNotificationsOfSession;
@@ -187,21 +168,6 @@ public class RegisteredApplication implements Parcelable {
         this.type = type;
     }
 
-    public void setAllowReceivePush(boolean allowReceivePush) {
-        this.allowReceivePush = allowReceivePush;
-    }
-
-    public boolean getAllowReceivePush() {
-        return this.allowReceivePush;
-    }
-
-    public boolean getAllowReceiveRegisterResult() {
-        return this.allowReceiveRegisterResult;
-    }
-
-    public void setAllowReceiveRegisterResult(boolean allowReceiveRegisterResult) {
-        this.allowReceiveRegisterResult = allowReceiveRegisterResult;
-    }
 
     @NonNull
     public CharSequence getLabel (Context context) {
@@ -243,18 +209,6 @@ public class RegisteredApplication implements Parcelable {
 
     public void setNotificationOnRegister(boolean notificationOnRegister) {
         this.notificationOnRegister = notificationOnRegister;
-    }
-
-    public boolean isAllowReceiveCommand() {
-        return allowReceiveCommand;
-    }
-
-    public void setAllowReceiveCommand(boolean allowReceiveCommand) {
-        this.allowReceiveCommand = allowReceiveCommand;
-    }
-
-    public boolean getAllowReceiveCommand() {
-        return this.allowReceiveCommand;
     }
 
     public boolean getNotificationOnRegister() {

@@ -62,9 +62,6 @@ public class RegisteredApplicationDb {
                         , pkg
                         , RegisteredApplication.Type.ASK
                         , true
-                        , true
-                        , true
-                        , true
                         , false
                         , false
                         , false
