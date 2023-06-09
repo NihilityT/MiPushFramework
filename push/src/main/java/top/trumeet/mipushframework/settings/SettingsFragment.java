@@ -11,6 +11,8 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.util.Log;
 
+import com.elvishew.xlog.Logger;
+import com.elvishew.xlog.XLog;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.utils.ConfigCenter;
 
@@ -32,6 +34,7 @@ import top.trumeet.mipushframework.MainActivity;
 public class SettingsFragment extends PreferenceFragment {
 
     private static final String TAG = SettingsFragment.class.getSimpleName();
+    private static final Logger logger = XLog.tag(TAG).build();
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -105,11 +108,15 @@ public class SettingsFragment extends PreferenceFragment {
             final int takeFlags = data.getFlags()
                     & (Intent.FLAG_GRANT_READ_URI_PERMISSION
                     | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-            getContext().getContentResolver().takePersistableUriPermission(uri, takeFlags);
-            Preference preference = getPreference("configuration_directory");
-            preference.setSummary(uri.toString());
-            ConfigCenter.getInstance().setConfigurationDirectory(getContext(), uri);
-            ConfigCenter.getInstance().loadConfigurations(getActivity());
+            try {
+                getContext().getContentResolver().takePersistableUriPermission(uri, takeFlags);
+                Preference preference = getPreference("configuration_directory");
+                preference.setSummary(uri.toString());
+                ConfigCenter.getInstance().setConfigurationDirectory(getContext(), uri);
+                ConfigCenter.getInstance().loadConfigurations(getActivity());
+            } catch (Throwable e) {
+                logger.e("onActivityResult configuration", e);
+            }
         }
     }
 }
