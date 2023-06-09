@@ -18,6 +18,7 @@ import com.elvishew.xlog.formatter.stacktrace.DefaultStackTraceFormatter;
 import com.elvishew.xlog.printer.AndroidPrinter;
 import com.elvishew.xlog.printer.Printer;
 import com.elvishew.xlog.printer.file.FilePrinter;
+import com.elvishew.xlog.printer.file.backup.NeverBackupStrategy;
 import com.elvishew.xlog.printer.file.clean.FileLastModifiedCleanStrategy;
 import com.elvishew.xlog.printer.file.naming.DateFileNameGenerator;
 import com.xiaomi.xmsf.R;
@@ -56,6 +57,7 @@ public class LogUtils {
         Printer androidPrinter = new AndroidPrinter();
         Printer filePrinter = new FilePrinter.Builder(LogUtils.getLogFolder(context))
                 .fileNameGenerator(new DateFileNameGenerator())
+                .backupStrategy(new NeverBackupStrategy())
                 .cleanStrategy(new FileLastModifiedCleanStrategy(7 * 24 * 60 * 60 * 1000 /* 7 days */))
                 .flattener(new ClassicFlattener())
                 .build();
