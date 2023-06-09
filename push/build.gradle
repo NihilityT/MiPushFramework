@@ -102,7 +102,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     // Log
-    implementation('com.elvishew:xlog:1.6.1', {
+    implementation('com.elvishew:xlog:1.11.0', {
         exclude group: 'com.android.support'
     })
     implementation 'com.google.android.material:material:1.6.1'
