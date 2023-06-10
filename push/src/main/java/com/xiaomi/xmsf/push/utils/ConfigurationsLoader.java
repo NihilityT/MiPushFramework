@@ -126,9 +126,11 @@ public class ConfigurationsLoader {
         mContext = context;
         mTreeUri = treeUri;
         mDocumentFile = documentFile;
+        logger.i("parseDirectory uri: [%s]", treeUri.getPath());
         DocumentFile[] files = documentFile.listFiles();
         for (DocumentFile file : files) {
-            if (!"application/json".equals(file.getType())) {
+            logger.i("file: [%s], type: [%s]", file.getName(), file.getType());
+            if (!file.getName().toLowerCase().endsWith(".json")) {
                 continue;
             }
             String json = readTextFromUri(context, file.getUri());

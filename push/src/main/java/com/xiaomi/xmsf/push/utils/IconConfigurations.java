@@ -122,7 +122,7 @@ public class IconConfigurations {
         }
         DocumentFile[] files = documentFile.listFiles();
         for (DocumentFile file : files) {
-            if (!"application/json".equals(file.getType())) {
+            if (!file.getName().toLowerCase().endsWith(".json")) {
                 continue;
             }
             String json = readTextFromUri(context, file.getUri());
