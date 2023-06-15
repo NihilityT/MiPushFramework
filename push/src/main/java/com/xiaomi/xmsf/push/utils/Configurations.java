@@ -13,7 +13,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -24,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 public class Configurations {
     private static final Logger logger = XLog.tag(Configurations.class.getSimpleName()).build();
@@ -130,11 +130,6 @@ public class Configurations {
         return false;
     }
 
-    @FunctionalInterface
-    public interface Callable {
-        Object run();
-    }
-
     Object evaluate(Object expr, PackageConfig.Walker env) {
         return evaluate(expr, env, null);
     }
@@ -202,47 +197,29 @@ public class Configurations {
             evaluated.put(evaluate(expr.opt(i), configWalker));
         }
 
-        Map<String, Callable> methods = new HashMap<>();
+        Map<String, Callable<Object>> methods = new HashMap<>();
         methods.put("$", () -> configWalker.matchGroup.get(evaluated.optString(1)));
         methods.put("hash", evaluated.optString(1)::hashCode);
-        methods.put("decode-uri", () -> {
-            try {
-                return URLDecoder.decode(evaluated.optString(1), StandardCharsets.UTF_8.name());
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-                return null;
-            }
-        });
+        methods.put("decode-uri", () -> URLDecoder.decode(evaluated.optString(1), StandardCharsets.UTF_8.name()));
         methods.put("decode-base64", () -> {
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    Base64.Decoder decoder;
-                    switch (evaluated.optString(2)) {
-                        case "url":
-                            decoder = Base64.getUrlDecoder();
-                            break;
-                        case "mime":
-                            decoder = Base64.getMimeDecoder();
-                            break;
-                        default:
-                            decoder = Base64.getDecoder();
-                            break;
-                    }
-                    return new String(decoder.decode(evaluated.optString(1)), StandardCharsets.UTF_8);
-                }
-            } catch (IllegalArgumentException  e) {
-                e.printStackTrace();
-            }
-            return null;
-        });
-        methods.put("parse-json", () -> {
-            try {
-                return new JSONTokener(evaluated.optString(1)).nextValue();
-            } catch (JSONException e) {
-                e.printStackTrace();
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                 return null;
             }
+            Base64.Decoder decoder;
+            switch (evaluated.optString(2)) {
+                case "url":
+                    decoder = Base64.getUrlDecoder();
+                    break;
+                case "mime":
+                    decoder = Base64.getMimeDecoder();
+                    break;
+                default:
+                    decoder = Base64.getDecoder();
+                    break;
+            }
+            return new String(decoder.decode(evaluated.optString(1)), StandardCharsets.UTF_8);
         });
+        methods.put("parse-json", () -> new JSONTokener(evaluated.optString(1)).nextValue());
         methods.put("property", () -> {
             Object obj = evaluated.opt(2);
             if (obj instanceof JSONObject) {
@@ -260,7 +237,14 @@ public class Configurations {
             return src.replaceAll(ptn, rep);
         });
 
-        Callable ret = methods.get(method);
-        return ret == null ? null : ret.run();
+        Callable<Object> ret = methods.get(method);
+        if (ret != null) {
+            try {
+                return ret.call();
+            } catch (Exception e) {
+                logger.e(method, e);
+            }
+        }
+        return null;
     }
 }
