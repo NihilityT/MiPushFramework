@@ -202,22 +202,31 @@ public class Configurations {
         methods.put("hash", evaluated.optString(1)::hashCode);
         methods.put("decode-uri", () -> URLDecoder.decode(evaluated.optString(1), StandardCharsets.UTF_8.name()));
         methods.put("decode-base64", () -> {
+            String base64 = evaluated.optString(1);
+
+            Callable<byte[]>[] decoders;
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                return null;
+                decoders = new Callable[]{
+                        () -> android.util.Base64.decode(base64, android.util.Base64.DEFAULT),
+                        () -> android.util.Base64.decode(base64, android.util.Base64.URL_SAFE),
+                };
+            } else {
+                decoders = new Callable[]{
+                        () -> Base64.getDecoder().decode(base64),
+                        () -> Base64.getUrlDecoder().decode(base64),
+                        () -> Base64.getMimeDecoder().decode(base64),
+                };
             }
-            Base64.Decoder decoder;
-            switch (evaluated.optString(2)) {
-                case "url":
-                    decoder = Base64.getUrlDecoder();
-                    break;
-                case "mime":
-                    decoder = Base64.getMimeDecoder();
-                    break;
-                default:
-                    decoder = Base64.getDecoder();
-                    break;
+            Exception err = null;
+            for (Callable<byte[]> decoder : decoders) {
+                try {
+                    byte[] decoded = decoder.call();
+                    return new String(decoded, StandardCharsets.UTF_8);
+                } catch (Exception e) {
+                    err = e;
+                }
             }
-            return new String(decoder.decode(evaluated.optString(1)), StandardCharsets.UTF_8);
+            throw err;
         });
         methods.put("parse-json", () -> new JSONTokener(evaluated.optString(1)).nextValue());
         methods.put("property", () -> {
