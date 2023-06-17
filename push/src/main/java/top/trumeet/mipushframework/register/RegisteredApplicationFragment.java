@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ServiceInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -27,6 +26,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.elvishew.xlog.Logger;
+import com.elvishew.xlog.XLog;
 import com.github.promeg.pinyinhelper.Pinyin;
 import com.xiaomi.xmsf.R;
 
@@ -38,10 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import me.drakeet.multitype.Items;
 import me.drakeet.multitype.MultiTypeAdapter;
@@ -49,6 +46,7 @@ import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
 import top.trumeet.mipush.provider.register.RegisteredApplication;
+import top.trumeet.mipush.provider.register.RegisteredApplication.RegisteredType;
 import top.trumeet.mipushframework.utils.MiPushManifestChecker;
 import top.trumeet.mipushframework.widgets.Footer;
 import top.trumeet.mipushframework.widgets.FooterItemBinder;
@@ -61,6 +59,7 @@ import top.trumeet.mipushframework.widgets.FooterItemBinder;
 
 public class RegisteredApplicationFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
+    private static final Logger logger = XLog.tag(RegisteredApplicationFragment.class.getSimpleName()).build();
     private MultiTypeAdapter mAdapter;
     private LoadTask mLoadTask;
     private String mQuery = "";
@@ -178,16 +177,37 @@ public class RegisteredApplicationFragment extends Fragment implements SwipeRefr
             }
         }
 
+        class ElapsedTimer {
+            private long start = System.currentTimeMillis();
+            public long start() {
+                return start = System.currentTimeMillis();
+            };
+            public long restart() {
+                long old = start;
+                start = System.currentTimeMillis();
+                return start - old;
+            };
+            public long elapsed() {
+                return System.currentTimeMillis() - start;
+            };
+        }
+
         @Override
         protected Result doInBackground(Integer... integers) {
             // TODO: Sharing/Modular actuallyRegisteredPkgs to doInBackground of ManagePermissionsActivity.java
             mSignal = new CancellationSignal();
 
+            logger.d("[loadApp] start load app list");
+            ElapsedTimer totalTimer = new ElapsedTimer();
+            ElapsedTimer timer = new ElapsedTimer();
             Map<String /* pkg */, RegisteredApplication> registeredPkgs = new HashMap<>();
             for (RegisteredApplication application : RegisteredApplicationDb.getList(null)) {
                 registeredPkgs.put(application.getPackageName(), application);
             }
-            Set<String> actuallyRegisteredPkgs = EventDb.queryRegistered();
+            logger.d("[loadApp] get registeredPkgs ms: %d", timer.restart());
+
+            Set<String> registeredPkgsFromEvents = EventDb.queryRegistered();
+            logger.d("[loadApp] get actuallyRegisteredPkgs ms: %d", timer.restart());
 
             MiPushManifestChecker checker = null;
             try {
@@ -196,74 +216,71 @@ public class RegisteredApplicationFragment extends Fragment implements SwipeRefr
                 Log.e(RegisteredApplicationFragment.class.getSimpleName(), "Create mi push checker", e);
             }
 
-            List<RegisteredApplication> res = new Vector<>();
+            final List<PackageInfo> packageInfos = context.getPackageManager().getInstalledPackages(
+                            PackageManager.GET_DISABLED_COMPONENTS |
+                            PackageManager.GET_SERVICES |
+                            PackageManager.GET_RECEIVERS);
+            final int totalPkg = packageInfos.size();
+            logger.d("[loadApp] get package info ms: %d", timer.restart());
 
-            int threadCount = Runtime.getRuntime().availableProcessors();
-            ExecutorService pool = new ThreadPoolExecutor(
-                    threadCount,
-                    threadCount * 2,
-                    1,
-                    TimeUnit.SECONDS,
-                    new ArrayBlockingQueue<>(10), new ThreadPoolExecutor.CallerRunsPolicy());
-
-            final List<PackageInfo> packageInfos = context.getPackageManager().getInstalledPackages(PackageManager.GET_UNINSTALLED_PACKAGES
-                    | PackageManager.GET_DISABLED_COMPONENTS | PackageManager.GET_SERVICES | PackageManager.GET_RECEIVERS);
-            for (final Iterator<PackageInfo> iterator = packageInfos.iterator(); iterator.hasNext(); )
-                if ((iterator.next().applicationInfo.flags & ApplicationInfo.FLAG_INSTALLED) == 0) iterator.remove();   // Exclude apps not installed in current user.
-
-            int totalPkg = packageInfos.size();
-            for (PackageInfo packageInfo : packageInfos) {
-                final PackageInfo info = packageInfo;
-                MiPushManifestChecker finalChecker = checker;
-
-                pool.submit(() -> {
-                    final String appName = ApplicationNameCache.getInstance()
-                            .getAppName(context, info.packageName).toString();
-                    final String pinYin = Pinyin.toPinyin(appName, "");
-                    if (!(info.packageName.toLowerCase().contains(mQuery) ||
-                            appName.toLowerCase().contains(mQuery) ||
-                            pinYin.contains(mQuery)
-                    )) {
-                        return;
-                    }
-                    String currentAppPkgName = info.packageName;
-                    if (info.services == null) info.services = new ServiceInfo[]{};
-
-                    RegisteredApplication application = null;
-                    boolean existServices = finalChecker != null && finalChecker.checkServices(info);
-                    if (registeredPkgs.containsKey(currentAppPkgName)) {
-                        application = registeredPkgs.get(currentAppPkgName);
-                        application.setRegisteredType(actuallyRegisteredPkgs.contains(currentAppPkgName) ? 1 : 2);
-                        res.add(application);
-                    } else if (existServices) {
-                        // checkReceivers will use Class#forName, but we can't change our classloader to target app's.
-                        application = new RegisteredApplication();
-                        application.setPackageName(currentAppPkgName);
-                        application.setRegisteredType(0);
-                        res.add(application);
-                    } else {
-                        Log.d(TAG, "not use mipush : " + currentAppPkgName);
-                    }
-                    if (application != null) {
-                        application.existServices = existServices;
-                        application.appName = appName;
-                        application.appNamePinYin = pinYin;
-                        application.lastReceiveTime = new Date(EventDb.getLastReceiveTime(application.getPackageName()));
-                    }
-                });
-            }
-
-            pool.shutdown();
-            try {
-                if (!pool.awaitTermination(60, TimeUnit.SECONDS)) {
-                    pool.shutdownNow(); // Cancel currently executing tasks
-                    if (!pool.awaitTermination(60, TimeUnit.SECONDS))
-                        System.err.println("Pool did not terminate");
+            MiPushManifestChecker finalChecker = checker;
+            for (final Iterator<PackageInfo> iterator = packageInfos.iterator(); iterator.hasNext(); ) {
+                PackageInfo info = iterator.next();
+                if (!((info.applicationInfo.flags & ApplicationInfo.FLAG_INSTALLED) != 0 &&
+                        (registeredPkgs.containsKey(info.applicationInfo.packageName) ||
+                                finalChecker != null && finalChecker.checkServices(info)))) {
+                    iterator.remove();
                 }
-            } catch (InterruptedException ie) {
-                pool.shutdownNow();
-                Thread.currentThread().interrupt();
             }
+            logger.d("filter not service package ms: %d", timer.restart());
+
+            List<RegisteredApplication> res = new Vector<>();
+            for (PackageInfo info : packageInfos) {
+                String currentAppPkgName = info.packageName;
+                RegisteredApplication application;
+                if (registeredPkgs.containsKey(currentAppPkgName)) {
+                    application = registeredPkgs.get(currentAppPkgName);
+                    application.setRegisteredType(registeredPkgsFromEvents.contains(currentAppPkgName) ?
+                            RegisteredType.Registered :
+                            RegisteredType.Unregistered);
+                    res.add(application);
+                } else {
+                    // checkReceivers will use Class#forName, but we can't change our classloader to target app's.
+                    application = new RegisteredApplication();
+                    application.setPackageName(currentAppPkgName);
+                    application.setRegisteredType(RegisteredType.NotRegistered);
+                    res.add(application);
+                }
+                application.existServices = finalChecker != null && finalChecker.checkServices(info);
+            }
+            logger.d("[loadApp] convert to application list ms: %d", timer.restart());
+
+            for (RegisteredApplication application : res) {
+                application.appName = ApplicationNameCache.getInstance()
+                        .getAppName(context, application.getPackageName()).toString();
+            }
+            logger.d("[loadApp] query name ms: %d", timer.restart());
+
+            for (RegisteredApplication application : res) {
+                application.appNamePinYin = Pinyin.toPinyin(application.appName, "");
+            }
+            logger.d("[loadApp] query pinyin ms: %d", timer.restart());
+
+            for (RegisteredApplication application : res) {
+                application.lastReceiveTime = new Date(EventDb.getLastReceiveTime(application.getPackageName()));
+            }
+            logger.d("[loadApp] query lastReceiveTime ms: %d", timer.restart());
+
+            for (final Iterator<RegisteredApplication> iterator = res.iterator(); iterator.hasNext(); ) {
+                RegisteredApplication info = iterator.next();
+                if (!(info.getPackageName().toLowerCase().contains(mQuery) ||
+                        info.appName.toLowerCase().contains(mQuery) ||
+                        info.appNamePinYin.contains(mQuery)
+                )) {
+                    iterator.remove();
+                }
+            }
+            logger.d("[loadApp] filter app search ms: %d", timer.restart());
 
             Collections.sort(res, (o1, o2) -> {
                 if (o1.getId() == null && o2.getId() == null) {
@@ -287,8 +304,10 @@ public class RegisteredApplicationFragment extends Fragment implements SwipeRefr
                 }
                 return o1.appNamePinYin.compareTo(o2.appNamePinYin);
             });
-            int notUseMiPushCount = totalPkg - registeredPkgs.size();
+            logger.d("[loadApp] sort application list will show ms: %d", timer.restart());
+            logger.d("[loadApp] end load app list ms: %d", totalTimer.elapsed());
 
+            int notUseMiPushCount = totalPkg - registeredPkgs.size();
             return new Result(notUseMiPushCount, res);
         }
 

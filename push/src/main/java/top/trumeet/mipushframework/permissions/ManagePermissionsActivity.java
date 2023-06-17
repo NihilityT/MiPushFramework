@@ -296,7 +296,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
                 preferenceStatus.setIcon(iconError);
                 screen.addPreference(preferenceStatus);
             }
-            if (mApplicationItem.getRegisteredType() == 2) {
+            if (mApplicationItem.getRegisteredType() == RegisteredApplication.RegisteredType.Unregistered) {
                 InfoPreference preferenceStatus = new InfoPreference(getActivity(), null, moe.shizuku.preference.R.attr.preferenceStyle,
                         R.style.Preference_Material);
                 preferenceStatus.setTitle(getString(R.string.status_app_registered_error_title));

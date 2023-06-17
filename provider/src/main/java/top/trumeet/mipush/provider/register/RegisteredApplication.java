@@ -112,13 +112,19 @@ public class RegisteredApplication implements Parcelable {
     @Property(nameInDb = "show_pass_through")
     private boolean showPassThrough;
 
-    /**
-     * 0: Not registered
-     * 1: Registered (both RegisteredApplication & Event)
-     * 2: Unregistered
-     */
+    @IntDef({RegisteredType.NotRegistered, RegisteredType.Registered, RegisteredType.Unregistered})
+    @Retention(SOURCE)
+    @Target({ElementType.PARAMETER, ElementType.TYPE,
+            ElementType.FIELD, ElementType.METHOD})
+    public @interface RegisteredType {
+        int NotRegistered = 0;
+        int Registered = 1; // both RegisteredApplication & Event
+        int Unregistered = 2;
+    }
+
+    @RegisteredType
     @Transient
-    private int registeredType = 0;
+    private int registeredType = RegisteredType.NotRegistered;
 
     @Transient
     public boolean existServices = false;
