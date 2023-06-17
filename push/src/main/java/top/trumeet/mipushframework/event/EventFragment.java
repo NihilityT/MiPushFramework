@@ -221,7 +221,7 @@ public class EventFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 types.add(Event.Type.UnRegistration);
             }
             return EventDb.query(Constants.PAGE_SIZE * (mTargetPage - 1), Constants.PAGE_SIZE,
-                    types, mPacketName, mQuery, getActivity(), mSignal);
+                    types, mPacketName, mQuery);
         }
 
         @Override

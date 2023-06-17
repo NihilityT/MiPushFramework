@@ -216,7 +216,7 @@ public class MyMIPushNotificationHelper {
 
 
         RegisteredApplication application = RegisteredApplicationDb.registerApplication(
-                packageName, false, context, null);
+                packageName, false);
         boolean isGroupOfSession = application.getGroupNotificationsForSameSession();
 
         Context pkgCtx = context;
@@ -414,7 +414,7 @@ public class MyMIPushNotificationHelper {
         PushMetaInfo metaInfo = buildContainer.getMetaInfo();
         String packageName = buildContainer.getPackageName();
         RegisteredApplication application = RegisteredApplicationDb.registerApplication(
-                packageName, false, xmPushService, null);
+                packageName, false);
 
         boolean groupSession = application != null && application.getGroupNotificationsForSameSession();
         String group = getExtraField(metaInfo.getExtra(), "notification_group", null);

@@ -71,7 +71,7 @@ public class ManageSpaceActivity extends PreferenceActivity {
                 if (mClearingHistory.compareAndSet(false, true)) {
                     new Thread(() -> {
                         Utils.makeText(context, getString(R.string.settings_clear_history) + " " + getString(R.string.start), Toast.LENGTH_SHORT);
-                        EventDb.deleteHistory(context, null);
+                        EventDb.deleteHistory();
                         Utils.makeText(context, getString(R.string.settings_clear_history) + " " + getString(R.string.end), Toast.LENGTH_SHORT);
                         mClearingHistory.set(false);
                     }).start();

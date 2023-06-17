@@ -4,7 +4,6 @@ import static top.trumeet.mipush.provider.DatabaseUtils.daoSession;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.CancellationSignal;
 
 import androidx.annotation.Nullable;
 
@@ -45,8 +44,7 @@ public class EventDb {
 
 
     public static long insertEvent(@Event.ResultType int result,
-                                  EventType type,
-                                  Context context) {
+                                  EventType type) {
         return insertEvent(type.fillEvent(new Event(null
                 , type.getPkg()
                 , type.getType()
@@ -65,9 +63,7 @@ public class EventDb {
                                     @Nullable Integer limit,
                                     @Nullable Set<Integer> types,
                                     @Nullable String pkg,
-                                    @Nullable String text,
-                                    Context context,
-                                    @Nullable CancellationSignal signal) {
+                                    @Nullable String text) {
         QueryBuilder<Event> query = daoSession.queryBuilder(Event.class)
                 .orderDesc(EventDao.Properties.Date)
                 .limit(limit)
@@ -86,7 +82,7 @@ public class EventDb {
     }
 
 
-    public static void deleteHistory(Context context, CancellationSignal signal) {
+    public static void deleteHistory() {
         String data =  (Utils.getUTC().getTime() - 1000L * 3600L * 24 * 7) + "";
         QueryBuilder<Event> query = daoSession.queryBuilder(Event.class)
                 .where(EventDao.Properties.Type.in(Event.Type.RECEIVE_PUSH, Event.Type.REGISTER, Event.Type.Command))
@@ -95,8 +91,7 @@ public class EventDb {
         query.buildDelete().executeDeleteWithoutDetachingEntities();
     }
 
-
-    public static Set<String> queryRegistered(Context context, CancellationSignal signal) {
+    public static Set<String> queryRegistered() {
         QueryBuilder<Event> query = daoSession.queryBuilder(Event.class)
                 .where(EventDao.Properties.Type.in(Event.Type.RegistrationResult, Event.Type.UnRegistration))
                 .where(new WhereCondition.StringCondition("1" +
@@ -123,7 +118,7 @@ public class EventDb {
         HashSet<Integer> types = new HashSet<>();
         types.add(Event.Type.SendMessage);
         List<Event> events = EventDb.query(0, 1, types,
-                packageName, null, Utils.getApplication(), null);
+                packageName, null);
         long lastReceiveTime = 0;
         if (!events.isEmpty()) {
             lastReceiveTime = events.get(0).getDate();

@@ -3,8 +3,6 @@ package top.trumeet.mipush.provider.db;
 import static top.trumeet.common.BuildConfig.DEBUG;
 import static top.trumeet.mipush.provider.DatabaseUtils.daoSession;
 
-import android.content.Context;
-import android.os.CancellationSignal;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -23,22 +21,21 @@ import top.trumeet.mipush.provider.register.RegisteredApplication;
 
 public class RegisteredApplicationDb {
 
-    public static RegisteredApplication
-    registerApplication (String pkg, boolean autoCreate, Context context,
-                         CancellationSignal signal) {
-        List<RegisteredApplication> list = getList(context, pkg, signal);
+    public static RegisteredApplication registerApplication(String pkg, boolean autoCreate) {
+        List<RegisteredApplication> list = getList(pkg);
         if (DEBUG) {
             Log.d("RegisteredApplicationDb", "register -> existing list = " + list.toString());
         }
-        return list.isEmpty() ?
-                (autoCreate ? create(pkg, context) : null) : list.get(0);
+        if (!list.isEmpty()) {
+            return list.get(0);
+        }
+        if (autoCreate) {
+            return create(pkg);
+        }
+        return null;
     }
 
-
-    public static List<RegisteredApplication>
-    getList (Context context,
-             @Nullable String pkg,
-             CancellationSignal signal) {
+    public static List<RegisteredApplication> getList(@Nullable String pkg) {
         QueryBuilder<RegisteredApplication> query = daoSession.queryBuilder(RegisteredApplication.class);
         if (!TextUtils.isEmpty(pkg)) {
             query.where(RegisteredApplicationDao.Properties.PackageName.eq(pkg));
@@ -47,15 +44,13 @@ public class RegisteredApplicationDb {
     }
 
 
-    public static long update (RegisteredApplication application,
-                               Context context) {
+    public static long update(RegisteredApplication application) {
         daoSession.update(application);
         return application.getId();
     }
 
 
-    private static RegisteredApplication create (String pkg,
-                                                 Context context) {
+    private static RegisteredApplication create(String pkg) {
         // TODO: Configurable defaults; use null for optional and global options?
         RegisteredApplication registeredApplication =
                 new RegisteredApplication(null
@@ -66,16 +61,14 @@ public class RegisteredApplicationDb {
                         , false
                         , false
                 );
-        insert(registeredApplication, context);
+        insert(registeredApplication);
 
         // Very bad
-        return registerApplication(pkg, false, context,
-                null);
+        return registerApplication(pkg, false);
     }
 
 
-    private static long insert (RegisteredApplication application,
-                                Context context) {
+    private static long insert(RegisteredApplication application) {
         return daoSession.insert(application);
     }
 }

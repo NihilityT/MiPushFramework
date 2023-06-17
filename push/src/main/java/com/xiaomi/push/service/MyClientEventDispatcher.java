@@ -94,12 +94,12 @@ public class MyClientEventDispatcher extends ClientEventDispatcher {
         private static Logger logger = XLog.tag("EventProcessorI").build();
         private static boolean userAllow(EventType type, Context context) {
             RegisteredApplication application = RegisteredApplicationDb.registerApplication(type.getPkg(),
-                    true, context, null);
+                    true);
             if (application == null) {
                 return false;
             }
             logger.d("insertEvent -> " + type);
-            EventDb.insertEvent(Event.ResultType.OK, type, context);
+            EventDb.insertEvent(Event.ResultType.OK, type);
             return true;
         }
 

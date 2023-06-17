@@ -98,7 +98,7 @@ public class MyPushMessageHandler extends IntentService {
         boolean groupOfSession = bundle.getBoolean(Constants.INTENT_NOTIFICATION_GROUP_OF_SESSION, false);
 
         RegisteredApplication application = RegisteredApplicationDb.registerApplication(
-                container.getPackageName(), false, context, null);
+                container.getPackageName(), false);
         boolean isClearAllNotificationsOfSession = groupOfSession &&
                 application != null &&
                 application.getGroupNotificationsForSameSession() &&

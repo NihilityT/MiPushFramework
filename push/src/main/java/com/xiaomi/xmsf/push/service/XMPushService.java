@@ -57,7 +57,7 @@ public class XMPushService extends IntentService {
             }
 
             RegisteredApplication application = RegisteredApplicationDb
-                    .registerApplication(pkg, true, this, null);
+                    .registerApplication(pkg, true);
 
             if (application == null) {
                 return;
@@ -69,8 +69,8 @@ public class XMPushService extends IntentService {
             logger.d("onHandleIntent -> A application want to register push");
             showRegisterToastIfExistsConfiguration(application);
             EventDb.insertEvent(Event.ResultType.OK,
-                    new RegistrationType(null, pkg, null),
-                    this);
+                    new RegistrationType(null, pkg, null)
+            );
         } catch (RuntimeException e) {
             logger.e("XMPushService::onHandleIntent: ", e);
             Utils.makeText(this, getString(R.string.common_err, e.getMessage()), Toast.LENGTH_LONG);

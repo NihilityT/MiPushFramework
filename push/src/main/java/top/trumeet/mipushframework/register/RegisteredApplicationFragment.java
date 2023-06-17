@@ -184,10 +184,10 @@ public class RegisteredApplicationFragment extends Fragment implements SwipeRefr
             mSignal = new CancellationSignal();
 
             Map<String /* pkg */, RegisteredApplication> registeredPkgs = new HashMap<>();
-            for (RegisteredApplication application : RegisteredApplicationDb.getList(context, null, mSignal)) {
+            for (RegisteredApplication application : RegisteredApplicationDb.getList(null)) {
                 registeredPkgs.put(application.getPackageName(), application);
             }
-            Set<String> actuallyRegisteredPkgs = EventDb.queryRegistered(context, mSignal);
+            Set<String> actuallyRegisteredPkgs = EventDb.queryRegistered();
 
             MiPushManifestChecker checker = null;
             try {

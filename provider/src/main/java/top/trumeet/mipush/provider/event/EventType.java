@@ -87,7 +87,7 @@ public abstract class EventType {
     /**
      * Only used when type has meta data
      * @param original Event
-     * @see EventDb#insertEvent(int, EventType, Context)
+     * @see EventDb#insertEvent(int, EventType)
      */
     @NonNull
     public Event fillEvent (@NonNull Event original) {

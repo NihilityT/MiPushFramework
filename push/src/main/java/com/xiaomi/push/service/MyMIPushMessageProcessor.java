@@ -203,7 +203,7 @@ public class MyMIPushMessageProcessor {
             }
 
             RegisteredApplication application = RegisteredApplicationDb.registerApplication(
-                    realTargetPackage, false, pushService, null);
+                    realTargetPackage, false);
             XmPushActionContainer decorated = container.deepCopy();
             try {
                 Configurations.getInstance().handle(realTargetPackage, decorated);

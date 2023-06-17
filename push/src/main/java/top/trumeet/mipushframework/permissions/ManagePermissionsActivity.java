@@ -164,11 +164,8 @@ public class ManagePermissionsActivity extends AppCompatActivity {
         @Override
         protected RegisteredApplication doInBackground(Void... voids) {
             mSignal = new CancellationSignal();
-            RegisteredApplication application = RegisteredApplicationDb.registerApplication(pkg /* Package */
-                    , false /* Auto Create */,
-                    ManagePermissionsActivity.this /* Context */,
-                    mSignal);
-            Set<String> actuallyRegisteredPkgs = EventDb.queryRegistered(ManagePermissionsActivity.this, mSignal);
+            RegisteredApplication application = RegisteredApplicationDb.registerApplication(pkg, false);
+            Set<String> actuallyRegisteredPkgs = EventDb.queryRegistered();
 
             if (application == null && getIntent().getBooleanExtra(EXTRA_IGNORE_NOT_REGISTERED, false)) {
                 application = new RegisteredApplication();
@@ -549,8 +546,8 @@ public class ManagePermissionsActivity extends AppCompatActivity {
             @Override
             protected Void doInBackground(Void... voids) {
                 if (mApplicationItem != null && mApplicationItem.getRegisteredType() != 0) {
-                    RegisteredApplicationDb.update(mApplicationItem,
-                            getActivity());
+                    RegisteredApplicationDb.update(mApplicationItem
+                    );
                 }
                 return null;
             }
