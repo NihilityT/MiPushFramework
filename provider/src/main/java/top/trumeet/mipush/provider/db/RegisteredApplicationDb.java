@@ -12,6 +12,8 @@ import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.List;
 
+import top.trumeet.common.cache.ApplicationNameCache;
+import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.gen.db.RegisteredApplicationDao;
 import top.trumeet.mipush.provider.register.RegisteredApplication;
 
@@ -45,7 +47,7 @@ public class RegisteredApplicationDb {
 
 
     public static long update(RegisteredApplication application) {
-        daoSession.update(application);
+        daoSession.insertOrReplace(application);
         return application.getId();
     }
 
@@ -60,6 +62,10 @@ public class RegisteredApplicationDb {
                         , false
                         , false
                         , false
+                        , RegisteredApplication.RegisteredType.NotRegistered
+                        , ApplicationNameCache.getInstance()
+                                .getAppName(Utils.getApplication(), pkg).toString()
+
                 );
         insert(registeredApplication);
 

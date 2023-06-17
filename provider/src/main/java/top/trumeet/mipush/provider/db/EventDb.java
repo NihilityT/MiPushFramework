@@ -34,6 +34,10 @@ public class EventDb {
         return new DatabaseUtils(CONTENT_URI, context.getContentResolver());
     }
 
+    public static class RegistrationInfo {
+        public Set<String> registered = new HashSet<>();
+        public Set<String> unregistered = new HashSet<>();
+    }
 
     public static long insertEvent(Event event) {
         if (event.getType() == Event.Type.SendMessage) {
@@ -42,9 +46,8 @@ public class EventDb {
         return daoSession.insert(event);
     }
 
-
     public static long insertEvent(@Event.ResultType int result,
-                                  EventType type) {
+                                   EventType type) {
         return insertEvent(type.fillEvent(new Event(null
                 , type.getPkg()
                 , type.getType()
@@ -58,7 +61,6 @@ public class EventDb {
         )));
     }
 
-
     public static List<Event> query(@Nullable Integer skip,
                                     @Nullable Integer limit,
                                     @Nullable Set<Integer> types,
@@ -67,8 +69,7 @@ public class EventDb {
         QueryBuilder<Event> query = daoSession.queryBuilder(Event.class)
                 .orderDesc(EventDao.Properties.Date)
                 .limit(limit)
-                .offset(skip)
-                ;
+                .offset(skip);
         if (pkg != null && !pkg.trim().isEmpty()) {
             query.where(EventDao.Properties.Pkg.eq(pkg));
         }
@@ -81,32 +82,31 @@ public class EventDb {
         return query.list();
     }
 
-
     public static void deleteHistory() {
-        String data =  (Utils.getUTC().getTime() - 1000L * 3600L * 24 * 7) + "";
+        String data = (Utils.getUTC().getTime() - 1000L * 3600L * 24 * 7) + "";
         QueryBuilder<Event> query = daoSession.queryBuilder(Event.class)
                 .where(EventDao.Properties.Type.in(Event.Type.RECEIVE_PUSH, Event.Type.REGISTER, Event.Type.Command))
-                .where(EventDao.Properties.Date.lt(data))
-                ;
+                .where(EventDao.Properties.Date.lt(data));
         query.buildDelete().executeDeleteWithoutDetachingEntities();
     }
 
-    public static Set<String> queryRegistered() {
+    public static RegistrationInfo queryRegistered() {
         QueryBuilder<Event> query = daoSession.queryBuilder(Event.class)
                 .where(EventDao.Properties.Type.in(Event.Type.RegistrationResult, Event.Type.UnRegistration))
                 .where(new WhereCondition.StringCondition("1" +
                         " GROUP BY " + EventDao.Properties.Pkg.columnName +
-                        " HAVING MAX(" + EventDao.Properties.Date.columnName + ")"))
-                ;
+                        " HAVING MAX(" + EventDao.Properties.Date.columnName + ")"));
         List<Event> events = query.list();
 
-        Set<String> pkgs = new HashSet<>();
+        RegistrationInfo info = new RegistrationInfo();
         for (Event event : events) {
             if (event.getType() == Event.Type.RegistrationResult) {
-                pkgs.add(event.getPkg());
+                info.registered.add(event.getPkg());
+            } else {
+                info.unregistered.add(event.getPkg());
             }
         }
-        return pkgs;
+        return info;
     }
 
     public static long getLastReceiveTime(String packageName) {

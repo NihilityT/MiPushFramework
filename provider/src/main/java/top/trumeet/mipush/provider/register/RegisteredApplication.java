@@ -118,26 +118,25 @@ public class RegisteredApplication implements Parcelable {
             ElementType.FIELD, ElementType.METHOD})
     public @interface RegisteredType {
         int NotRegistered = 0;
-        int Registered = 1; // both RegisteredApplication & Event
+        int Registered = 1;
         int Unregistered = 2;
     }
 
     @RegisteredType
-    @Transient
     private int registeredType = RegisteredType.NotRegistered;
 
     @Transient
     public boolean existServices = false;
-    @Transient
     public String appName = "";
     @Transient
     public String appNamePinYin = "";
     @Transient
     public Date lastReceiveTime = new Date(0);
 
-    @Generated(hash = 350716982)
+    @Generated(hash = 1327348616)
     public RegisteredApplication(Long id, String packageName, int type, boolean notificationOnRegister,
-            boolean groupNotificationsForSameSession, boolean clearAllNotificationsOfSession, boolean showPassThrough) {
+            boolean groupNotificationsForSameSession, boolean clearAllNotificationsOfSession, boolean showPassThrough,
+            int registeredType, String appName) {
         this.id = id;
         this.packageName = packageName;
         this.type = type;
@@ -145,6 +144,8 @@ public class RegisteredApplication implements Parcelable {
         this.groupNotificationsForSameSession = groupNotificationsForSameSession;
         this.clearAllNotificationsOfSession = clearAllNotificationsOfSession;
         this.showPassThrough = showPassThrough;
+        this.registeredType = registeredType;
+        this.appName = appName;
     }
 
     public RegisteredApplication() {
@@ -251,5 +252,13 @@ public class RegisteredApplication implements Parcelable {
 
     public void setRegisteredType(int registeredType) {
         this.registeredType = registeredType;
+    }
+
+    public String getAppName() {
+        return this.appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 }

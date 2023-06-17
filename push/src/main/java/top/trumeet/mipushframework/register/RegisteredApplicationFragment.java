@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CancellationSignal;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,8 +38,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import me.drakeet.multitype.Items;
 import me.drakeet.multitype.MultiTypeAdapter;
@@ -63,6 +65,7 @@ public class RegisteredApplicationFragment extends Fragment implements SwipeRefr
     private MultiTypeAdapter mAdapter;
     private LoadTask mLoadTask;
     private String mQuery = "";
+    private ExecutorService updateThread = Executors.newSingleThreadExecutor();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -206,9 +209,6 @@ public class RegisteredApplicationFragment extends Fragment implements SwipeRefr
             }
             logger.d("[loadApp] get registeredPkgs ms: %d", timer.restart());
 
-            Set<String> registeredPkgsFromEvents = EventDb.queryRegistered();
-            logger.d("[loadApp] get actuallyRegisteredPkgs ms: %d", timer.restart());
-
             MiPushManifestChecker checker = null;
             try {
                 checker = MiPushManifestChecker.create(context);
@@ -240,9 +240,6 @@ public class RegisteredApplicationFragment extends Fragment implements SwipeRefr
                 RegisteredApplication application;
                 if (registeredPkgs.containsKey(currentAppPkgName)) {
                     application = registeredPkgs.get(currentAppPkgName);
-                    application.setRegisteredType(registeredPkgsFromEvents.contains(currentAppPkgName) ?
-                            RegisteredType.Registered :
-                            RegisteredType.Unregistered);
                     res.add(application);
                 } else {
                     // checkReceivers will use Class#forName, but we can't change our classloader to target app's.
@@ -256,6 +253,9 @@ public class RegisteredApplicationFragment extends Fragment implements SwipeRefr
             logger.d("[loadApp] convert to application list ms: %d", timer.restart());
 
             for (RegisteredApplication application : res) {
+                if (!TextUtils.isEmpty(application.appName)) {
+                    continue;
+                }
                 application.appName = ApplicationNameCache.getInstance()
                         .getAppName(context, application.getPackageName()).toString();
             }
@@ -283,7 +283,9 @@ public class RegisteredApplicationFragment extends Fragment implements SwipeRefr
             logger.d("[loadApp] filter app search ms: %d", timer.restart());
 
             Collections.sort(res, (o1, o2) -> {
-                if (o1.getId() == null && o2.getId() == null) {
+                if (o1.getId() == null && o2.getId() == null ||
+                        o1.getRegisteredType() == RegisteredType.NotRegistered &&
+                                o2.getRegisteredType() == RegisteredType.NotRegistered) {
                     return o1.appNamePinYin.compareTo(o2.appNamePinYin);
                 }
 
@@ -292,6 +294,14 @@ public class RegisteredApplicationFragment extends Fragment implements SwipeRefr
                 }
 
                 if (o2.getId() == null) {
+                    return -1;
+                }
+
+                if (o1.getRegisteredType() == RegisteredType.NotRegistered) {
+                    return 1;
+                }
+
+                if (o2.getRegisteredType() == RegisteredType.NotRegistered) {
                     return -1;
                 }
 
@@ -327,6 +337,8 @@ public class RegisteredApplicationFragment extends Fragment implements SwipeRefr
 
             swipeRefreshLayout.setRefreshing(false);
             mLoadTask = null;
+
+            updateApplicationInfo(result.list);
         }
 
         @Override
@@ -341,5 +353,31 @@ public class RegisteredApplicationFragment extends Fragment implements SwipeRefr
             swipeRefreshLayout.setRefreshing(false);
             mLoadTask = null;
         }
+
+        private void updateApplicationInfo(List<RegisteredApplication> list) {
+            updateThread.execute(() -> {
+                ElapsedTimer totalTimer = new ElapsedTimer();
+                ElapsedTimer timer = new ElapsedTimer();
+                EventDb.RegistrationInfo registrationInfo = EventDb.queryRegistered();
+                logger.d("[updateApp] get registeredPkgsFromEvents ms: %d", timer.restart());
+
+                for (RegisteredApplication application : list) {
+                    String pkg = application.getPackageName();
+                    application.appName = ApplicationNameCache.getInstance()
+                            .getAppName(context, pkg).toString();
+                    if (registrationInfo.registered.contains(pkg)) {
+                        application.setRegisteredType(RegisteredType.Registered);
+                    } else if (registrationInfo.unregistered.contains(pkg)) {
+                        application.setRegisteredType(RegisteredType.Unregistered);
+                    } else {
+                        application.setRegisteredType(RegisteredType.NotRegistered);
+                    }
+                    RegisteredApplicationDb.update(application);
+                }
+                logger.d("[updateApp] update app ms: %d", timer.restart());
+                logger.d("[updateApp] updated ms: %d", totalTimer.elapsed());
+            });
+        }
+
     }
 }

@@ -40,7 +40,6 @@ import com.xiaomi.xmsf.push.notification.NotificationController;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import io.reactivex.disposables.CompositeDisposable;
@@ -54,7 +53,6 @@ import moe.shizuku.preference.SwitchPreferenceCompat;
 import top.trumeet.common.Constants;
 import top.trumeet.common.utils.NotificationUtils;
 import top.trumeet.common.utils.Utils;
-import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
 import top.trumeet.mipush.provider.register.RegisteredApplication;
 import top.trumeet.mipushframework.control.CheckPermissionsUtils;
@@ -165,14 +163,11 @@ public class ManagePermissionsActivity extends AppCompatActivity {
         protected RegisteredApplication doInBackground(Void... voids) {
             mSignal = new CancellationSignal();
             RegisteredApplication application = RegisteredApplicationDb.registerApplication(pkg, false);
-            Set<String> actuallyRegisteredPkgs = EventDb.queryRegistered();
 
             if (application == null && getIntent().getBooleanExtra(EXTRA_IGNORE_NOT_REGISTERED, false)) {
                 application = new RegisteredApplication();
                 application.setPackageName(pkg);
                 application.setRegisteredType(0);
-            } else if (application != null) {
-                application.setRegisteredType(actuallyRegisteredPkgs.contains(pkg) ? 1 : 2);
             }
             return application;
         }
