@@ -5,9 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,10 +12,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.xiaomi.xmsf.R;
+
 import me.drakeet.multitype.ItemViewBinder;
 import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.cache.IconCache;
-import com.xiaomi.xmsf.R;
 
 /**
  * Created by Trumeet on 2017/8/26.

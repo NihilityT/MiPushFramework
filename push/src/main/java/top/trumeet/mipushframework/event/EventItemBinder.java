@@ -7,6 +7,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ScrollView;
@@ -80,32 +81,7 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
         String status = "";
         switch (item.getResult()) {
             case Event.ResultType.OK:
-                if (item.getPayload() != null) {
-                    XmPushActionContainer container = MIPushEventProcessor.buildContainer(item.getPayload());
-                    if (container.metaInfo.isSetPassThrough()) {
-                        if (container.metaInfo.passThrough == 0) {
-                            try {
-                                Set<String> ops = Configurations.getInstance().handle(container.getPackageName(), container);
-                                status = container.getMetaInfo().getExtra().get("channel_name");
-                                if (!NotificationController.isNotificationChannelEnabled(
-                                        container.getPackageName(),
-                                        NotificationController.getChannelId(
-                                                container.metaInfo, container.getPackageName()))) {
-                                    ops.add("disable");
-                                }
-                                if (!ops.isEmpty()) {
-                                    status = ops + " " + status;
-                                }
-                            } catch (Throwable e) {
-                                status = holder.itemView.getContext()
-                                        .getString(R.string.message_type_notification);
-                            }
-                        } else if (container.metaInfo.passThrough == 1) {
-                            status = holder.itemView.getContext()
-                                    .getString(R.string.message_type_pass_through);
-                        }
-                    }
-                }
+                status = fillEventData(holder, item);
                 break;
             case Event.ResultType.DENY_DISABLED:
                 status = holder.itemView.getContext()
@@ -142,6 +118,30 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
                 }
             }
         });
+    }
+
+    @Nullable
+    private String fillEventData(@NonNull ViewHolder holder, @NonNull Event item) {
+        do {
+            byte[] payload = item.getPayload();
+            if (payload == null) {
+                break;
+            }
+            XmPushActionContainer container = MIPushEventProcessor.buildContainer(payload);
+            if (!container.metaInfo.isSetPassThrough()) {
+                break;
+            }
+            if (container.metaInfo.passThrough == 1) {
+                return holder.itemView.getContext()
+                        .getString(R.string.message_type_pass_through);
+            }
+            if (container.metaInfo.passThrough == 0) {
+                new ConfigurationWorkerTask(holder, container).execute();
+                return holder.itemView.getContext()
+                        .getString(R.string.message_type_notification);
+            }
+        } while (false);
+        return "";
     }
 
     @Nullable
@@ -273,5 +273,42 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
         // Issue: This currently allows overlapping opens.
         context.startActivity(new Intent(context, ManagePermissionsActivity.class)
                 .putExtra(ManagePermissionsActivity.EXTRA_PACKAGE_NAME, packageName));
+    }
+
+    private static class ConfigurationWorkerTask extends AsyncTask<String, Void, String> {
+        private final ViewHolder viewHolder;
+        private final XmPushActionContainer container;
+
+        ConfigurationWorkerTask(ViewHolder viewHolder, XmPushActionContainer container) {
+            this.viewHolder = viewHolder;
+            this.container = container;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                Set<String> ops = Configurations.getInstance().handle(container.getPackageName(), container);
+                String status = container.getMetaInfo().getExtra().get("channel_name");
+                if (!NotificationController.isNotificationChannelEnabled(
+                        container.getPackageName(),
+                        NotificationController.getChannelId(
+                                container.metaInfo, container.getPackageName()))) {
+                    ops.add("disable");
+                }
+                if (!ops.isEmpty()) {
+                    status = ops + " " + status;
+                }
+                return status;
+            } catch (Throwable ignored) {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String status) {
+            if (status != null) {
+                viewHolder.status.setText(status);
+            }
+        }
     }
 }
