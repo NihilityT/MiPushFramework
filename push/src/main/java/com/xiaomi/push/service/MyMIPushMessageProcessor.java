@@ -34,7 +34,7 @@ import com.xiaomi.xmsf.push.utils.Configurations;
 import java.util.Map;
 
 import top.trumeet.common.cache.ApplicationNameCache;
-import top.trumeet.common.utils.NotificationUtils;
+import top.trumeet.common.utils.CustomConfiguration;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
 import top.trumeet.mipush.provider.register.RegisteredApplication;
@@ -210,9 +210,8 @@ public class MyMIPushMessageProcessor {
             } catch (Throwable e) {
                 // Ignore
             }
-            boolean awake = Boolean.parseBoolean(
-                    NotificationUtils.getExtraField(
-                            decorated.metaInfo.getExtra(), PushConstants.EXTRA_PARAM_AWAKE, null));
+            CustomConfiguration configuration = new CustomConfiguration(decorated.metaInfo.getExtra());
+            boolean awake = configuration.get(PushConstants.EXTRA_PARAM_AWAKE, false);
             boolean isSystemApp = false;
             try {
                 int flags = pushService.getPackageManager().getApplicationInfo(realTargetPackage, 0).flags &

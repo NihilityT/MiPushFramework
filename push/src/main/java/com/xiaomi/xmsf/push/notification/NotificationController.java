@@ -2,12 +2,7 @@ package com.xiaomi.xmsf.push.notification;
 
 import static com.xiaomi.push.service.MyMIPushNotificationHelper.getNotificationTag;
 import static com.xiaomi.push.service.MyNotificationIconHelper.KiB;
-import static top.trumeet.common.utils.NotificationUtils.EXTRA_CHANNEL_DESCRIPTION;
-import static top.trumeet.common.utils.NotificationUtils.EXTRA_CHANNEL_ID;
-import static top.trumeet.common.utils.NotificationUtils.EXTRA_CHANNEL_NAME;
-import static top.trumeet.common.utils.NotificationUtils.EXTRA_SOUND_URL;
 import static top.trumeet.common.utils.NotificationUtils.getChannelIdByPkg;
-import static top.trumeet.common.utils.NotificationUtils.getExtraField;
 import static top.trumeet.common.utils.NotificationUtils.getGroupIdByPkg;
 import static top.trumeet.common.utils.Utils.getApplication;
 
@@ -53,7 +48,6 @@ import com.xiaomi.xmsf.utils.ColorUtil;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Map;
 
 import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.cache.IconCache;
@@ -75,8 +69,6 @@ public class NotificationController {
 
     public static final String CHANNEL_WARN = "warn";
 
-    public static final String NOTIFICATION_LARGE_ICON_URI = "notification_large_icon_uri";
-
     public static NotificationManagerEx getNotificationManagerEx() {
         return NotificationManagerEx.INSTANCE;
     }
@@ -94,10 +86,10 @@ public class NotificationController {
 
     private static NotificationChannel createChannelWithPackage(@NonNull PushMetaInfo metaInfo,
                                                                 @NonNull String packageName) {
-        final Map<String, String> extra = metaInfo.getExtra();
-        String channelName = getExtraField(extra, EXTRA_CHANNEL_NAME, "未分类");
-        String channelDescription = getExtraField(extra, EXTRA_CHANNEL_DESCRIPTION, null);
-        String sound = getExtraField(extra, EXTRA_SOUND_URL, null);
+        CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
+        String channelName = configuration.channelName("未分类");
+        String channelDescription = configuration.channelDescription(null);
+        String sound = configuration.soundUrl(null);
 
         NotificationChannel channel = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -115,9 +107,8 @@ public class NotificationController {
 
     public static String getChannelId(@NonNull PushMetaInfo metaInfo,
                                       @NonNull String packageName) {
-        final Map<String, String> extra = metaInfo.getExtra();
-        String channelId = getExtraField(extra, EXTRA_CHANNEL_ID, "");
-        return getChannelIdByPkg(packageName) + "_" + channelId;
+        CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
+        return getChannelIdByPkg(packageName) + "_" + configuration.channelId("");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -234,7 +225,8 @@ public class NotificationController {
         // Set small icon
         processIcon(context, packageName, notificationBuilder);
 
-        String iconUri = getExtraField(metaInfo.getExtra(), NOTIFICATION_LARGE_ICON_URI, null);
+        CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
+        String iconUri = configuration.notificationLargeIconUri(null);
         Bitmap largeIcon = getLargeIcon(context, metaInfo, iconUri);
         if (largeIcon != null) {
             notificationBuilder.setLargeIcon(largeIcon);

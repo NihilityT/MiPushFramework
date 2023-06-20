@@ -1,7 +1,5 @@
 package top.trumeet.common.utils;
 
-import static top.trumeet.common.utils.NotificationUtils.getExtraField;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +19,16 @@ public class CustomConfiguration {
     private static final String CONVERSATION_SENDER_ID = Config("conversation_sender_id");
     private static final String CONVERSATION_SENDER_ICON = Config("conversation_sender_icon");
     private static final String CONVERSATION_MESSAGE = Config("conversation_message");
+
+    private static final String NOTIFICATION_LARGE_ICON_URI = "notification_large_icon_uri";
+    private static final String CHANNEL_ID = "channel_id";
+    private static final String CHANNEL_NAME = "channel_name";
+    private static final String CHANNEL_DESCRIPTION = "channel_description";
+    private static final String SOUND_URL = "sound_url";
+    private static final String JOBKEY = "jobkey";
+    private static final String USE_CLICKED_ACTIVITY = "use_clicked_activity";
+    private static final String NOTIFICATION_GROUP = "notification_group";
+    private static final String NOTIFICATION_BIGPIC_URI = "notification_bigPic_uri";
 
     private Map<String, String> mExtra = new HashMap<>();
 
@@ -74,14 +82,55 @@ public class CustomConfiguration {
         return get(CONVERSATION_MESSAGE, defaultValue);
     }
 
-    private boolean get(String key, boolean defaultValue) {
+    public String notificationLargeIconUri(String defaultValue) {
+        return get(NOTIFICATION_LARGE_ICON_URI, defaultValue);
+    }
+
+    public String channelId(String defaultValue) {
+        return get(CHANNEL_ID, defaultValue);
+    }
+
+    public String channelName(String defaultValue) {
+        return get(CHANNEL_NAME, defaultValue);
+    }
+
+    public String channelDescription(String defaultValue) {
+        return get(CHANNEL_DESCRIPTION, defaultValue);
+    }
+
+    public String soundUrl(String defaultValue) {
+        return get(SOUND_URL, defaultValue);
+    }
+
+    public String jobkey(String defaultValue) {
+        return get(JOBKEY, defaultValue);
+    }
+
+    public boolean useClickedActivity(boolean defaultValue) {
+        return get(USE_CLICKED_ACTIVITY, defaultValue);
+    }
+
+    public String notificationGroup(String defaultValue) {
+        return get(NOTIFICATION_GROUP, defaultValue);
+    }
+
+    public String notificationBigPicUri(String defaultValue) {
+        return get(NOTIFICATION_BIGPIC_URI, defaultValue);
+    }
+
+    public boolean get(String key, boolean defaultValue) {
         if (getExtraField(mExtra, key, null) != null) {
             return true;
         }
         return defaultValue;
     }
 
-    private String get(String key, String defaultValue) {
+    public String get(String key, String defaultValue) {
         return getExtraField(mExtra, key, defaultValue);
+    }
+
+    private static String getExtraField(Map<String, String> extra, String extraChannelName, String defaultValue) {
+        return extra != null && extra.containsKey(extraChannelName) ?
+                extra.get(extraChannelName) : defaultValue;
     }
 }

@@ -8,7 +8,6 @@ import static com.xiaomi.push.service.MyNotificationIconHelper.MiB;
 import static com.xiaomi.xmsf.push.notification.NotificationController.getBitmapFromUri;
 import static com.xiaomi.xmsf.push.notification.NotificationController.getLargeIcon;
 import static com.xiaomi.xmsf.push.notification.NotificationController.getNotificationManagerEx;
-import static top.trumeet.common.utils.NotificationUtils.getExtraField;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -271,7 +270,8 @@ public class MyMIPushNotificationHelper {
                 }
             }
         } else {
-            String bigPicUri = getExtraField(metaInfo.getExtra(), "notification_bigPic_uri", null);
+            CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
+            String bigPicUri = configuration.notificationBigPicUri(null);
             Bitmap bigPic = IconCache.getInstance().getBitmap(context, bigPicUri,
                     (context1, iconUri) -> getBitmapFromUri(
                             context1, iconUri, 1 * MiB));
@@ -417,7 +417,8 @@ public class MyMIPushNotificationHelper {
                 packageName, false);
 
         boolean groupSession = application != null && application.getGroupNotificationsForSameSession();
-        String group = getExtraField(metaInfo.getExtra(), "notification_group", null);
+        CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
+        String group = configuration.notificationGroup(null);
         if (group != null) {
             group = packageName + "_" + GROUP_TYPE_MIPUSH_GROUP + "_" + group;
         } else if (metaInfo.passThrough == 1) {
@@ -502,8 +503,8 @@ public class MyMIPushNotificationHelper {
         intent.putExtras(extra);
         intent.addCategory(String.valueOf(metaInfo.getNotifyId()));
 
-        boolean useActivity = Boolean.parseBoolean(getExtraField(
-                container.metaInfo.getExtra(), "use_clicked_activity", null));
+        CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
+        boolean useActivity = configuration.useClickedActivity(false);
         Intent activityIntent = getSdkIntent(context, container);
         if (!useActivity || activityIntent == null) {
             return PendingIntent.getService(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
