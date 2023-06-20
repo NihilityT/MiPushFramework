@@ -32,7 +32,22 @@ public class RegisteredApplicationDb {
             return list.get(0);
         }
         if (autoCreate) {
-            return create(pkg);
+            // TODO: Configurable defaults; use null for optional and global options?
+            RegisteredApplication registeredApplication =
+                    new RegisteredApplication(null
+                            , pkg
+                            , RegisteredApplication.Type.ASK
+                            , true
+                            , false
+                            , false
+                            , false
+                            , RegisteredApplication.RegisteredType.NotRegistered
+                            , ApplicationNameCache.getInstance()
+                            .getAppName(Utils.getApplication(), pkg).toString()
+
+                    );
+            registeredApplication.setId(insert(registeredApplication));
+            return registeredApplication;
         }
         return null;
     }
@@ -45,34 +60,10 @@ public class RegisteredApplicationDb {
         return query.list();
     }
 
-
     public static long update(RegisteredApplication application) {
         daoSession.insertOrReplace(application);
         return application.getId();
     }
-
-
-    private static RegisteredApplication create(String pkg) {
-        // TODO: Configurable defaults; use null for optional and global options?
-        RegisteredApplication registeredApplication =
-                new RegisteredApplication(null
-                        , pkg
-                        , RegisteredApplication.Type.ASK
-                        , true
-                        , false
-                        , false
-                        , false
-                        , RegisteredApplication.RegisteredType.NotRegistered
-                        , ApplicationNameCache.getInstance()
-                                .getAppName(Utils.getApplication(), pkg).toString()
-
-                );
-        insert(registeredApplication);
-
-        // Very bad
-        return registerApplication(pkg, false);
-    }
-
 
     private static long insert(RegisteredApplication application) {
         return daoSession.insert(application);
