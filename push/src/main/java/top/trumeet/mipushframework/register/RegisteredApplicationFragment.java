@@ -45,6 +45,7 @@ import java.util.concurrent.Executors;
 import me.drakeet.multitype.Items;
 import me.drakeet.multitype.MultiTypeAdapter;
 import top.trumeet.common.cache.ApplicationNameCache;
+import top.trumeet.common.utils.ElapsedTimer;
 import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
 import top.trumeet.mipush.provider.register.RegisteredApplication;
@@ -178,21 +179,6 @@ public class RegisteredApplicationFragment extends Fragment implements SwipeRefr
                 this.notUseMiPushCount = notUseMiPushCount;
                 this.list = list;
             }
-        }
-
-        class ElapsedTimer {
-            private long start = System.currentTimeMillis();
-            public long start() {
-                return start = System.currentTimeMillis();
-            };
-            public long restart() {
-                long old = start;
-                start = System.currentTimeMillis();
-                return start - old;
-            };
-            public long elapsed() {
-                return System.currentTimeMillis() - start;
-            };
         }
 
         @Override
