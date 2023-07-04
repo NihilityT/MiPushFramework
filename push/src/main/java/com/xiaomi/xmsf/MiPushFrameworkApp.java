@@ -31,7 +31,6 @@ import com.xiaomi.channel.commonutils.logger.MyLog;
 import com.xiaomi.mipush.sdk.Logger;
 import com.xiaomi.xmsf.push.control.PushControllerUtils;
 import com.xiaomi.xmsf.push.control.XMOutbound;
-import com.xiaomi.xmsf.push.notification.NotificationChannelManager;
 import com.xiaomi.xmsf.push.service.MiuiPushActivateService;
 import com.xiaomi.xmsf.utils.LogUtils;
 
@@ -114,8 +113,6 @@ public class MiPushFrameworkApp extends Application {
                         , "com.xiaomi.xmsf.push.SCAN");
             }
         }
-
-        NotificationChannelManager.deleteOldNotificationChannelGroup();
 
         try {
             if (!PushServiceAccessibility.isInDozeWhiteList(this)) {

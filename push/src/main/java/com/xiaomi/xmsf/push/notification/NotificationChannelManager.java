@@ -2,7 +2,6 @@ package com.xiaomi.xmsf.push.notification;
 
 import static top.trumeet.common.utils.NotificationUtils.getChannelIdByPkg;
 import static top.trumeet.common.utils.NotificationUtils.getGroupIdByPkg;
-import static top.trumeet.common.utils.Utils.getApplication;
 
 import android.annotation.TargetApi;
 import android.app.NotificationChannel;
@@ -27,15 +26,9 @@ import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.utils.CustomConfiguration;
 
 public class NotificationChannelManager {
-    private static final String ID_GROUP_APPLICATIONS = "applications";
 
     public static NotificationManagerEx getNotificationManagerEx() {
         return NotificationManagerEx.INSTANCE;
-    }
-
-    public static void deleteOldNotificationChannelGroup() {
-        getNotificationManagerEx().deleteNotificationChannelGroup(
-                getApplication().getPackageName(), ID_GROUP_APPLICATIONS);
     }
 
     @TargetApi(26)

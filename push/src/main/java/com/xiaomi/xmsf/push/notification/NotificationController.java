@@ -25,7 +25,6 @@ import androidx.core.graphics.drawable.IconCompat;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.nihility.notification.NotificationManagerEx;
-import com.xiaomi.push.service.MIPushNotificationHelper;
 import com.xiaomi.push.service.MyNotificationIconHelper;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
@@ -34,9 +33,6 @@ import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.push.utils.IconConfigurations;
 import com.xiaomi.xmsf.utils.ColorUtil;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.cache.IconCache;
@@ -174,19 +170,6 @@ public class NotificationController {
             }
         }
         return bitmap;
-    }
-
-    private static void setTargetPackage(Notification notification, String packageName) {
-        try {
-            Method setTargetPackage = MIPushNotificationHelper.class
-                    .getDeclaredMethod("setTargetPackage", Notification.class, String.class);
-            setTargetPackage.setAccessible(true);
-            setTargetPackage.invoke(null, notification, packageName);
-        } catch (NoSuchMethodException e) {
-        } catch (InvocationTargetException e) {
-            logger.e(e.getCause().getMessage());
-        } catch (IllegalAccessException e) {
-        }
     }
 
     public static void cancel(Context context, XmPushActionContainer container,
