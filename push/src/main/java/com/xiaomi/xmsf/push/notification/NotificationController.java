@@ -2,15 +2,9 @@ package com.xiaomi.xmsf.push.notification;
 
 import static com.xiaomi.push.service.MyMIPushNotificationHelper.getNotificationTag;
 import static com.xiaomi.push.service.MyNotificationIconHelper.KiB;
-import static top.trumeet.common.utils.NotificationUtils.getChannelIdByPkg;
-import static top.trumeet.common.utils.NotificationUtils.getGroupIdByPkg;
-import static top.trumeet.common.utils.Utils.getApplication;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationChannelGroup;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -18,14 +12,10 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.media.AudioAttributes;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
-import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
@@ -47,7 +37,6 @@ import com.xiaomi.xmsf.utils.ColorUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.cache.IconCache;
@@ -65,96 +54,10 @@ public class NotificationController {
     private static final String NOTIFICATION_LARGE_ICON = "mipush_notification";
     private static final String NOTIFICATION_SMALL_ICON = "mipush_small_notification";
 
-    private static final String ID_GROUP_APPLICATIONS = "applications";
-
     public static final String CHANNEL_WARN = "warn";
 
     public static NotificationManagerEx getNotificationManagerEx() {
         return NotificationManagerEx.INSTANCE;
-    }
-
-    public static void deleteOldNotificationChannelGroup(@NonNull Context context) {
-        getNotificationManagerEx().deleteNotificationChannelGroup(
-                getApplication().getPackageName(), ID_GROUP_APPLICATIONS);
-    }
-
-    @TargetApi(26)
-    private static NotificationChannelGroup createGroupWithPackage(@NonNull String packageName,
-                                                                   @NonNull CharSequence appName) {
-        return new NotificationChannelGroup(getGroupIdByPkg(packageName), appName);
-    }
-
-    private static NotificationChannel createChannelWithPackage(@NonNull PushMetaInfo metaInfo,
-                                                                @NonNull String packageName) {
-        CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
-        String channelName = configuration.channelName("未分类");
-        String channelDescription = configuration.channelDescription(null);
-        String sound = configuration.soundUrl(null);
-
-        NotificationChannel channel = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            channel = new NotificationChannel(getChannelId(metaInfo, packageName), channelName, NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription(channelDescription);
-            if (sound != null) {
-                AudioAttributes attr = new AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build();
-                channel.setSound(Uri.parse(sound), attr);
-            }
-        }
-        return channel;
-    }
-
-    public static String getChannelId(@NonNull PushMetaInfo metaInfo,
-                                      @NonNull String packageName) {
-        CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
-        return getChannelIdByPkg(packageName) + "_" + configuration.channelId("");
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public static boolean isNotificationChannelEnabled(@Nullable NotificationChannel channel){
-            return channel != null && channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
-    }
-    public static boolean isNotificationChannelEnabled(@NonNull String packageName, @Nullable String channelId){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if(!TextUtils.isEmpty(channelId)) {
-                NotificationChannel channel =
-                        NotificationManagerEx.INSTANCE.getNotificationChannel(packageName, channelId);
-                return isNotificationChannelEnabled(channel);
-            }
-            return false;
-        } else {
-            return NotificationManagerEx.INSTANCE.areNotificationsEnabled(packageName);
-        }
-    }
-
-    public static NotificationChannel registerChannelIfNeeded(Context context, PushMetaInfo metaInfo, String packageName) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            return null;
-        }
-
-        CharSequence appName = ApplicationNameCache.getInstance().getAppName(context, packageName);
-        if (appName == null) {
-            return null;
-        }
-
-        return createNotificationChannel(metaInfo, packageName, appName);
-
-    }
-
-    private static NotificationChannel createNotificationChannel(PushMetaInfo metaInfo, String packageName, CharSequence appName) {
-        NotificationChannelGroup notificationChannelGroup = createGroupWithPackage(packageName, appName);
-        getNotificationManagerEx().createNotificationChannelGroups(
-                packageName, Arrays.asList(notificationChannelGroup));
-
-        NotificationChannel notificationChannel = createChannelWithPackage(metaInfo, packageName);
-        if (notificationChannel != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationChannel.setGroup(notificationChannelGroup.getId());
-        }
-
-        getNotificationManagerEx().createNotificationChannels(
-                packageName, Arrays.asList(notificationChannel));
-        return notificationChannel;
     }
 
 
@@ -168,7 +71,7 @@ public class NotificationController {
             return;
         }
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, getChannelId(metaInfo, packageName));
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NotificationChannelManager.getChannelId(metaInfo, packageName));
         builder.setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN);
 
         builder.setCategory(Notification.CATEGORY_EVENT)
@@ -200,9 +103,9 @@ public class NotificationController {
 
     public static void publish(Context context, PushMetaInfo metaInfo, int notificationId, String packageName, NotificationCompat.Builder notificationBuilder) {
         // Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-        registerChannelIfNeeded(context, metaInfo, packageName);
+        NotificationChannelManager.registerChannelIfNeeded(context, metaInfo, packageName);
 
-        notificationBuilder.setChannelId(getChannelId(metaInfo, packageName));
+        notificationBuilder.setChannelId(NotificationChannelManager.getChannelId(metaInfo, packageName));
         notificationBuilder.setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN);
 
         //for VERSION < Oero
@@ -411,7 +314,7 @@ public class NotificationController {
 
 
     public static void test(Context context, String packageName, String title, String description) {
-        NotificationController.registerChannelIfNeeded(context, new PushMetaInfo(), packageName);
+        NotificationChannelManager.registerChannelIfNeeded(context, new PushMetaInfo(), packageName);
 
         int id = (int) (System.currentTimeMillis() / 1000L);
 

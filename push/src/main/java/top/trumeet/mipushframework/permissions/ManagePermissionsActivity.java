@@ -36,7 +36,7 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import com.android.settings.widget.EntityHeaderController;
 import com.nihility.notification.NotificationManagerEx;
 import com.xiaomi.xmsf.R;
-import com.xiaomi.xmsf.push.notification.NotificationController;
+import com.xiaomi.xmsf.push.notification.NotificationChannelManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -449,7 +449,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
                 Preference item = new Preference(getActivity());
 
                 CharSequence title = channel.getName();
-                if (!NotificationController.isNotificationChannelEnabled(channel)) {
+                if (!NotificationChannelManager.isNotificationChannelEnabled(channel)) {
                     title = "[disable]" + title;
                 }
                 item.setTitle(title);
