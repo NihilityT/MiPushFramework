@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'io.github.wurensen.android-aspectjx'
 
 allprojects {
     repositories {
@@ -44,6 +45,12 @@ android {
             //shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    aspectjx {
+        // 移除kotlin相关，编译错误和提升速度
+        exclude 'kotlin.jvm', 'kotlin.internal'
+        exclude 'kotlinx.coroutines.internal', 'kotlinx.coroutines.android'
     }
 
     signingConfigs {
