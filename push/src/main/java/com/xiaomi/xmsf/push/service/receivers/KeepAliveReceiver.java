@@ -3,13 +3,13 @@ package com.xiaomi.xmsf.push.service.receivers;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
 import androidx.core.content.ContextCompat;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.xiaomi.channel.commonutils.logger.MyLog;
 import com.xiaomi.push.service.PushServiceConstants;
-import com.xiaomi.push.service.PushServiceMain;
 
 
 
@@ -36,7 +36,7 @@ public class KeepAliveReceiver extends BroadcastReceiver {
             lastActive = now;
 
             logger.d("start service when " + intent.getAction());
-            Intent localIntent = new Intent(context, PushServiceMain.class);
+            Intent localIntent = new Intent(context, com.xiaomi.push.service.XMPushService.class);
             localIntent.putExtra(PushServiceConstants.EXTRA_TIME_STAMP, now);
             localIntent.setAction(PushServiceConstants.ACTION_CHECK_ALIVE);
             ContextCompat.startForegroundService(context, localIntent);

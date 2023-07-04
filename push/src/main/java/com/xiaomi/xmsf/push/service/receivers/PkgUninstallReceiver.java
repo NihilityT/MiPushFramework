@@ -4,12 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+
 import androidx.core.content.ContextCompat;
 
 import com.xiaomi.channel.commonutils.logger.MyLog;
 import com.xiaomi.push.service.GeoFenceUtils;
 import com.xiaomi.push.service.PushServiceConstants;
-import com.xiaomi.push.service.PushServiceMain;
 
 public class PkgUninstallReceiver extends BroadcastReceiver {
     public PkgUninstallReceiver() {
@@ -21,7 +21,7 @@ public class PkgUninstallReceiver extends BroadcastReceiver {
             Uri var4 = var2.getData();
             if (var4 != null && !var3) {
                 try {
-                    Intent var5 = new Intent(var1, PushServiceMain.class);
+                    Intent var5 = new Intent(var1, com.xiaomi.push.service.XMPushService.class);
                     var5.setAction(PushServiceConstants.ACTION_UNINSTALL);
                     var5.putExtra(PushServiceConstants.EXTRA_UNINSTALL_PKG_NAME, var4.getEncodedSchemeSpecificPart());
                     ContextCompat.startForegroundService(var1, var5);

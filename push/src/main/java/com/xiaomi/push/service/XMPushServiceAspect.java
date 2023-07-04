@@ -8,10 +8,8 @@ import static top.trumeet.common.Constants.TAG_CONDOM;
 
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationChannelCompat;
@@ -30,6 +28,12 @@ import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.control.XMOutbound;
 
 import org.apache.thrift.TBase;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 
 /**
  * @author Trumeet
@@ -74,67 +78,71 @@ import org.apache.thrift.TBase;
  * 监听解决方案：
  * 所有包都会经过 {@link com.xiaomi.smack.PacketListener}，官方有一个处理器（C00621），持有在非静态 Field mPacketListener 中。
  * 所以我们只需创造一个自己的 {@link ClientEventDispatcher}，重写相关方法，即可完成处理。
- * 这种方式相比自己反射修改 {@link com.xiaomi.smack.PacketListener}，更优雅（无需反射，同时小米为我们提供了 {@link XMPushService#createClientEventDispatcher()} 方法），
+ * 这种方式相比自己反射修改 {@link com.xiaomi.smack.PacketListener}，更优雅（无需反射，同时小米为我们提供了 {@link com.xiaomi.push.service.XMPushService#createClientEventDispatcher()} 方法），
  * 同时还能通过官方提供的处理逻辑（{@link PacketSync}），直接处理消息通知包。
  */
 
-public class PushServiceMain extends XMPushService {
-    private static final String TAG = "PushService";
-    private Logger logger = XLog.tag(TAG).build();
-
+@Aspect
+public class XMPushServiceAspect {
+    private static final String TAG = XMPushServiceAspect.class.getSimpleName();
+    private static final Logger logger = XLog.tag(TAG).build();
     public static final String CHANNEL_STATUS = "status";
     public static final int NOTIFICATION_ALIVE_ID = 1;
-    public static PushServiceMain sInstance = null;
-
+    public static XMPushService xmPushService;
     @RequiresApi(N) private NotificationRevival mNotificationRevival;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
+    @After("execution(* com.xiaomi.push.service.XMPushService.onCreate(..))")
+    public void onCreate(final JoinPoint joinPoint) {
+        logger.d(joinPoint.getSignature());
+        xmPushService = (XMPushService) joinPoint.getThis();
+
         logger.d("Service started");
 
         startForeground();
-        if (SDK_INT > P) BackgroundActivityStartEnabler.initialize(this);
+        if (SDK_INT > P) BackgroundActivityStartEnabler.initialize(xmPushService);
         if (SDK_INT >= N) {
-            mNotificationRevival = new NotificationRevival(this, sbn -> sbn.getTag() == null);  // Only push notifications (tag == null)
+            mNotificationRevival = new NotificationRevival(xmPushService, sbn -> sbn.getTag() == null);  // Only push notifications (tag == null)
             mNotificationRevival.initialize();
         }
-        sInstance = this;
     }
 
-    @Override
-    public void attachBaseContext(Context base) {
-        logger.d("attachBaseContext");
-        super.attachBaseContext(CondomContext.wrap(base, TAG_CONDOM, XMOutbound.create(base,
-                TAG)));
+    @Around("execution(* com.xiaomi.push.service.XMPushService.attachBaseContext(..))")
+    public Object attachBaseContext(final ProceedingJoinPoint joinPoint) throws Throwable {
+        logger.d(joinPoint.getSignature());
+        Context base = (Context) joinPoint.getArgs()[0];
+        return joinPoint.proceed(new Object[]{CondomContext.wrap(base, TAG_CONDOM, XMOutbound.create(base,
+                TAG))});
     }
 
-    @Override public int onStartCommand(Intent intent, int flags, int startId) {
+    @Before("execution(* com.xiaomi.push.service.XMPushService.onStartCommand(..))")
+    public void onStartCommand(final JoinPoint joinPoint) {
+        logger.d(joinPoint.getSignature());
         startForeground();
-        super.onStartCommand(intent, flags, startId);
-        return Service.START_STICKY;
     }
 
-    @Override public void onConfigurationChanged(final Configuration newConfig) {
-        startForeground();      // Apply locale change to foreground notification
+    @Before("execution(* com.xiaomi.push.service.XMPushService.onConfigurationChanged(..))")
+    public void onConfigurationChanged(final JoinPoint joinPoint) {
+        logger.d(joinPoint.getSignature());
+        startForeground();
     }
 
-    @Override public ClientEventDispatcher createClientEventDispatcher() {
+    @Around("execution(* com.xiaomi.push.service.XMPushService.createClientEventDispatcher(..))")
+    public Object createClientEventDispatcher(final ProceedingJoinPoint joinPoint) {
+        logger.d(joinPoint.getSignature());
         return new MyClientEventDispatcher();
     }
 
-    @Override
-    public void onDestroy() {
+    @Before("execution(* com.xiaomi.push.service.XMPushService.onDestroy(..))")
+    public void onDestroy(final JoinPoint joinPoint) {
+        logger.d(joinPoint.getSignature());
         logger.d("Service stopped");
-        stopForeground(true);
+        xmPushService.stopForeground(true);
 
         if (SDK_INT >= N) mNotificationRevival.close();
-        super.onDestroy();
     }
 
-
     private void startForeground() {
-        NotificationManagerCompat manager = NotificationManagerCompat.from(getApplicationContext());
+        NotificationManagerCompat manager = NotificationManagerCompat.from(xmPushService.getApplicationContext());
         if (SDK_INT >= O) {
             String groupId = "status_group";
             NotificationChannelGroupCompat.Builder group =
@@ -144,22 +152,22 @@ public class PushServiceMain extends XMPushService {
 
             NotificationChannelCompat.Builder channel = new NotificationChannelCompat
                     .Builder(CHANNEL_STATUS, NotificationManager.IMPORTANCE_MIN)
-                    .setName(getString(R.string.notification_category_alive)).setGroup(groupId);
+                    .setName(xmPushService.getString(R.string.notification_category_alive)).setGroup(groupId);
             manager.createNotificationChannel(channel.build());
 
         }
         //if (ConfigCenter.getInstance().foregroundNotification || Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         {
-            Notification notification = new NotificationCompat.Builder(this,
+            Notification notification = new NotificationCompat.Builder(xmPushService,
                     CHANNEL_STATUS)
-                    .setContentTitle(getString(R.string.notification_alive))
+                    .setContentTitle(xmPushService.getString(R.string.notification_alive))
                     .setSmallIcon(R.drawable.ic_notifications_black_24dp)
                     .setPriority(NotificationCompat.PRIORITY_MIN)
                     .setOngoing(true)
                     .setShowWhen(true)
                     .build();
 
-            startForeground(NOTIFICATION_ALIVE_ID, notification);
+            xmPushService.startForeground(NOTIFICATION_ALIVE_ID, notification);
         }
     }
 }

@@ -1,5 +1,10 @@
 package com.xiaomi.push.service;
 
+import static android.app.Notification.GROUP_ALERT_SUMMARY;
+import static android.app.NotificationManager.IMPORTANCE_LOW;
+
+import static com.xiaomi.push.service.XMPushServiceAspect.CHANNEL_STATUS;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -8,20 +13,16 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Parcel;
 import android.service.notification.StatusBarNotification;
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import android.util.Log;
 
 import com.xiaomi.xmsf.R;
 
 import java.util.Objects;
 
-import static android.app.Notification.GROUP_ALERT_SUMMARY;
-import static android.app.NotificationManager.IMPORTANCE_LOW;
-
 @RequiresApi(29/* Q */) public class BackgroundActivityStartEnabler {
-
-	private static final String CHANNEL_STATUS = PushServiceMain.CHANNEL_STATUS;
 
 	public static @Nullable PendingIntent clonePendingIntentForBackgroundActivityStart(final PendingIntent pi) {
 		final Notification whitelistedN = sWhitelistedNotification;

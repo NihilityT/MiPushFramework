@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.xiaomi.push.service.PushConstants;
-import com.xiaomi.push.service.PushServiceMain;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.control.PushControllerUtils;
 import com.xiaomi.xmsf.push.utils.Configurations;
@@ -92,7 +91,7 @@ public class XMPushService extends IntentService {
 
     private void forwardToPushServiceMain(Intent intent) {
         Intent intent2 = new Intent();
-        intent2.setComponent(new ComponentName(this, PushServiceMain.class));
+        intent2.setComponent(new ComponentName(this, com.xiaomi.push.service.XMPushService.class));
         intent2.setAction(intent.getAction());
         intent2.putExtras(intent);
         ContextCompat.startForegroundService(this, intent2);

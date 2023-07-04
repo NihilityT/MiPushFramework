@@ -28,7 +28,6 @@ import com.xiaomi.channel.commonutils.logger.MyLog;
 import com.xiaomi.channel.commonutils.misc.ScheduledJobManager;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.xiaomi.push.service.PushServiceConstants;
-import com.xiaomi.push.service.PushServiceMain;
 import com.xiaomi.xmsf.FirstRegister;
 import com.xiaomi.xmsf.RetryRegister;
 import com.xiaomi.xmsf.push.service.receivers.BootReceiver;
@@ -129,7 +128,7 @@ public class PushControllerUtils {
             }
 
             try {
-                Intent serviceIntent = new Intent(context, PushServiceMain.class);
+                Intent serviceIntent = new Intent(context, com.xiaomi.push.service.XMPushService.class);
                 serviceIntent.putExtra(PushServiceConstants.EXTRA_TIME_STAMP, System.currentTimeMillis());
                 serviceIntent.setAction(PushServiceConstants.ACTION_TIMER);
                 ContextCompat.startForegroundService(context, serviceIntent);
@@ -160,7 +159,7 @@ public class PushControllerUtils {
                 JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
                 scheduler.cancelAll();
             }
-            context.stopService(new Intent(context, PushServiceMain.class));
+            context.stopService(new Intent(context, com.xiaomi.push.service.XMPushService.class));
         }
     }
 

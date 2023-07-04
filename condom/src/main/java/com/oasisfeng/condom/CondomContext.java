@@ -17,6 +17,14 @@
 
 package com.oasisfeng.condom;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;
+import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
+import static android.os.Build.VERSION_CODES.M;
+import static android.os.Build.VERSION_CODES.O;
+
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.BroadcastReceiver;
@@ -37,12 +45,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
 import android.os.UserHandle;
+import android.util.Log;
+
 import androidx.annotation.CheckResult;
 import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.Size;
-import android.util.Log;
 
 import com.oasisfeng.condom.util.Lazy;
 
@@ -53,14 +62,6 @@ import java.util.Map;
 import java.util.Set;
 
 import top.trumeet.hook.FakeManifestUtils;
-
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static android.os.Build.VERSION.SDK_INT;
-import static android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;
-import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;
-import static android.os.Build.VERSION_CODES.JELLY_BEAN_MR2;
-import static android.os.Build.VERSION_CODES.M;
-import static android.os.Build.VERSION_CODES.O;
 
 /**
  * The condom-style {@link ContextWrapper} to prevent unwanted behaviors going through.
@@ -281,8 +282,6 @@ public class CondomContext extends ContextWrapper {
 	private static final Map<String, String> COMPONENT_REDIRECT;
 	static {
 		COMPONENT_REDIRECT = new HashMap<>(1);
-		COMPONENT_REDIRECT.put("com.xiaomi.xmsf/com.xiaomi.push.service.XMPushService",
-				"com.xiaomi.xmsf/com.xiaomi.push.service.PushServiceMain");
 	}
 
 

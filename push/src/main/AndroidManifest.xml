@@ -189,9 +189,8 @@
             android:name=".push.service.XMPushService"
             android:exported="true" />
         <service
-            android:name="com.xiaomi.push.service.PushServiceMain"
-            android:exported="true"
-            tools:ignore="ExportedService" />
+            android:name="com.xiaomi.push.service.XMPushService"
+            android:exported="true" />
 
 
         <!--app -->
