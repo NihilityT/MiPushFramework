@@ -144,12 +144,6 @@ public class XMPushServiceAspect {
         startForeground();
     }
 
-    @Around("execution(* com.xiaomi.push.service.XMPushService.createClientEventDispatcher(..))")
-    public Object createClientEventDispatcher(final ProceedingJoinPoint joinPoint) {
-        logger.d(joinPoint.getSignature());
-        return new MyClientEventDispatcher();
-    }
-
     @Before("execution(* com.xiaomi.push.service.XMPushService.onDestroy(..))")
     public void onDestroy(final JoinPoint joinPoint) {
         logger.d(joinPoint.getSignature());
