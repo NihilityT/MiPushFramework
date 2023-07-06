@@ -10,7 +10,6 @@ import androidx.core.content.ContextCompat;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
-import com.xiaomi.push.service.PushConstants;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.control.PushControllerUtils;
 import com.xiaomi.xmsf.push.utils.Configurations;
@@ -20,10 +19,6 @@ import com.xiaomi.xmsf.utils.ConfigCenter;
 import top.trumeet.common.Constants;
 import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.utils.Utils;
-import top.trumeet.mipush.provider.db.EventDb;
-import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
-import top.trumeet.mipush.provider.event.Event;
-import top.trumeet.mipush.provider.event.type.RegistrationType;
 import top.trumeet.mipush.provider.register.RegisteredApplication;
 
 public class XMPushService extends IntentService {
@@ -48,44 +43,9 @@ public class XMPushService extends IntentService {
 
         try {
             forwardToPushServiceMain(intent);
-
-            String pkg = intent.getStringExtra(Constants.EXTRA_MI_PUSH_PACKAGE);
-            if (pkg == null) {
-                logger.e("Package name is NULL!");
-                return;
-            }
-
-            RegisteredApplication application = RegisteredApplicationDb
-                    .registerApplication(pkg, true);
-
-            if (application == null) {
-                return;
-            }
-
-            if (!PushConstants.MIPUSH_ACTION_REGISTER_APP.equals(intent.getAction())) {
-                return;
-            }
-            logger.d("onHandleIntent -> A application want to register push");
-            showRegisterToastIfExistsConfiguration(application);
-            EventDb.insertEvent(Event.ResultType.OK,
-                    new RegistrationType(null, pkg, null)
-            );
         } catch (RuntimeException e) {
             logger.e("XMPushService::onHandleIntent: ", e);
             Utils.makeText(this, getString(R.string.common_err, e.getMessage()), Toast.LENGTH_LONG);
-        }
-    }
-
-    private void showRegisterToastIfExistsConfiguration(RegisteredApplication application) {
-        String pkg = application.getPackageName();
-        boolean notificationOnRegister = ConfigCenter.getInstance().isNotificationOnRegister(this);
-        notificationOnRegister = notificationOnRegister && application.isNotificationOnRegister();
-        if (notificationOnRegister) {
-            CharSequence appName = ApplicationNameCache.getInstance().getAppName(this, pkg);
-            CharSequence usedString = getString(R.string.notification_registerAllowed, appName);
-            Utils.makeText(this, usedString, Toast.LENGTH_SHORT);
-        } else {
-            Log.e("XMPushService Bridge", "Notification disabled");
         }
     }
 

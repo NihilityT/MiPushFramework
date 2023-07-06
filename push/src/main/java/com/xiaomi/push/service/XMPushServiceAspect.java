@@ -10,6 +10,8 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationChannelCompat;
@@ -26,6 +28,7 @@ import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.control.XMOutbound;
+import com.xiaomi.xmsf.utils.ConfigCenter;
 
 import org.apache.thrift.TBase;
 import org.aspectj.lang.JoinPoint;
@@ -34,6 +37,15 @@ import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+
+import top.trumeet.common.Constants;
+import top.trumeet.common.cache.ApplicationNameCache;
+import top.trumeet.common.utils.Utils;
+import top.trumeet.mipush.provider.db.EventDb;
+import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
+import top.trumeet.mipush.provider.event.Event;
+import top.trumeet.mipush.provider.event.type.RegistrationType;
+import top.trumeet.mipush.provider.register.RegisteredApplication;
 
 /**
  * @author Trumeet
@@ -120,6 +132,12 @@ public class XMPushServiceAspect {
         startForeground();
     }
 
+    @Before("execution(* com.xiaomi.push.service.XMPushService.onStart(..))")
+    public void onStart(final JoinPoint joinPoint) {
+        logger.d(joinPoint.getSignature());
+        recordRegisterRequest((Intent) joinPoint.getArgs()[0]);
+    }
+
     @Before("execution(* com.xiaomi.push.service.XMPushService.onConfigurationChanged(..))")
     public void onConfigurationChanged(final JoinPoint joinPoint) {
         logger.d(joinPoint.getSignature());
@@ -168,6 +186,51 @@ public class XMPushServiceAspect {
                     .build();
 
             xmPushService.startForeground(NOTIFICATION_ALIVE_ID, notification);
+        }
+    }
+
+    private void recordRegisterRequest(Intent intent) {
+        try {
+            if (intent == null) {
+                return;
+            }
+            if (!PushConstants.MIPUSH_ACTION_REGISTER_APP.equals(intent.getAction())) {
+                return;
+            }
+
+            String pkg = intent.getStringExtra(Constants.EXTRA_MI_PUSH_PACKAGE);
+            if (pkg == null) {
+                logger.e("Package name is NULL!");
+                return;
+            }
+
+            RegisteredApplication application = RegisteredApplicationDb
+                    .registerApplication(pkg, true);
+            if (application == null) {
+                return;
+            }
+
+            logger.d("onHandleIntent -> A application want to register push");
+            showRegisterToastIfExistsConfiguration(application);
+            EventDb.insertEvent(Event.ResultType.OK,
+                    new RegistrationType(null, pkg, null)
+            );
+        } catch (RuntimeException e) {
+            logger.e("XMPushService::onHandleIntent: ", e);
+            Utils.makeText(xmPushService, xmPushService.getString(R.string.common_err, e.getMessage()), Toast.LENGTH_LONG);
+        }
+    }
+
+    private void showRegisterToastIfExistsConfiguration(RegisteredApplication application) {
+        String pkg = application.getPackageName();
+        boolean notificationOnRegister = ConfigCenter.getInstance().isNotificationOnRegister(xmPushService);
+        notificationOnRegister = notificationOnRegister && application.isNotificationOnRegister();
+        if (notificationOnRegister) {
+            CharSequence appName = ApplicationNameCache.getInstance().getAppName(xmPushService, pkg);
+            CharSequence usedString = xmPushService.getString(R.string.notification_registerAllowed, appName);
+            Utils.makeText(xmPushService, usedString, Toast.LENGTH_SHORT);
+        } else {
+            Log.e("XMPushService Bridge", "Notification disabled");
         }
     }
 }
