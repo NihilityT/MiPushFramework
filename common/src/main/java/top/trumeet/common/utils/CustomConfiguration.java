@@ -19,6 +19,7 @@ public class CustomConfiguration {
     private static final String CONVERSATION_SENDER_ID = Config("conversation_sender_id");
     private static final String CONVERSATION_SENDER_ICON = Config("conversation_sender_icon");
     private static final String CONVERSATION_MESSAGE = Config("conversation_message");
+    private static final String CLEAR_GROUP = Config("clear_group");
 
     private static final String NOTIFICATION_LARGE_ICON_URI = "notification_large_icon_uri";
     private static final String CHANNEL_ID = "channel_id";
@@ -116,6 +117,10 @@ public class CustomConfiguration {
 
     public String notificationBigPicUri(String defaultValue) {
         return get(NOTIFICATION_BIGPIC_URI, defaultValue);
+    }
+
+    public boolean clearGroup(boolean defaultValue) {
+        return get(CLEAR_GROUP, defaultValue);
     }
 
     public boolean get(String key, boolean defaultValue) {

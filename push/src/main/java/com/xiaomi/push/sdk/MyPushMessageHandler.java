@@ -26,13 +26,19 @@ import com.xiaomi.push.service.PushConstants;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmsf.push.notification.NotificationController;
+import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.utils.ConfigCenter;
 
+import org.json.JSONException;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.function.Consumer;
 
 import top.trumeet.common.Constants;
 import top.trumeet.common.ita.ITopActivity;
 import top.trumeet.common.ita.TopActivityFactory;
+import top.trumeet.common.utils.CustomConfiguration;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
 import top.trumeet.mipush.provider.register.RegisteredApplication;
@@ -95,17 +101,16 @@ public class MyPushMessageHandler extends IntentService {
     public static void cancelNotification(Context context, Bundle bundle, XmPushActionContainer container) {
         int notificationId = bundle.getInt(Constants.INTENT_NOTIFICATION_ID, 0);
         String notificationGroup = bundle.getString(Constants.INTENT_NOTIFICATION_GROUP);
-        boolean groupOfSession = bundle.getBoolean(Constants.INTENT_NOTIFICATION_GROUP_OF_SESSION, false);
-
-        RegisteredApplication application = RegisteredApplicationDb.registerApplication(
-                container.getPackageName(), false);
-        boolean isClearAllNotificationsOfSession = groupOfSession &&
-                application != null &&
-                application.getGroupNotificationsForSameSession() &&
-                application.getClearAllNotificationsOfSession();
+        try {
+            Configurations.getInstance().handle(container.packageName, container);
+        } catch (Exception e) {
+            logger.e("cancelNotification", e);
+        }
+        CustomConfiguration custom = new CustomConfiguration(container.metaInfo != null ?
+                container.metaInfo.extra : new HashMap<>());
 
         NotificationController.cancel(context, container,
-                notificationId, notificationGroup, isClearAllNotificationsOfSession);
+                notificationId, notificationGroup, custom.clearGroup(false));
     }
 
     public static void launchApp(Context context, XmPushActionContainer container) {

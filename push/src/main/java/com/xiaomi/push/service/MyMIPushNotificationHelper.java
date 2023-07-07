@@ -213,11 +213,6 @@ public class MyMIPushNotificationHelper {
 
         logger.i("title:" + title + "  description:" + description);
 
-
-        RegisteredApplication application = RegisteredApplicationDb.registerApplication(
-                packageName, false);
-        boolean isGroupOfSession = application.getGroupNotificationsForSameSession();
-
         Context pkgCtx = context;
         if (NotificationManagerEx.INSTANCE.isSystemHookReady()) {
             try {
@@ -231,9 +226,6 @@ public class MyMIPushNotificationHelper {
         boolean useMessagingStyle = message != null && custom.useMessagingStyle(false);
 
         int notificationId = getNotificationId(container);
-        if (isGroupOfSession && !useMessagingStyle) {
-            notificationId = (notificationId + "_" + System.currentTimeMillis()).hashCode();
-        }
 
         if (useMessagingStyle) {
             NotificationCompat.Builder messagingBuilder = addMessage(
@@ -306,7 +298,6 @@ public class MyMIPushNotificationHelper {
         Intent intentExtra = new Intent();
         intentExtra.putExtra(Constants.INTENT_NOTIFICATION_ID, notificationId);
         intentExtra.putExtra(Constants.INTENT_NOTIFICATION_GROUP, notificationBuilder.build().getGroup());
-        intentExtra.putExtra(Constants.INTENT_NOTIFICATION_GROUP_OF_SESSION, isGroupOfSession);
 
         PendingIntent localPendingIntent = getClickedPendingIntent(
                 context, container, decryptedContent, notificationId, intentExtra.getExtras());
