@@ -197,7 +197,7 @@ public class MIPushEventProcessorAspect {
                 e.printStackTrace();
             }
             if (metaInfo == null || TextUtils.isEmpty(metaInfo.getTitle()) || TextUtils.isEmpty(metaInfo.getDescription()) ||
-                    (metaInfo.passThrough == 1 && !application.getShowPassThrough()) /* ||
+                    decorated.metaInfo.passThrough == 1 /* ||
                     (!MIPushNotificationHelper.isNotifyForeground(metaInfo.getExtra()) && MIPushNotificationHelper.isApplicationForeground(pushService, container.packageName)) */) {
                 if (PushConstants.PUSH_SERVICE_PACKAGE_NAME.contains(container.packageName) &&
                         !container.isEncryptAction() && metaInfo != null && metaInfo.getExtra() != null &&
@@ -222,7 +222,7 @@ public class MIPushEventProcessorAspect {
                     MyMIPushNotificationHelper.notifyPushMessage(pushService, decryptedContent);
 
                     if (awake || isSystemApp) {
-                        if (metaInfo.passThrough == 1) {
+                        if (decorated.metaInfo.passThrough == 1) {
                             pushService.sendBroadcast(intent, ClientEventDispatcher.getReceiverPermission(container.packageName));
                         } else if (!isBusinessMessage) {
                             Intent messageArrivedIntent = new Intent(PushConstants.MIPUSH_ACTION_MESSAGE_ARRIVED);

@@ -373,15 +373,6 @@ public class ManagePermissionsActivity extends AppCompatActivity {
             }
 
 
-            addItem(mApplicationItem.getShowPassThrough(),
-                    (preference, newValue) -> {
-                        mApplicationItem.setShowPassThrough((Boolean) newValue);
-                        return true;
-                    },
-                    getString(R.string.show_pass_through),
-                    null,
-                    screen);
-
             if (Build.VERSION.SDK_INT >= O) {
                 String mipushGroup = NotificationUtils.getGroupIdByPkg(mApplicationItem.getPackageName());
 
