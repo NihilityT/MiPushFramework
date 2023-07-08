@@ -4,7 +4,6 @@ import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 
-import top.trumeet.common.utils.Utils;
 import top.trumeet.mipushframework.event.EventItemBinder;
 
 public class ConfigValueConverter {
@@ -23,7 +22,7 @@ public class ConfigValueConverter {
             try {
                 XmPushActionContainer container = (XmPushActionContainer) root;
                 return EventItemBinder.getResponseMessageBodyFromContainer(container,
-                        Utils.getRegSec(container.packageName));
+                        Utils.getRegSec(container));
             } catch (Throwable e) {
                 logger.e("parse pushAction failed", e);
                 return null;

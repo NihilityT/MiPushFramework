@@ -28,7 +28,6 @@ import com.google.gson.JsonObject;
 import com.xiaomi.channel.commonutils.string.Base64Coder;
 import com.xiaomi.mipush.sdk.DecryptException;
 import com.xiaomi.mipush.sdk.PushContainerHelper;
-import com.xiaomi.push.service.MIPushEventProcessor;
 import com.xiaomi.push.service.MIPushEventProcessorAspect;
 import com.xiaomi.push.service.XMPushServiceAspect;
 import com.xiaomi.xmpush.thrift.ActionType;
@@ -37,6 +36,7 @@ import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.notification.NotificationChannelManager;
 import com.xiaomi.xmsf.push.utils.Configurations;
+import com.xiaomi.xmsf.push.utils.Utils;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -48,6 +48,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import top.trumeet.mipush.provider.event.Event;
@@ -123,11 +124,10 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
     @Nullable
     private String fillEventData(@NonNull ViewHolder holder, @NonNull Event item) {
         do {
-            byte[] payload = item.getPayload();
-            if (payload == null) {
+            XmPushActionContainer container = Utils.getCustomContainer(item);
+            if (container == null) {
                 break;
             }
-            XmPushActionContainer container = MIPushEventProcessor.buildContainer(payload);
             if (!container.metaInfo.isSetPassThrough()) {
                 break;
             }
@@ -146,10 +146,12 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
 
     @Nullable
     private Dialog createInfoDialog(final Event event, final Context context) {
-        XmPushActionContainer container = buildContainer(event.getPayload());
+        XmPushActionContainer container = event.getPayload() == null ?
+                null : buildContainer(event.getPayload());
         final CharSequence info = containerToJson(container, event.getRegSec());
-        if (info == null)
+        if (info == null) {
             return null;
+        }
 
         TextView showText = new TextView(context);
         showText.setText(info);
@@ -173,17 +175,20 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
 
         AlertDialog dialog;
         if (event.getPayload() != null) {
+            XmPushActionContainer containerWithRegSec = Utils.getCustomContainer(event);
+
             build.setPositiveButton(R.string.action_notify, (dialogInterface, i) ->
-                    MIPushEventProcessorAspect.mockProcessMIPushMessage(XMPushServiceAspect.xmPushService, event.getPayload()));
+                    MIPushEventProcessorAspect.mockProcessMIPushMessage(
+                            XMPushServiceAspect.xmPushService, containerWithRegSec.deepCopy()));
             build.setNeutralButton(R.string.action_configurate, null);
 
             dialog = build.create();
             dialog.setOnShowListener(dialogInterface -> {
 
-                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEUTRAL);
+                Button button = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
                 button.setOnClickListener(view -> {
                     try {
-                        XmPushActionContainer newContainer = buildContainer(event.getPayload());
+                        XmPushActionContainer newContainer = containerWithRegSec.deepCopy();
                         Configurations.getInstance().handle(container.packageName, newContainer);
                         showText.setText(containerToJson(newContainer, event.getRegSec()));
                     } catch (Throwable e) {
@@ -246,6 +251,7 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
         byte[] oriMsgBytes;
         boolean encrypted = container.isEncryptAction();
         if (encrypted) {
+            Objects.requireNonNull(regSec, "register secret is null");
             byte[] keyBytes = Base64Coder.decode(regSec);
             try {
                 oriMsgBytes = PushContainerHelper.MIPushDecrypt(keyBytes, container.getPushAction());
