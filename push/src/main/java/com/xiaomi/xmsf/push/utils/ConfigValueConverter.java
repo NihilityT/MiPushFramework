@@ -3,8 +3,7 @@ package com.xiaomi.xmsf.push.utils;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
-
-import top.trumeet.mipushframework.event.EventItemBinder;
+import com.xiaomi.xmsf.utils.ConvertUtils;
 
 public class ConfigValueConverter {
     private static final Logger logger = XLog.tag(ConfigValueConverter.class.getSimpleName()).build();
@@ -21,7 +20,7 @@ public class ConfigValueConverter {
         if (path.length == 1 && "pushAction".equals(path[0])) {
             try {
                 XmPushActionContainer container = (XmPushActionContainer) root;
-                return EventItemBinder.getResponseMessageBodyFromContainer(container,
+                return ConvertUtils.getResponseMessageBodyFromContainer(container,
                         Utils.getRegSec(container));
             } catch (Throwable e) {
                 logger.e("parse pushAction failed", e);

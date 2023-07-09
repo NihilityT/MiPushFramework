@@ -29,6 +29,7 @@ import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.control.XMOutbound;
 import com.xiaomi.xmsf.utils.ConfigCenter;
+import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import org.apache.thrift.TBase;
 import org.aspectj.lang.JoinPoint;
@@ -135,7 +136,9 @@ public class XMPushServiceAspect {
     @Before("execution(* com.xiaomi.push.service.XMPushService.onStart(..))")
     public void onStart(final JoinPoint joinPoint) {
         logger.d(joinPoint.getSignature());
-        recordRegisterRequest((Intent) joinPoint.getArgs()[0]);
+        Intent intent = (Intent) joinPoint.getArgs()[0];
+        logIntent(intent);
+        recordRegisterRequest(intent);
     }
 
     @Before("execution(* com.xiaomi.push.service.XMPushService.onConfigurationChanged(..))")
@@ -182,6 +185,11 @@ public class XMPushServiceAspect {
             xmPushService.startForeground(NOTIFICATION_ALIVE_ID, notification);
         }
     }
+
+    private void logIntent(Intent intent) {
+        logger.d("Intent" + " " + ConvertUtils.toJson(intent));
+    }
+
 
     private void recordRegisterRequest(Intent intent) {
         try {

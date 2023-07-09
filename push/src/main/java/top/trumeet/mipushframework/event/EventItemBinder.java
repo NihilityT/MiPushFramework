@@ -19,37 +19,22 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.xiaomi.channel.commonutils.string.Base64Coder;
-import com.xiaomi.mipush.sdk.DecryptException;
-import com.xiaomi.mipush.sdk.PushContainerHelper;
 import com.xiaomi.push.service.MIPushEventProcessorAspect;
 import com.xiaomi.push.service.XMPushServiceAspect;
-import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
-import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.notification.NotificationChannelManager;
 import com.xiaomi.xmsf.push.notification.NotificationController;
 import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.push.utils.Utils;
+import com.xiaomi.xmsf.utils.ConvertUtils;
 
-import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import top.trumeet.mipush.provider.event.Event;
@@ -208,72 +193,8 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
         Gson gson = new GsonBuilder()
                 .disableHtmlEscaping()
                 .setPrettyPrinting()
-                .setExclusionStrategies(new ExclusionStrategy() {
-                    @Override
-                    public boolean shouldSkipField(FieldAttributes f) {
-                        String[] exclude = {"hb", "__isset_bit_vector"};
-                        for (String field : exclude) {
-                            if (f.getName().equals(field)) {
-                                return true;
-                            }
-                        }
-                        if (f.getDeclaredClass() == Map.class && f.getName().equals("internal")) {
-                            return true;
-                        }
-                        return false;
-                    }
-
-                    @Override
-                    public boolean shouldSkipClass(Class<?> clazz) {
-                        return false;
-                    }
-                })
                 .create();
-        JsonElement jsonElement = gson.toJsonTree(container);
-        if (jsonElement.isJsonObject()) {
-            JsonObject json = jsonElement.getAsJsonObject();
-            String pushAction = "pushAction";
-            try {
-                TBase message = getResponseMessageBodyFromContainer(container, regSec);
-                json.add(pushAction, gson.toJsonTree(message));
-            } catch (TException e) {
-                logger.e(e.getLocalizedMessage(), e);
-            } catch (Throwable e) {
-                json.add(pushAction, gson.toJsonTree(e));
-            }
-            jsonElement = json;
-        }
-        final CharSequence info = gson.toJson(jsonElement);
-        return info;
-    }
-
-    public static TBase getResponseMessageBodyFromContainer(XmPushActionContainer container, String regSec)
-            throws TException, DecryptException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-        byte[] oriMsgBytes;
-        boolean encrypted = container.isEncryptAction();
-        if (encrypted) {
-            Objects.requireNonNull(regSec, "register secret is null");
-            byte[] keyBytes = Base64Coder.decode(regSec);
-            try {
-                oriMsgBytes = PushContainerHelper.MIPushDecrypt(keyBytes, container.getPushAction());
-            } catch (Exception e) {
-                throw new DecryptException("the aes decrypt failed.", e);
-            }
-        } else {
-            oriMsgBytes = container.getPushAction();
-        }
-        try {
-            Method createRespMessageFromAction = PushContainerHelper.class.getDeclaredMethod("createRespMessageFromAction", ActionType.class , boolean.class);
-            createRespMessageFromAction.setAccessible(true);
-            TBase packet = (TBase) createRespMessageFromAction.invoke(null, container.getAction(), container.isRequest);
-            if (packet != null) {
-                XmPushThriftSerializeUtils.convertByteArrayToThriftObject(packet, oriMsgBytes);
-            }
-            return packet;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
+        return gson.toJson(ConvertUtils.toJson(container, regSec));
     }
 
     private static void startManagePermissions(String packageName, Context context) {
