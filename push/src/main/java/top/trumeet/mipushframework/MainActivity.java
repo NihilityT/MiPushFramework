@@ -1,6 +1,9 @@
 package top.trumeet.mipushframework;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,12 +15,15 @@ import android.widget.Toast;
 
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.material.elevation.SurfaceColors;
 import com.xiaomi.channel.commonutils.android.DeviceInfo;
 import com.xiaomi.channel.commonutils.android.MIUIUtils;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.utils.ConfigCenter;
+
+import org.aspectj.lang.annotation.Aspect;
 
 import io.reactivex.disposables.CompositeDisposable;
 import top.trumeet.mipushframework.control.CheckPermissionsUtils;
@@ -27,6 +33,7 @@ import top.trumeet.mipushframework.control.CheckPermissionsUtils;
  *
  * @author Trumeet
  */
+@Aspect
 public abstract class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -34,6 +41,13 @@ public abstract class MainActivity extends AppCompatActivity {
     private ViewPropertyAnimator mProgressFadeOutAnimate;
     private MainFragment mFragment;
     private CompositeDisposable composite = new CompositeDisposable();
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String status = intent.getStringExtra("status");
+            setTitle(getString(R.string.preference_title) + " (" + status + ")");
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +61,10 @@ public abstract class MainActivity extends AppCompatActivity {
         int color = SurfaceColors.SURFACE_2.getColor(this);
         getWindow().setStatusBarColor(color);
         getWindow().setNavigationBarColor(color);
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("setConnectionStatus"));
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("getConnectionStatus"));
     }
 
 

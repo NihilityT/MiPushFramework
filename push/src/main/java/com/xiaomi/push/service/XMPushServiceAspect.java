@@ -8,8 +8,10 @@ import static top.trumeet.common.Constants.TAG_CONDOM;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -18,6 +20,7 @@ import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationChannelGroupCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
@@ -102,7 +105,15 @@ public class XMPushServiceAspect {
     public static final String CHANNEL_STATUS = "status";
     public static final int NOTIFICATION_ALIVE_ID = 1;
     public static XMPushService xmPushService;
+
+    public static String connectionStatus;
     @RequiresApi(N) private NotificationRevival mNotificationRevival;
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            sendSetConnectionStatus();
+        }
+    };
 
     @After("execution(* com.xiaomi.push.service.XMPushService.onCreate(..))")
     public void onCreate(final JoinPoint joinPoint) {
@@ -117,6 +128,9 @@ public class XMPushServiceAspect {
             mNotificationRevival = new NotificationRevival(xmPushService, sbn -> sbn.getTag() == null);  // Only push notifications (tag == null)
             mNotificationRevival.initialize();
         }
+
+        LocalBroadcastManager.getInstance(xmPushService).registerReceiver(mMessageReceiver,
+                new IntentFilter("getConnectionStatus"));
     }
 
     @Around("execution(* com.xiaomi.push.service.XMPushService.attachBaseContext(..))")
@@ -154,6 +168,39 @@ public class XMPushServiceAspect {
         xmPushService.stopForeground(true);
 
         if (SDK_INT >= N) mNotificationRevival.close();
+    }
+
+    @Before("execution(* com.xiaomi.smack.Connection.setConnectionStatus(..))")
+    public void setConnectionStatus(final JoinPoint joinPoint) {
+        logger.d(joinPoint.getSignature());
+        Object[] args = joinPoint.getArgs();
+        int newStatus = (int) args[0];
+        int reason = (int) args[1];
+        Exception e = (Exception) args[2];
+        connectionStatus = getDesc(newStatus);
+
+        sendSetConnectionStatus();
+    }
+
+    private void sendSetConnectionStatus() {
+        Intent intent = new Intent("setConnectionStatus");
+        intent.putExtra("status", connectionStatus);
+        LocalBroadcastManager.getInstance(xmPushService).sendBroadcast(intent);
+    }
+
+    private String getDesc(int var1) {
+        String var2;
+        if (var1 == 1) {
+            var2 = "connected";
+        } else if (var1 == 0) {
+            var2 = "connecting";
+        } else if (var1 == 2) {
+            var2 = "disconnected";
+        } else {
+            var2 = "unknown";
+        }
+
+        return var2;
     }
 
     private void startForeground() {
