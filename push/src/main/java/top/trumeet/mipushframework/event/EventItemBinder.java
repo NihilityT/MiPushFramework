@@ -35,6 +35,7 @@ import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.notification.NotificationChannelManager;
+import com.xiaomi.xmsf.push.notification.NotificationController;
 import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.push.utils.Utils;
 
@@ -297,8 +298,8 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
                 String status = container.getMetaInfo().getExtra().get("channel_name");
                 if (!NotificationChannelManager.isNotificationChannelEnabled(
                         container.getPackageName(),
-                        NotificationChannelManager.getChannelId(
-                                container.metaInfo, container.getPackageName()))) {
+                        NotificationController.getExistsChannelId(viewHolder.itemView.getContext(),
+                                container.metaInfo, container.packageName))) {
                     ops.add("disable");
                 }
                 if (!ops.isEmpty()) {

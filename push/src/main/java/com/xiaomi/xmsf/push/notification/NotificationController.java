@@ -15,7 +15,9 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
+import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
@@ -67,7 +69,8 @@ public class NotificationController {
             return;
         }
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NotificationChannelManager.getChannelId(metaInfo, packageName));
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
+                getExistsChannelId(context, metaInfo, packageName));
         builder.setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN);
 
         builder.setCategory(Notification.CATEGORY_EVENT)
@@ -98,10 +101,9 @@ public class NotificationController {
     }
 
     public static void publish(Context context, PushMetaInfo metaInfo, int notificationId, String packageName, NotificationCompat.Builder notificationBuilder) {
-        // Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-        NotificationChannelManager.registerChannelIfNeeded(context, metaInfo, packageName);
+        String channelId = getExistsChannelId(context, metaInfo, packageName);
+        notificationBuilder.setChannelId(channelId);
 
-        notificationBuilder.setChannelId(NotificationChannelManager.getChannelId(metaInfo, packageName));
         notificationBuilder.setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN);
 
         //for VERSION < Oero
@@ -111,6 +113,19 @@ public class NotificationController {
         Notification notification = notify(context, notificationId, packageName, notificationBuilder, metaInfo);
 
         updateSummaryNotification(context, metaInfo, packageName, notification.getGroup());
+    }
+
+    @NonNull
+    public static String getExistsChannelId(Context context, PushMetaInfo metaInfo, String packageName) {
+        CustomConfiguration custom = new CustomConfiguration(metaInfo.extra);
+        String channelId = custom.borrowChannelId(null);
+        if (TextUtils.isEmpty(channelId) ||
+                getNotificationManagerEx().getNotificationChannel(packageName, channelId) == null) {
+            // Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+            NotificationChannelManager.registerChannelIfNeeded(context, metaInfo, packageName);
+            channelId = NotificationChannelManager.getChannelId(metaInfo, packageName);
+        }
+        return channelId;
     }
 
     private static Notification notify(

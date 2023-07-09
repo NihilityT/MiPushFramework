@@ -20,6 +20,7 @@ public class CustomConfiguration {
     private static final String CONVERSATION_SENDER_ICON = Config("conversation_sender_icon");
     private static final String CONVERSATION_MESSAGE = Config("conversation_message");
     private static final String CLEAR_GROUP = Config("clear_group");
+    private static final String BORROW_CHANNEL_ID = Config("borrow_channel_id");
 
     private static final String NOTIFICATION_LARGE_ICON_URI = "notification_large_icon_uri";
     private static final String CHANNEL_ID = "channel_id";
@@ -121,6 +122,9 @@ public class CustomConfiguration {
 
     public boolean clearGroup(boolean defaultValue) {
         return get(CLEAR_GROUP, defaultValue);
+    }
+    public String borrowChannelId(String defaultValue) {
+        return get(BORROW_CHANNEL_ID, defaultValue);
     }
 
     public boolean get(String key, boolean defaultValue) {
