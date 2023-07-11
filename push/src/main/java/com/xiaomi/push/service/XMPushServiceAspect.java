@@ -25,6 +25,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.oasisfeng.condom.CondomContext;
+import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.push.revival.NotificationRevival;
 import com.xiaomi.smack.packet.Message;
 import com.xiaomi.xmpush.thrift.ActionType;
@@ -37,7 +38,6 @@ import com.xiaomi.xmsf.utils.ConvertUtils;
 import org.apache.thrift.TBase;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -115,10 +115,14 @@ public class XMPushServiceAspect {
         }
     };
 
-    @After("execution(* com.xiaomi.push.service.XMPushService.onCreate(..))")
-    public void onCreate(final JoinPoint joinPoint) {
+    @Around("execution(* com.xiaomi.push.service.XMPushService.onCreate(..)) && this(pushService)")
+    public void onCreate(final ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
         logger.d(joinPoint.getSignature());
-        xmPushService = (XMPushService) joinPoint.getThis();
+        Context mBase = pushService.getBaseContext();
+        JavaCalls.setField(pushService, "mBase",
+                CondomContext.wrap(mBase, TAG_CONDOM, XMOutbound.create(mBase, TAG)));
+        joinPoint.proceed();
+        xmPushService = pushService;
 
         logger.d("Service started");
 
@@ -133,14 +137,6 @@ public class XMPushServiceAspect {
                 new IntentFilter("getConnectionStatus"));
     }
 
-    @Around("execution(* com.xiaomi.push.service.XMPushService.attachBaseContext(..))")
-    public Object attachBaseContext(final ProceedingJoinPoint joinPoint) throws Throwable {
-        logger.d(joinPoint.getSignature());
-        Context base = (Context) joinPoint.getArgs()[0];
-        return joinPoint.proceed(new Object[]{CondomContext.wrap(base, TAG_CONDOM, XMOutbound.create(base,
-                TAG))});
-    }
-
     @Before("execution(* com.xiaomi.push.service.XMPushService.onStartCommand(..))")
     public void onStartCommand(final JoinPoint joinPoint) {
         logger.d(joinPoint.getSignature());
@@ -153,12 +149,6 @@ public class XMPushServiceAspect {
         Intent intent = (Intent) joinPoint.getArgs()[0];
         logIntent(intent);
         recordRegisterRequest(intent);
-    }
-
-    @Before("execution(* com.xiaomi.push.service.XMPushService.onConfigurationChanged(..))")
-    public void onConfigurationChanged(final JoinPoint joinPoint) {
-        logger.d(joinPoint.getSignature());
-        startForeground();
     }
 
     @Before("execution(* com.xiaomi.push.service.XMPushService.onDestroy(..))")
