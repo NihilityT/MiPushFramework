@@ -18,6 +18,7 @@ import com.xiaomi.push.service.MIPushEventProcessor;
 import com.xiaomi.push.service.PushConstants;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
+import com.xiaomi.xmpush.thrift.XmPushActionRegistrationResult;
 import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
 import com.xiaomi.xmsf.push.utils.Utils;
 
@@ -119,6 +120,9 @@ public class ConvertUtils {
             createRespMessageFromAction.setAccessible(true);
             TBase packet = (TBase) createRespMessageFromAction.invoke(null, container.getAction(), container.isRequest);
             if (packet != null) {
+                if (packet instanceof XmPushActionRegistrationResult) {
+                    ((XmPushActionRegistrationResult) packet).setErrorCode(0);
+                }
                 XmPushThriftSerializeUtils.convertByteArrayToThriftObject(packet, oriMsgBytes);
             }
             return packet;
