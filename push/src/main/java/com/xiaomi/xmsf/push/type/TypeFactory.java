@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
+import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import top.trumeet.mipush.provider.event.Event;
 import top.trumeet.mipush.provider.event.EventType;
@@ -53,7 +54,7 @@ public class TypeFactory {
                                     String pkg) {
         ActionType rawType = buildContainer.getAction();
         int type = getTypeId(rawType);
-        String info = buildContainer.toString();
+        String info = String.valueOf(ConvertUtils.toJson(buildContainer));
         byte[] payload = XmPushThriftSerializeUtils.convertThriftObjectToBytes(buildContainer);
         switch (buildContainer.getAction()) {
             case Command:
