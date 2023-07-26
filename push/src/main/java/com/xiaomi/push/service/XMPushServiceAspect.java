@@ -12,6 +12,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -111,6 +112,9 @@ public class XMPushServiceAspect {
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if (TextUtils.equals(intent.getAction(), PushConstants.ACTION_RESET_CONNECTION)) {
+                xmPushService.scheduleConnect(true);
+            }
             sendSetConnectionStatus();
         }
     };
@@ -135,6 +139,8 @@ public class XMPushServiceAspect {
 
         LocalBroadcastManager.getInstance(xmPushService).registerReceiver(mMessageReceiver,
                 new IntentFilter("getConnectionStatus"));
+        LocalBroadcastManager.getInstance(xmPushService).registerReceiver(mMessageReceiver,
+                new IntentFilter(PushConstants.ACTION_RESET_CONNECTION));
     }
 
     @Before("execution(* com.xiaomi.push.service.XMPushService.onStartCommand(..))")

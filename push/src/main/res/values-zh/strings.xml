@@ -171,6 +171,9 @@
     <!-- Settings -->
     <string name="settings_summary_service_advance_setting">进入高级配置界面</string>
     <string name="settings_configuration_directory">设置配置目录</string>
+    <string name="settings_XMPP_server">设置 XMPP 服务器</string>
+    <string name="settings_XMPP_server_summary">设置 发送/接收 消息的服务器</string>
+
     <string name="settings_get_log">获取日志</string>
     <string name="settings_get_log_summary">点按分享日志，必要时请随 Issue 一起提交。</string>
     <string name="helplib_action_about">关于</string>

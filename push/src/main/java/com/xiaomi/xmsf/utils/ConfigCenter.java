@@ -65,6 +65,16 @@ public class ConfigCenter {
                 .commit();
     }
 
+    public String getXMPPServer(Context ctx) {
+        return getSharedPreferences(ctx).getString("XMPP_server", null);
+    }
+
+    public boolean setXMPPServer(Context ctx, String host) {
+        return getSharedPreferences(ctx).edit()
+                .putString("XMPP_server", host)
+                .commit();
+    }
+
     public boolean isDebugMode(Context ctx) {
         return getSharedPreferences(ctx).getBoolean("DebugMode", false);
     }

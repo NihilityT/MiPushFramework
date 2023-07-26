@@ -196,6 +196,8 @@ Please grant the <b>Run in the background or wake up</b> permissions.
     <string name="settings_service_advance_setting">Advanced</string>
     <string name="settings_summary_service_advance_setting">Advanced configurations interface</string>
     <string name="settings_configuration_directory">Change configuration directory</string>
+    <string name="settings_XMPP_server">Set XMPP server</string>
+    <string name="settings_XMPP_server_summary">Set send/receive message server</string>
 
     <string name="settings_debug">Debug</string>
     <string name="settings_get_log">Get debugging logs</string>

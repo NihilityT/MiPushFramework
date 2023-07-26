@@ -9,10 +9,17 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
+import android.text.TextUtils;
 import android.util.Log;
+import android.widget.EditText;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.xiaomi.push.service.PushConstants;
+import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.utils.ConfigCenter;
 
@@ -45,17 +52,47 @@ public class SettingsFragment extends PreferenceFragment {
                             Constants.SHARE_LOG_COMPONENT_NAME)));
             return true;
         });
-
-        Preference preference = getPreference("configuration_directory");
-        Uri treeUri = ConfigCenter.getInstance().getConfigurationDirectory(getActivity());
-        if (treeUri != null) {
-            preference.setSummary(treeUri.toString());
+        {
+            Preference preference = getPreference("configuration_directory");
+            Uri treeUri = ConfigCenter.getInstance().getConfigurationDirectory(getActivity());
+            if (treeUri != null) {
+                preference.setSummary(treeUri.toString());
+            }
+            preference.setOnPreferenceClickListener(pref -> {
+                openDirectory(Uri.fromFile(
+                        getActivity().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)));
+                return true;
+            });
         }
-        preference.setOnPreferenceClickListener(pref -> {
-            openDirectory(Uri.fromFile(
-                    getActivity().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)));
-            return true;
-        });
+        {
+            Preference preference = getPreference("XMPP_server");
+            String host = ConfigCenter.getInstance().getXMPPServer(getActivity());
+            if (!TextUtils.isEmpty(host)) {
+                preference.setSummary(host);
+            }
+            preference.setOnPreferenceClickListener(pref -> {
+                EditText editText = new EditText(getActivity());
+                editText.setHint(ConnectionConfiguration.XMPP_SERVER_HOST_P + ":80");
+                editText.setText(ConfigCenter.getInstance().getXMPPServer(getActivity()));
+                AlertDialog.Builder build = new AlertDialog.Builder(getActivity())
+                        .setView(editText)
+                        .setTitle(R.string.settings_XMPP_server)
+                        .setCancelable(true)
+                        .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
+                            String newHost = String.valueOf(editText.getText());
+                            ConfigCenter.getInstance().setXMPPServer(getActivity(), newHost);
+                            if (TextUtils.isEmpty(newHost)) {
+                                preference.setSummary(R.string.settings_XMPP_server_summary);
+                            } else {
+                                preference.setSummary(newHost);
+                            }
+                            LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(
+                                    new Intent(PushConstants.ACTION_RESET_CONNECTION));
+                        });
+                build.create().show();
+                return true;
+            });
+        }
     }
 
     private void addItem(boolean value, Preference.OnPreferenceChangeListener listener,

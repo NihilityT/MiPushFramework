@@ -16,6 +16,11 @@
             android:key="configuration_directory"
             android:title="@string/settings_configuration_directory" />
 
+        <Preference
+                android:key="XMPP_server"
+                android:title="@string/settings_XMPP_server"
+                android:summary="@string/settings_XMPP_server_summary" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/settings_debug">
