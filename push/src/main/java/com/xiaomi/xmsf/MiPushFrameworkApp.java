@@ -93,7 +93,7 @@ public class MiPushFrameworkApp extends Application {
 
         LogUtils.init(this);
         logger = XLog.tag(MiPushFrameworkApp.class.getSimpleName()).build();
-        logger.i("App starts at " + System.currentTimeMillis());
+        logger.i("App starts: " + BuildConfig.VERSION_NAME);
 
         initMiSdkLogger();
         initPushLogger();

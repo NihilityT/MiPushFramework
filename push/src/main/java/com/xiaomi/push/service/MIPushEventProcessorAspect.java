@@ -26,6 +26,7 @@ import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.type.TypeFactory;
 import com.xiaomi.xmsf.push.utils.Configurations;
+import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -104,9 +105,7 @@ public class MIPushEventProcessorAspect {
         if (isMockMessage(buildContainer)) {
             return;
         }
-        if (BuildConfig.DEBUG) {
-            logger.i("buildContainer: " + buildContainer.toString());
-        }
+        logger.d("buildContainer" + " " + ConvertUtils.toJson(buildContainer));
         EventType type = TypeFactory.create(buildContainer, buildContainer.packageName);
         userAllow(type, pushService);
     }
