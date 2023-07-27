@@ -53,7 +53,6 @@ public class Configurations {
         Set<String> operations = new HashSet<>();
         for (String pkg : checkPkgs) {
             List<Object> configs = loader.getConfigs().get(pkg);
-            logger.d("package: " + packageName + ", config count: " + (configs == null ? 0 : configs.size()));
             boolean stop = doHandle(data, configs, operations);
             if (stop) {
                 return operations;
