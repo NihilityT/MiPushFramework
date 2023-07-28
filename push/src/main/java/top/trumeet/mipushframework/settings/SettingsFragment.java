@@ -16,6 +16,7 @@ import android.widget.EditText;
 import androidx.appcompat.app.AlertDialog;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.android.settings.widget.EntityHeaderController;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.xiaomi.push.service.PushConstants;
@@ -28,7 +29,9 @@ import moe.shizuku.preference.PreferenceFragment;
 import moe.shizuku.preference.PreferenceGroup;
 import moe.shizuku.preference.SwitchPreferenceCompat;
 import top.trumeet.common.Constants;
+import top.trumeet.mipush.provider.register.RegisteredApplication;
 import top.trumeet.mipushframework.MainActivity;
+import top.trumeet.mipushframework.register.RegisteredApplicationFragment;
 
 /**
  * Created by Trumeet on 2017/8/27.
@@ -92,6 +95,19 @@ public class SettingsFragment extends PreferenceFragment {
                 build.create().show();
                 return true;
             });
+        }
+        {
+            Preference preference = new Preference(getContext());
+            preference.setOnPreferenceClickListener(pref -> {
+                RegisteredApplicationFragment.MiPushApplications miPushApplications =
+                        RegisteredApplicationFragment.getMiPushApplications();
+                for (RegisteredApplication registeredApplication : miPushApplications.res) {
+                    EntityHeaderController.tryForceRegister(registeredApplication.getPackageName());
+                }
+                return true;
+            });
+            preference.setTitle(getString(R.string.try_to_force_register_all_applications));
+            getPreferenceScreen().addPreference(preference);
         }
     }
 

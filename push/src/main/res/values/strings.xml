@@ -277,6 +277,7 @@ This could be the application doing a reverse registration, or the registration 
     <string name="action_search">Search</string>
     <string name="last_receive">last receive: </string>
     <string name="mipush_services_not_found">MiPush Services not found, may affect push or notification click</string>
+    <string name="try_to_force_register_all_applications">Try to force register all applications</string>
 
 
 </resources>
