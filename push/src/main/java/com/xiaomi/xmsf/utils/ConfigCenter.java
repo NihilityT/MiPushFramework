@@ -12,6 +12,7 @@ import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.push.utils.IconConfigurations;
 
 import top.trumeet.common.Constants;
+import top.trumeet.common.utils.Utils;
 
 
 /**
@@ -75,8 +76,8 @@ public class ConfigCenter {
                 .commit();
     }
 
-    public boolean isDebugMode(Context ctx) {
-        return getSharedPreferences(ctx).getBoolean("DebugMode", false);
+    public boolean isDebugMode() {
+        return getSharedPreferences(Utils.getApplication()).getBoolean("DebugMode", false);
     }
 
     public void loadConfigurations(Context context) {

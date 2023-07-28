@@ -84,7 +84,7 @@
     <string name="settings_notify_on_register">Notify On App Register</string>
     <string name="settings_show_loaded_file_after_configurations_loaded">Show Loaded File After Configurations Loaded</string>
     <string name="settings_debug_mode">Enable debug mode</string>
-    <string name="settings_debug_mode_summary">Display the debug button in the notification, display all types of messages in the event list</string>
+    <string name="settings_debug_mode_summary">Display the debug button in the notification, display all types of messages in the event list, print full log</string>
 
 
 

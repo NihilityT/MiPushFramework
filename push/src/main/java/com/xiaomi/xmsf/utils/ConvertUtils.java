@@ -127,7 +127,6 @@ public class ConvertUtils {
             }
             return packet;
         } catch (Exception e) {
-            e.printStackTrace();
             throw e;
         }
     }
