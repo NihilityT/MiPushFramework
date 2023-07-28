@@ -16,7 +16,6 @@
 
 package com.android.settings.widget;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -32,7 +31,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
@@ -46,9 +44,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.settings.applications.LayoutPreference;
 import com.topjohnwu.superuser.Shell;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
-import com.xiaomi.mipush.sdk.MiPushClient;
 import com.xiaomi.mipush.sdk.PushContainerHelper;
-import com.xiaomi.mipush.sdk.PushMessageHelper;
 import com.xiaomi.push.sdk.MyPushMessageHandler;
 import com.xiaomi.push.service.PushConstants;
 import com.xiaomi.xmpush.thrift.NotificationType;
@@ -210,11 +206,9 @@ public class EntityHeaderController {
             iconView.setImageDrawable(mIcon);
             iconView.setContentDescription(mIconContentDescription);
             iconView.setOnClickListener(v -> {
-                if (removeMiPushXml()) {
-                    MyPushMessageHandler.launchApp(mAppContext, createForceRegisterMessage());
-                } else {
-                    tryForceRegister();
-                }
+                removeMiPushXml();
+                MyPushMessageHandler.launchApp(mAppContext, createForceRegisterMessage(mPackageName));
+                tryForceRegister(mPackageName);
             });
         }
         setText(R.id.entity_header_title, mLabel);
@@ -227,22 +221,29 @@ public class EntityHeaderController {
         return mHeader;
     }
 
-    private void tryForceRegister() {
-        launchAndSendMessage(createForceRegisterMessage());
+    public static void tryForceRegister(String packageName) {
+        byte[] msgBytes = XmPushThriftSerializeUtils.convertThriftObjectToBytes(
+                createForceRegisterMessage(packageName));
+        Intent intent = new Intent(PushConstants.MIPUSH_ACTION_NEW_MESSAGE);
+        intent.setPackage(packageName);
+        intent.putExtra(PushConstants.MIPUSH_EXTRA_PAYLOAD, msgBytes);
+        intent.putExtra(PushConstants.MESSAGE_RECEIVE_TIME, System.currentTimeMillis());
+
+        Utils.getApplication().sendBroadcast(intent, null);
     }
 
     @NonNull
-    private XmPushActionContainer createForceRegisterMessage() {
-        String id = JavaCalls.callStaticMethod(MiPushClient.class.getName(), "generatePacketID");
+    private static XmPushActionContainer createForceRegisterMessage(String packageName) {
+        String id = "fake_expired_" + packageName + "_" + System.currentTimeMillis();
         XmPushActionNotification regIdExpiredNotification = new XmPushActionNotification();
         regIdExpiredNotification.setType(NotificationType.RegIdExpired.value);
         regIdExpiredNotification.setId(id);
         PushMetaInfo metaInfo = new PushMetaInfo();
         metaInfo.setId(id);
         XmPushActionContainer regIdExpiredContainer = JavaCalls.callStaticMethod(PushContainerHelper.class.getName(), "generateRequestContainer",
-                mAppContext, regIdExpiredNotification,
+                Utils.getApplication(), regIdExpiredNotification,
                 com.xiaomi.xmpush.thrift.ActionType.Notification, false,
-                mPackageName, "");
+                packageName, "");
         regIdExpiredContainer.setMetaInfo(metaInfo);
         return regIdExpiredContainer;
     }
@@ -255,27 +256,7 @@ public class EntityHeaderController {
                         " 2> /dev/null)",
                 mPackageName, mPackageName)
                 ).exec();
-        if (result.isSuccess()) {
-            Toast.makeText(mAppContext, "delete mipush xml success", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(mAppContext,
-                    "delete mipush xml failure, file don't exist or permission denied",
-                    Toast.LENGTH_SHORT).show();
-        }
         return result.isSuccess();
-    }
-
-    private void launchAndSendMessage(XmPushActionContainer sendMsgContainer) {
-        MyPushMessageHandler.launchApp(mAppContext, sendMsgContainer);
-
-        byte[] msgBytes = XmPushThriftSerializeUtils.convertThriftObjectToBytes(sendMsgContainer);
-        Intent intent = new Intent(PushConstants.MIPUSH_ACTION_NEW_MESSAGE);
-        intent.setComponent(new ComponentName(mPackageName, "com.xiaomi.mipush.sdk.PushMessageHandler"));
-        intent.putExtra(PushConstants.MIPUSH_EXTRA_APP_PACKAGE, mPackageName);
-        intent.putExtra(PushConstants.MIPUSH_EXTRA_PAYLOAD, msgBytes);
-        intent.getIntExtra(PushMessageHelper.MESSAGE_TYPE, 1);
-        ComponentName name = mAppContext.startService(intent);
-        Toast.makeText(mAppContext, "enable push of " + name, Toast.LENGTH_SHORT).show();
     }
 
     /**
