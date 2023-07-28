@@ -2,6 +2,7 @@ package top.trumeet.mipushframework.event;
 
 import static com.xiaomi.push.service.MIPushEventProcessor.buildContainer;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -23,13 +24,17 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.xiaomi.push.service.MIPushEventProcessorAspect;
 import com.xiaomi.push.service.XMPushServiceAspect;
+import com.xiaomi.xmpush.thrift.XmPushActionCommandResult;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
+import com.xiaomi.xmpush.thrift.XmPushActionNotification;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.notification.NotificationChannelManager;
 import com.xiaomi.xmsf.push.notification.NotificationController;
 import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.push.utils.Utils;
 import com.xiaomi.xmsf.utils.ConvertUtils;
+
+import org.apache.thrift.TBase;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -112,9 +117,6 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
         do {
             XmPushActionContainer container = Utils.getCustomContainer(item);
             if (container == null) {
-                break;
-            }
-            if (!container.metaInfo.isSetPassThrough()) {
                 break;
             }
             if (container.metaInfo.passThrough == 1) {
@@ -232,10 +234,25 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
             return null;
         }
 
+        @SuppressLint("SetTextI18n")
         @Override
         protected void onPostExecute(String status) {
             if (status != null) {
                 viewHolder.status.setText(status);
+            }
+            if (container.isSetPushAction()) {
+                TBase data = null;
+                try {
+                    data = ConvertUtils.getResponseMessageBodyFromContainer(container, Utils.getRegSec(container));
+                } catch (Exception ignored) {
+                }
+                if (data instanceof XmPushActionNotification) {
+                    viewHolder.summary.setText(viewHolder.summary.getText() + ": "
+                            + ((XmPushActionNotification) data).getType());
+                } else if (data instanceof XmPushActionCommandResult){
+                    viewHolder.summary.setText(viewHolder.summary.getText() + ": "
+                            + ((XmPushActionCommandResult) data).getCmdName());
+                }
             }
         }
     }
