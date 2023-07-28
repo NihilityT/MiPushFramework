@@ -15,10 +15,9 @@ public class PushMessageProcessorAspect {
     private static final String TAG = PushMessageProcessorAspect.class.getSimpleName();
     private static final Logger logger = XLog.tag(TAG).build();
 
-    @Before("execution(* com.xiaomi.mipush.sdk.PushMessageProcessor.processIntent(..))")
-    public void processIntent(final JoinPoint joinPoint) {
+    @Before("execution(* com.xiaomi.mipush.sdk.PushMessageProcessor.processIntent(..)) && args(intent)")
+    public void processIntent(final JoinPoint joinPoint, Intent intent) {
         logger.d(joinPoint.getSignature());
-        Intent intent = (Intent) joinPoint.getArgs()[0];
         logger.d("Intent " + ConvertUtils.toJson(intent));
     }
 

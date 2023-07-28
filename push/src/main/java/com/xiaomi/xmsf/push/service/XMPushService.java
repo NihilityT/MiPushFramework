@@ -3,7 +3,6 @@ package com.xiaomi.xmsf.push.service;
 import android.app.IntentService;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
@@ -15,11 +14,10 @@ import com.xiaomi.xmsf.push.control.PushControllerUtils;
 import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.push.utils.IconConfigurations;
 import com.xiaomi.xmsf.utils.ConfigCenter;
+import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import top.trumeet.common.Constants;
-import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.utils.Utils;
-import top.trumeet.mipush.provider.register.RegisteredApplication;
 
 public class XMPushService extends IntentService {
     private static final String TAG = "XMPushService Bridge";
@@ -55,6 +53,7 @@ public class XMPushService extends IntentService {
         intent2.setAction(intent.getAction());
         intent2.putExtras(intent);
         ContextCompat.startForegroundService(this, intent2);
+        logger.d("forward intent " + ConvertUtils.toJson(intent));
     }
 
 }

@@ -180,10 +180,9 @@ public class XMPushServiceAspect {
         startForeground();
     }
 
-    @Before("execution(* com.xiaomi.push.service.XMPushService.onStart(..))")
-    public void onStart(final JoinPoint joinPoint) {
+    @Before("execution(* com.xiaomi.push.service.XMPushService.onStart(..)) && args(intent, startId)")
+    public void onStart(final JoinPoint joinPoint, Intent intent, int startId) {
         logger.d(joinPoint.getSignature());
-        Intent intent = (Intent) joinPoint.getArgs()[0];
         logIntent(intent);
         recordRegisterRequest(intent);
     }
@@ -203,13 +202,10 @@ public class XMPushServiceAspect {
         if (SDK_INT >= N) mNotificationRevival.close();
     }
 
-    @Before("execution(* com.xiaomi.smack.Connection.setConnectionStatus(..))")
-    public void setConnectionStatus(final JoinPoint joinPoint) {
+    @Before("execution(* com.xiaomi.smack.Connection.setConnectionStatus(..)) && args(newStatus, reason, e)")
+    public void setConnectionStatus(final JoinPoint joinPoint,
+                                    int newStatus, int reason, Exception e) {
         logger.d(joinPoint.getSignature());
-        Object[] args = joinPoint.getArgs();
-        int newStatus = (int) args[0];
-        int reason = (int) args[1];
-        Exception e = (Exception) args[2];
         connectionStatus = getDesc(newStatus);
 
         sendSetConnectionStatus();

@@ -1,7 +1,6 @@
 package com.xiaomi.push.service;
 
 import static com.xiaomi.push.service.MIPushEventProcessor.buildContainer;
-import static com.xiaomi.push.service.MIPushEventProcessor.sendGeoAck;
 import static com.xiaomi.push.service.MiPushMsgAck.sendAckMessage;
 import static com.xiaomi.push.service.MiPushMsgAck.sendAppNotInstallNotification;
 
@@ -18,6 +17,7 @@ import com.elvishew.xlog.XLog;
 import com.xiaomi.channel.commonutils.android.AppInfoUtils;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.mipush.sdk.PushContainerHelper;
+import com.xiaomi.push.service.clientReport.ReportConstants;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
@@ -34,7 +34,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 
-import top.trumeet.common.BuildConfig;
 import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.utils.CustomConfiguration;
 import top.trumeet.common.utils.Utils;
@@ -73,7 +72,7 @@ public class MIPushEventProcessorAspect {
                 if (metaInfo != null) {
                     metaInfo.putToExtra(mockFlag, Boolean.toString(true));
                     byte[] mockDecryptedContent = XmPushThriftSerializeUtils.convertThriftObjectToBytes(container);
-                    JavaCalls.<Boolean>callStaticMethod(MIPushEventProcessor.class.getName(), "processMIPushMessage",
+                    JavaCalls.<Boolean>callStaticMethodOrThrow(MIPushEventProcessor.class.getName(), "processMIPushMessage",
                             pushService, mockDecryptedContent, (long) mockDecryptedContent.length);
                 }
             }
@@ -93,13 +92,10 @@ public class MIPushEventProcessorAspect {
         return false;
     }
 
-    @Before("execution(* com.xiaomi.push.service.MIPushEventProcessor.processMIPushMessage(..))")
-    public void processMIPushMessage(final JoinPoint joinPoint) {
+    @Before("execution(* com.xiaomi.push.service.MIPushEventProcessor.processMIPushMessage(..)) && args(pushService, decryptedContent, packetBytesLen)")
+    public void processMIPushMessage(final JoinPoint joinPoint,
+                                     XMPushService pushService, byte[] decryptedContent, long packetBytesLen) {
         logger.d(joinPoint.getSignature());
-        Object[] args = joinPoint.getArgs();
-        XMPushService pushService = (XMPushService) args[0];
-        byte[] decryptedContent = (byte[]) args[1];
-        long packetBytesLen = (long) args[2];
 
         XmPushActionContainer buildContainer = buildContainer(decryptedContent);
         if (isMockMessage(buildContainer)) {
@@ -110,16 +106,10 @@ public class MIPushEventProcessorAspect {
         userAllow(type, pushService);
     }
 
-    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.postProcessMIPushMessage(..))")
-    public void postProcessMIPushMessage(final ProceedingJoinPoint joinPoint) {
+    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.postProcessMIPushMessage(..)) && args(pushService, realTargetPackage, decryptedContent, intent)")
+    public void postProcessMIPushMessage(final ProceedingJoinPoint joinPoint,
+                                         XMPushService pushService, String realTargetPackage, byte[] decryptedContent, Intent intent) {
         logger.d(joinPoint.getSignature());
-        Object[] args = joinPoint.getArgs();
-        XMPushService pushService = (XMPushService) args[0];
-        String realTargetPackage = (String) args[1];
-        byte[] decryptedContent = (byte[]) args[2];
-        Intent intent = (Intent) args[3];
-        boolean relateToGeo = (boolean) args[4];
-
 
         XmPushActionContainer container = buildContainer(decryptedContent);
         PushMetaInfo metaInfo = container.getMetaInfo();
@@ -141,13 +131,16 @@ public class MIPushEventProcessorAspect {
                 return;
             }
             if (ActionType.Registration == container.getAction()) {
+                intent.putExtra(ReportConstants.EVENT_MESSAGE_TYPE, ReportConstants.REGISTER_TYPE);
                 String pkgName = container.getPackageName();
                 SharedPreferences sp = pushService.getSharedPreferences(PushServiceConstants.PREF_KEY_REGISTERED_PKGS, 0);
                 SharedPreferences.Editor editor = sp.edit();
                 editor.putString(pkgName, container.appid);
                 editor.commit();
-                String regSec = null;
+                MIPushAppInfo.getInstance(pushService).removeDisablePushPkg(pkgName);
+                MIPushAppInfo.getInstance(pushService).removeDisablePushPkgCache(pkgName);
 
+                String regSec = null;
                 try {
                     XmPushActionRegistrationResult result = (XmPushActionRegistrationResult) PushContainerHelper.getResponseMessageBodyFromContainer(pushService, container);
                     regSec = result.getRegSecret();
@@ -155,8 +148,19 @@ public class MIPushEventProcessorAspect {
                     e.printStackTrace();
                 }
                 Utils.setRegSec(pkgName, regSec);
+            }
 
-                com.xiaomi.tinyData.TinyDataManager.getInstance(pushService).processPendingData("Register Success, package name is " + pkgName);
+            if (!TextUtils.isEmpty(metaInfo.getId())) {
+                intent.putExtra("messageId", metaInfo.getId());
+            }
+            if (MIPushNotificationHelper.isNormalNotificationMessage(container)) {
+                intent.putExtra(ReportConstants.EVENT_MESSAGE_TYPE, 1000);
+            }
+            if (MIPushNotificationHelper.isPassThoughMessage(container)) {
+                intent.putExtra(ReportConstants.EVENT_MESSAGE_TYPE, 2000);
+            }
+            if (MIPushNotificationHelper.isBusinessMessage(container)) {
+                intent.putExtra(ReportConstants.EVENT_MESSAGE_TYPE, ReportConstants.AWAKE_TYPE);
             }
 
             String title;
@@ -204,7 +208,7 @@ public class MIPushEventProcessorAspect {
                     sendAckMessage(pushService, container);
                     logger.v("receive abtest message. ack it." + metaInfo.getId());
                 } else if (awake || container.action != ActionType.SendMessage || isSystemApp) {
-                    pushService.sendBroadcast(intent, ClientEventDispatcher.getReceiverPermission(container.packageName));
+                    pushService.sendBroadcast(intent, MIPushHelper.getReceiverPermission(container.packageName));
                 }
             } else {
                 String key = null;
@@ -222,21 +226,16 @@ public class MIPushEventProcessorAspect {
 
                     if (awake || isSystemApp) {
                         if (decorated.metaInfo.passThrough == 1) {
-                            pushService.sendBroadcast(intent, ClientEventDispatcher.getReceiverPermission(container.packageName));
+                            pushService.sendBroadcast(intent, MIPushHelper.getReceiverPermission(container.packageName));
                         } else if (!isBusinessMessage) {
                             Intent messageArrivedIntent = new Intent(PushConstants.MIPUSH_ACTION_MESSAGE_ARRIVED);
                             messageArrivedIntent.putExtra(PushConstants.MIPUSH_EXTRA_PAYLOAD, decryptedContent);
                             messageArrivedIntent.setPackage(container.packageName);
-                            pushService.sendBroadcast(messageArrivedIntent, ClientEventDispatcher.getReceiverPermission(container.packageName));
+                            pushService.sendBroadcast(messageArrivedIntent, MIPushHelper.getReceiverPermission(container.packageName));
                         }
                     }
                 }
-
-                if (relateToGeo) {
-                    sendGeoAck(pushService, container, false, true, false);
-                } else {
-                    sendAckMessage(pushService, container);
-                }
+                sendAckMessage(pushService, container);
             }
             if (container.getAction() == ActionType.UnRegistration && !PushConstants.PUSH_SERVICE_PACKAGE_NAME.equals(pushService.getPackageName())) {
                 pushService.stopSelf();

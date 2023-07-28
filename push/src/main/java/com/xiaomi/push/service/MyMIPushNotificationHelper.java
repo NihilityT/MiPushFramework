@@ -109,16 +109,13 @@ public class MyMIPushNotificationHelper {
     private static ExecutorService executorService = Executors.newFixedThreadPool(3);
 
     /**
-     * @see MIPushNotificationHelper#notifyPushMessage
+     * @see `MIPushNotificationHelper`#notifyPushMessage
      */
     public static void notifyPushMessage(Context context, byte[] decryptedContent) {
         XmPushActionContainer container = buildContainer(decryptedContent);
-        AppInfoUtils.AppNotificationOp notificationOp = AppInfoUtils.getAppNotificationOp(context, getTargetPackage(container));
+        AppInfoUtils.AppNotificationOp notificationOp = AppInfoUtils.getAppNotificationOp(context, getTargetPackage(container), true);
         if (notificationOp == AppInfoUtils.AppNotificationOp.NOT_ALLOWED) {
             logger.w("Do not notify because user block " + getTargetPackage(container) + "'s notification");
-        } else if (TypedShieldHelper.isShield(context, container)) {
-            String shieldTypeName = TypedShieldHelper.getShieldType(container);
-            logger.w("Do not notify because user block " + shieldTypeName + "'s notification");
         } else {
 
             String packageName = container.getPackageName();

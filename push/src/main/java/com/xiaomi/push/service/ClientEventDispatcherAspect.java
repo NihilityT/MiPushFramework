@@ -46,19 +46,17 @@ public class ClientEventDispatcherAspect {
     private static final String TAG = ClientEventDispatcherAspect.class.getSimpleName();
     private static final Logger logger = XLog.tag(TAG).build();
 
-    @Before("execution(* com.xiaomi.push.service.ClientEventDispatcher.notifyPacketArrival(..))")
-    public void notifyPacketArrival(final JoinPoint joinPoint) {
+    @Before("execution(* com.xiaomi.push.service.ClientEventDispatcher.notifyPacketArrival(..)) && args(pushService, chid, data)")
+    public void notifyPacketArrival(final JoinPoint joinPoint,
+                                    XMPushService pushService, String chid, Object data) {
         logger.d(joinPoint.getSignature());
-        Object[] args = joinPoint.getArgs();
-        XMPushService pushService = (XMPushService) args[0];
-        String chid = (String) args[1];
-        if (args[2] instanceof Blob) {
-            Blob blob = (Blob) args[2];
+        if (data instanceof Blob) {
+            Blob blob = (Blob) data;
             if (BuildConfig.DEBUG) {
                 logger.d("blob arrival: " + chid + "; " + blob);
             }
         } else {
-            Packet packet = (Packet) args[2];
+            Packet packet = (Packet) data;
             if (BuildConfig.DEBUG) {
                 logger.d("packet arrival: " + chid + "; " + packet.toXML());
             }

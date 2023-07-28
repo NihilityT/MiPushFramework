@@ -26,11 +26,13 @@ import com.oasisfeng.condom.CondomProcess;
 import com.topjohnwu.superuser.Shell;
 import com.xiaomi.channel.commonutils.android.DeviceInfo;
 import com.xiaomi.channel.commonutils.android.MIUIUtils;
+import com.xiaomi.channel.commonutils.android.Region;
 import com.xiaomi.channel.commonutils.logger.LoggerInterface;
 import com.xiaomi.channel.commonutils.logger.MyLog;
 import com.xiaomi.mipush.sdk.Logger;
 import com.xiaomi.network.HostManager;
 import com.xiaomi.smack.ConnectionConfiguration;
+import com.xiaomi.push.service.AppRegionStorage;
 import com.xiaomi.xmsf.push.control.PushControllerUtils;
 import com.xiaomi.xmsf.push.control.XMOutbound;
 import com.xiaomi.xmsf.push.service.MiuiPushActivateService;
@@ -128,6 +130,9 @@ public class MiPushFrameworkApp extends Application {
             hookField(MIUIUtils.class, "isMIUI", 1);
             hookField(DeviceInfo.class, "sCachedIMEI", "");
             hookMiPushServerHost();
+            AppRegionStorage regionStorage = AppRegionStorage.getInstance(getApplicationContext());
+            regionStorage.setRegion(Region.China.name());
+            regionStorage.setCountryCode("CN");
         } catch (Throwable e) {
             logger.e(e.getMessage(), e);
         }

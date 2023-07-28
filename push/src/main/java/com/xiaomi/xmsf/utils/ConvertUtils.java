@@ -11,6 +11,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.xiaomi.channel.commonutils.android.DataCryptUtils;
 import com.xiaomi.channel.commonutils.string.Base64Coder;
 import com.xiaomi.mipush.sdk.DecryptException;
 import com.xiaomi.mipush.sdk.PushContainerHelper;
@@ -107,7 +108,7 @@ public class ConvertUtils {
             Objects.requireNonNull(regSec, "register secret is null");
             byte[] keyBytes = Base64Coder.decode(regSec);
             try {
-                oriMsgBytes = PushContainerHelper.MIPushDecrypt(keyBytes, container.getPushAction());
+                oriMsgBytes = DataCryptUtils.mipushDecrypt(keyBytes, container.getPushAction());
             } catch (Exception e) {
                 throw new DecryptException("the aes decrypt failed.", e);
             }
