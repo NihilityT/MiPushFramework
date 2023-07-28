@@ -7,6 +7,11 @@ import android.net.Uri;
 
 import androidx.annotation.Nullable;
 
+import com.xiaomi.push.service.MIPushEventProcessor;
+import com.xiaomi.xmpush.thrift.XmPushActionContainer;
+import com.xiaomi.xmpush.thrift.XmPushActionRegistrationResult;
+import com.xiaomi.xmsf.utils.ConvertUtils;
+
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.greenrobot.greendao.query.WhereCondition;
 
@@ -100,7 +105,15 @@ public class EventDb {
 
         RegistrationInfo info = new RegistrationInfo();
         for (Event event : events) {
-            if (event.getType() == Event.Type.RegistrationResult) {
+            XmPushActionContainer container = MIPushEventProcessor.buildContainer(event.getPayload());
+            XmPushActionRegistrationResult data = null;
+            try {
+                data = (XmPushActionRegistrationResult)
+                        ConvertUtils.getResponseMessageBodyFromContainer(container,
+                                com.xiaomi.xmsf.push.utils.Utils.getRegSec(container));
+            } catch (Exception ignored) {
+            }
+            if (event.getType() == Event.Type.RegistrationResult && (data == null || data.errorCode == 0)) {
                 info.registered.add(event.getPkg());
             } else {
                 info.unregistered.add(event.getPkg());
