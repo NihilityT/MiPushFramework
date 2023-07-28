@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'io.github.wurensen.android-aspectjx'
+apply plugin: 'org.greenrobot.greendao'
+
 
 allprojects {
     repositories {
@@ -53,6 +55,14 @@ android {
         exclude 'kotlinx.coroutines.internal', 'kotlinx.coroutines.android'
         debug = true
     }
+
+    greendao{
+        // Must upgrade version code!
+        schemaVersion 16
+        daoPackage 'top.trumeet.mipush.provider.gen.db'
+        targetGenDir 'src/main/java'
+    }
+    namespace 'top.trumeet.mipush.provider'
 
     signingConfigs {
         debug {
@@ -121,7 +131,6 @@ dependencies {
     implementation project(':common')
     implementation project(':condom')
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation project(':provider')
     implementation 'androidx.palette:palette:1.0.0'
 
     implementation 'com.github.heruoxin:IceBox-SDK:55dd857d74'
@@ -162,4 +171,8 @@ dependencies {
 
     // The core module that provides APIs to a shell
     implementation "com.github.topjohnwu.libsu:core:${libsuVersion}"
+
+    // GreenDao
+    implementation 'org.greenrobot:greendao:3.3.0'
+    implementation 'com.github.yuweiguocn:GreenDaoUpgradeHelper:v2.0.0'
 }

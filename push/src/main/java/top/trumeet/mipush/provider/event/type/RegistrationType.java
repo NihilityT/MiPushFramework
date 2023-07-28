@@ -4,9 +4,9 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import top.trumeet.common.R;
 import top.trumeet.mipush.provider.event.Event;
 import top.trumeet.mipush.provider.event.EventType;
+import top.trumeet.common.R;
 
 /**
  * Created by Trumeet on 2018/2/7.
