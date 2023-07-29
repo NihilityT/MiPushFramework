@@ -1,12 +1,15 @@
 package com.xiaomi.xmsf.utils;
 
+import static android.content.Intent.EXTRA_STREAM;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
-import android.widget.Toast;
 
 import com.elvishew.xlog.LogConfiguration;
 import com.elvishew.xlog.LogLevel;
@@ -32,8 +35,6 @@ import java.util.Locale;
 import top.trumeet.common.BuildConfig;
 import top.trumeet.common.Constants;
 
-import static android.content.Intent.EXTRA_STREAM;
-
 /**
  * Created by Trumeet on 2017/8/28.
  *
@@ -53,6 +54,7 @@ public class LogUtils {
                 .jsonFormatter(new DefaultJsonFormatter())
                 .xmlFormatter(new DefaultXmlFormatter())
                 .stackTraceFormatter(new DefaultStackTraceFormatter())
+                .enableThreadInfo().threadFormatter(data -> "TID: [" + data.getId() + "] TName: [" + data.getName() + "]")
                 .build();
         Printer androidPrinter = new AndroidPrinter();
         Printer filePrinter = new FilePrinter.Builder(LogUtils.getLogFolder(context))
