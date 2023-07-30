@@ -157,6 +157,12 @@ public class XMPushServiceAspect {
         recordRegisterRequest(intent);
     }
 
+    @Before("execution(* com.xiaomi.push.service.XMPushService.onBind(..)) && args(intent)")
+    public void onBind(final JoinPoint joinPoint, Intent intent) {
+        logger.d(joinPoint.getSignature());
+        logIntent(intent);
+    }
+
     @Before("execution(* com.xiaomi.push.service.XMPushService.onDestroy(..))")
     public void onDestroy(final JoinPoint joinPoint) {
         logger.d(joinPoint.getSignature());
