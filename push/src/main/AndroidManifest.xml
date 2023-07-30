@@ -41,7 +41,8 @@
         android:resizeableActivity="true"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning"
-        tools:replace="android:label,android:allowBackup">
+        tools:replace="android:label,android:allowBackup"
+        android:forceQueryable="true">
 
 
         <activity
