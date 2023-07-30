@@ -89,13 +89,15 @@ public class ConvertUtils {
                 .create();
         JsonObject json = new JsonObject();
         json.add("action", gson.toJsonTree(intent.getAction()));
-        JsonObject extras = (JsonObject) gson.toJsonTree(intent.getExtras());
-        byte[] payload = intent.getByteArrayExtra(PushConstants.MIPUSH_EXTRA_PAYLOAD);
-        if (payload != null) {
-            extras.add(PushConstants.MIPUSH_EXTRA_PAYLOAD, toJson(
-                    MIPushEventProcessor.buildContainer(payload)));
+        if (intent.getExtras() != null) {
+            JsonObject extras = (JsonObject) gson.toJsonTree(intent.getExtras());
+            byte[] payload = intent.getByteArrayExtra(PushConstants.MIPUSH_EXTRA_PAYLOAD);
+            if (payload != null) {
+                extras.add(PushConstants.MIPUSH_EXTRA_PAYLOAD, toJson(
+                        MIPushEventProcessor.buildContainer(payload)));
+            }
+            json.add("extras", extras);
         }
-        json.add("extras", extras);
         return json;
     }
 
