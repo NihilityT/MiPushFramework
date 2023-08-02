@@ -113,6 +113,7 @@ public class XMPushServiceAspect {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (TextUtils.equals(intent.getAction(), PushConstants.ACTION_RESET_CONNECTION)) {
+                xmPushService.disconnect(11, null);
                 xmPushService.scheduleConnect(true);
             }
             sendSetConnectionStatus();
