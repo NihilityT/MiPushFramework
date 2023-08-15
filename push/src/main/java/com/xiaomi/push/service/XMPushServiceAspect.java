@@ -28,6 +28,7 @@ import com.elvishew.xlog.XLog;
 import com.oasisfeng.condom.CondomContext;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.push.revival.NotificationRevival;
+import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.smack.packet.Message;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
@@ -113,8 +114,18 @@ public class XMPushServiceAspect {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (TextUtils.equals(intent.getAction(), PushConstants.ACTION_RESET_CONNECTION)) {
-                xmPushService.disconnect(11, null);
-                xmPushService.scheduleConnect(true);
+                xmPushService.executeJob(new XMPushService.Job(XMPushService.Job.TYPE_RESET_CONNECT) {
+                    @Override
+                    public String getDesc() {
+                        return "reset connection";
+                    }
+
+                    @Override
+                    public void process() {
+                        xmPushService.disconnect(11, null);
+                        xmPushService.scheduleConnect(true);
+                    }
+                });
             }
             sendSetConnectionStatus();
         }

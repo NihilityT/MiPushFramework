@@ -20,6 +20,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.android.material.elevation.SurfaceColors;
 import com.xiaomi.channel.commonutils.android.DeviceInfo;
 import com.xiaomi.channel.commonutils.android.MIUIUtils;
+import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.utils.ConfigCenter;
 
@@ -69,8 +70,9 @@ public abstract class MainActivity extends AppCompatActivity {
 
 
     void hookTest() {
-        Log.i(TAG, "[hook_res]MIUIUtils.getIsMIUI()" + MIUIUtils.getIsMIUI());
-        Log.i(TAG, "[hook_res]DeviceInfo.quicklyGetIMEI()" + DeviceInfo.quicklyGetIMEI(this));
+        Log.i(TAG, String.format("[hook_res] MIUIUtils.getIsMIUI() -> [%s]", MIUIUtils.getIsMIUI()));
+        Log.i(TAG, String.format("[hook_res] DeviceInfo.quicklyGetIMEI() -> [%s]", DeviceInfo.quicklyGetIMEI(this)));
+        Log.i(TAG, String.format("[hook_res] ConnectionConfiguration.getXmppServerHost() -> [%s]", ConnectionConfiguration.getXmppServerHost()));
     }
 
 

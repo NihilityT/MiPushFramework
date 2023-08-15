@@ -20,6 +20,7 @@ import com.android.settings.widget.EntityHeaderController;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.xiaomi.push.service.PushConstants;
+import com.xiaomi.push.service.PushServiceConstants;
 import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.utils.ConfigCenter;
@@ -75,7 +76,7 @@ public class SettingsFragment extends PreferenceFragment {
             }
             preference.setOnPreferenceClickListener(pref -> {
                 EditText editText = new EditText(getActivity());
-                editText.setHint(ConnectionConfiguration.XMPP_SERVER_HOST_P + ":80");
+                editText.setHint(ConnectionConfiguration.getXmppServerHost() + ":" + PushServiceConstants.XMPP_SERVER_PORT);
                 editText.setText(ConfigCenter.getInstance().getXMPPServer(getActivity()));
                 AlertDialog.Builder build = new AlertDialog.Builder(getActivity())
                         .setView(editText)

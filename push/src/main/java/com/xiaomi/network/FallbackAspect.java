@@ -1,13 +1,11 @@
 package com.xiaomi.network;
 
-import android.content.Context;
 import android.text.TextUtils;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.xiaomi.channel.commonutils.network.Network;
 import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.xmsf.utils.ConfigCenter;
 
@@ -15,7 +13,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 
-import java.net.URL;
 import java.util.ArrayList;
 
 import top.trumeet.common.utils.Utils;
@@ -35,7 +32,7 @@ public class FallbackAspect {
         logger.d("Fallback " + gson.toJsonTree(fallback));
         ArrayList<String> hosts = (ArrayList<String>) joinPoint.proceed();
 
-        if (TextUtils.equals(fallback.host, ConnectionConfiguration.XMPP_SERVER_HOST_P)) {
+        if (TextUtils.equals(fallback.host, ConnectionConfiguration.getXmppServerHost())) {
             String userHost = ConfigCenter.getInstance().getXMPPServer(Utils.getApplication());
             if (!TextUtils.isEmpty(userHost)) {
                 hosts.add(0, userHost);

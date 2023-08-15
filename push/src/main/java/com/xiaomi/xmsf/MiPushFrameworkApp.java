@@ -29,6 +29,7 @@ import com.xiaomi.channel.commonutils.android.MIUIUtils;
 import com.xiaomi.channel.commonutils.logger.LoggerInterface;
 import com.xiaomi.channel.commonutils.logger.MyLog;
 import com.xiaomi.mipush.sdk.Logger;
+import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.xmsf.push.control.PushControllerUtils;
 import com.xiaomi.xmsf.push.control.XMOutbound;
 import com.xiaomi.xmsf.push.service.MiuiPushActivateService;
@@ -74,26 +75,15 @@ public class MiPushFrameworkApp extends Application {
         super.onCreate();
         Shell.getShell();
         instance = this;
-        try {
-            Field MIUIUtils_isMIUI = MIUIUtils.class.getDeclaredField("isMIUI");
-            MIUIUtils_isMIUI.setAccessible(true);
-            MIUIUtils_isMIUI.setInt(null, 1);
 
-            Field DeviceInfo_sCachedIMEI = DeviceInfo.class.getDeclaredField("sCachedIMEI");
-            DeviceInfo_sCachedIMEI.setAccessible(true);
-            DeviceInfo_sCachedIMEI.set(null, "");
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
+        initLogger();
+        hookMiPushSDK();
 
         NotificationManagerEx.notificationManager = (NotificationManager)
                 getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 
         RxActivityResult.register(this);
 
-        LogUtils.init(this);
-        logger = XLog.tag(MiPushFrameworkApp.class.getSimpleName()).build();
-        logger.i("App starts: " + BuildConfig.VERSION_NAME);
 
         initMiSdkLogger();
         initPushLogger();
@@ -124,6 +114,32 @@ public class MiPushFrameworkApp extends Application {
         }
 
 
+    }
+
+    private void initLogger() {
+        LogUtils.init(this);
+        logger = XLog.tag(MiPushFrameworkApp.class.getSimpleName()).build();
+        logger.i("App starts: " + BuildConfig.VERSION_NAME);
+    }
+
+    private void hookMiPushSDK() {
+        try {
+            hookField(MIUIUtils.class, "isMIUI", 1);
+            hookField(DeviceInfo.class, "sCachedIMEI", "");
+            ConnectionConfiguration.setXmppServerHost("cn.app.chat.xiaomi.net");
+        } catch (Throwable e) {
+            logger.e(e.getMessage(), e);
+        }
+    }
+
+    private void hookField(Class klass, String field, Object value) {
+        try {
+            Field target = klass.getDeclaredField(field);
+            target.setAccessible(true);
+            target.set(null, value);
+        } catch (Throwable e) {
+            logger.e(e.getMessage(), e);
+        }
     }
 
     private void notifyDozeWhiteListRequest(NotificationManagerCompat manager) {
