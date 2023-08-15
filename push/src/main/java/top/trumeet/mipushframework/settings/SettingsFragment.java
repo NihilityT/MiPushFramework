@@ -104,12 +104,13 @@ public class SettingsFragment extends PreferenceFragment {
                 EditText editText = new EditText(getActivity());
                 editText.setHint(ConnectionConfiguration.getXmppServerHost() + ":" + PushServiceConstants.XMPP_SERVER_PORT);
                 editText.setText(ConfigCenter.getInstance().getXMPPServer(getActivity()));
+                editText.setSingleLine();
                 AlertDialog.Builder build = new AlertDialog.Builder(getActivity())
                         .setView(editText)
                         .setTitle(R.string.settings_XMPP_server)
                         .setCancelable(true)
                         .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
-                            String newHost = String.valueOf(editText.getText());
+                            String newHost = String.valueOf(editText.getText()).trim();
                             ConfigCenter.getInstance().setXMPPServer(getActivity(), newHost);
                             if (TextUtils.isEmpty(newHost)) {
                                 preference.setSummary(R.string.settings_XMPP_server_summary);
