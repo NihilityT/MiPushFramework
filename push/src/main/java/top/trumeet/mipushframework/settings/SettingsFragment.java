@@ -2,8 +2,11 @@ package top.trumeet.mipushframework.settings;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -46,6 +49,29 @@ public class SettingsFragment extends PreferenceFragment {
 
     private static final String TAG = SettingsFragment.class.getSimpleName();
     private static final Logger logger = XLog.tag(TAG).build();
+
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String host = intent.getStringExtra("host");
+            if (TextUtils.isEmpty(host)) {
+                return;
+            }
+            Preference preference = getPreference("XMPP_server");
+            String summary = preference.getSummary().toString();
+            preference.setSummary(summary.replaceFirst(
+                    "(?m)$[\\s\\S]*", String.format("\nCurrent: [%s]", host)));
+        }
+    };
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(mMessageReceiver,
+                new IntentFilter("setConnectionStatus"));
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent("getConnectionStatus"));
+    }
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {

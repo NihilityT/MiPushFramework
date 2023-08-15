@@ -204,6 +204,9 @@ public class XMPushServiceAspect {
     private void sendSetConnectionStatus() {
         Intent intent = new Intent("setConnectionStatus");
         intent.putExtra("status", connectionStatus);
+        if (xmPushService.getCurrentConnection() != null) {
+            intent.putExtra("host", xmPushService.getCurrentConnection().getHost());
+        }
         LocalBroadcastManager.getInstance(xmPushService).sendBroadcast(intent);
     }
 
