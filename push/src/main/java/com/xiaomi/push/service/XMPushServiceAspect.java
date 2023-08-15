@@ -27,6 +27,8 @@ import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.oasisfeng.condom.CondomContext;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
+import com.xiaomi.network.Fallback;
+import com.xiaomi.network.HostManager;
 import com.xiaomi.push.revival.NotificationRevival;
 import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.smack.packet.Message;
@@ -122,6 +124,9 @@ public class XMPushServiceAspect {
 
                     @Override
                     public void process() {
+                        Fallback fallback = HostManager.getInstance().getFallbacksByHost(ConnectionConfiguration.getXmppServerHost(), false);
+                        JavaCalls.setField(fallback, "timestamp", 0);
+                        HostManager.getInstance().getFallbacksByHost(ConnectionConfiguration.getXmppServerHost(), true);
                         xmPushService.disconnect(11, null);
                         xmPushService.scheduleConnect(true);
                     }
