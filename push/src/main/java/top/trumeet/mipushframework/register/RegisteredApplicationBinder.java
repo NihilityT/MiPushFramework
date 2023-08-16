@@ -45,8 +45,7 @@ public class RegisteredApplicationBinder extends BaseAppsBinder<RegisteredApplic
         }
         switch (item.getRegisteredType()) {
             case 1: {
-                holder.status.setText(R.string.app_registered);
-                holder.status.setTextColor(Color.parseColor("#FF0B5B27"));
+                holder.status.setText(null);
                 break;
             }
             case 2: {
