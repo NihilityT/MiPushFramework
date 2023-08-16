@@ -16,10 +16,7 @@ import com.xiaomi.mipush.sdk.DecryptException;
 import com.xiaomi.mipush.sdk.PushContainerHelper;
 import com.xiaomi.push.service.MIPushEventProcessor;
 import com.xiaomi.push.service.PushConstants;
-import com.xiaomi.xmpush.thrift.ActionType;
-import com.xiaomi.xmpush.thrift.XmPushActionContainer;
-import com.xiaomi.xmpush.thrift.XmPushActionRegistrationResult;
-import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
+import com.xiaomi.xmpush.thrift.*;
 import com.xiaomi.xmsf.push.utils.Utils;
 
 import org.apache.thrift.TBase;
@@ -120,16 +117,76 @@ public class ConvertUtils {
         try {
             Method createRespMessageFromAction = PushContainerHelper.class.getDeclaredMethod("createRespMessageFromAction", ActionType.class, boolean.class);
             createRespMessageFromAction.setAccessible(true);
-            TBase packet = (TBase) createRespMessageFromAction.invoke(null, container.getAction(), container.isRequest);
+            TBase packet = createMessageFromAction(container.getAction(), container.isRequest);
             if (packet != null) {
-                if (packet instanceof XmPushActionRegistrationResult) {
-                    ((XmPushActionRegistrationResult) packet).setErrorCode(0);
-                }
                 XmPushThriftSerializeUtils.convertByteArrayToThriftObject(packet, oriMsgBytes);
             }
             return packet;
         } catch (Exception e) {
             throw e;
+        }
+    }
+
+    private static TBase createMessageFromAction(ActionType act, boolean isRequest) {
+        if (isRequest) {
+            return createRequestMessageFromAction(act);
+        }
+        return createResponseMessageFromAction(act);
+    }
+
+    private static TBase createRequestMessageFromAction(ActionType act) {
+        switch (act) {
+            case Registration:
+                return new XmPushActionRegistration();
+            case UnRegistration:
+                return new XmPushActionUnRegistration();
+            case Subscription:
+                return new XmPushActionSubscription();
+            case UnSubscription:
+                return new XmPushActionUnSubscription();
+            case SendMessage:
+                return new XmPushActionSendMessage();
+            case AckMessage:
+                return new XmPushActionAckMessage();
+            case SetConfig:
+                return new XmPushActionCommand();
+            case ReportFeedback:
+                return new XmPushActionSendFeedback();
+            case Notification:
+                return new XmPushActionNotification();
+            case Command:
+                return new XmPushActionCommand();
+            default:
+                return null;
+        }
+    }
+
+    private static TBase createResponseMessageFromAction(ActionType act) {
+        switch (act) {
+            case Registration:
+                return new XmPushActionRegistrationResult();
+            case UnRegistration:
+                return new XmPushActionUnRegistrationResult();
+            case Subscription:
+                return new XmPushActionSubscriptionResult();
+            case UnSubscription:
+                return new XmPushActionUnSubscriptionResult();
+            case SendMessage:
+                return new XmPushActionSendMessage();
+            case AckMessage:
+                return new XmPushActionAckMessage();
+            case SetConfig:
+                return new XmPushActionCommandResult();
+            case ReportFeedback:
+                return new XmPushActionSendFeedbackResult();
+            case Notification:
+                XmPushActionAckNotification ackNotification = new XmPushActionAckNotification();
+                ackNotification.setErrorCodeIsSet(true);
+                return ackNotification;
+            case Command:
+                return new XmPushActionCommandResult();
+            default:
+                return null;
         }
     }
 }
