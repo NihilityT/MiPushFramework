@@ -45,7 +45,6 @@ import top.trumeet.common.utils.ImgUtils;
  * @author Trumeet
  * @date 2018/1/25
  */
-
 public class NotificationController {
     private static final Logger logger = XLog.tag("NotificationController").build();
 
@@ -57,7 +56,6 @@ public class NotificationController {
     public static NotificationManagerEx getNotificationManagerEx() {
         return NotificationManagerEx.INSTANCE;
     }
-
 
     @TargetApi(Build.VERSION_CODES.N)
     private static void updateSummaryNotification(Context context, PushMetaInfo metaInfo, String packageName, String groupId) {
@@ -128,6 +126,10 @@ public class NotificationController {
         return channelId;
     }
 
+    private static boolean isMiPushInstalled() {
+        return false;
+    }
+
     private static Notification notify(
             Context context, int notificationId, String packageName,
             NotificationCompat.Builder notificationBuilder, PushMetaInfo metaInfo) {
@@ -146,9 +148,12 @@ public class NotificationController {
             notificationBuilder.setLargeIcon(largeIcon);
         }
 
-        CustomConfiguration custom = new CustomConfiguration(metaInfo.getExtra());
-        String subText = custom.subText(null);
-        buildExtraSubText(context, packageName, notificationBuilder, subText);
+        if (!isMiPushInstalled())
+        {
+            CustomConfiguration custom = new CustomConfiguration(metaInfo.getExtra());
+            String subText = custom.subText(null);
+            buildExtraSubText(context, packageName, notificationBuilder, subText);
+        }
 
         notificationBuilder.setAutoCancel(true);
         Notification notification = notificationBuilder.build();
@@ -211,7 +216,6 @@ public class NotificationController {
         }
     }
 
-
     /**
      * @param ctx context
      * @param pkg packageName
@@ -234,7 +238,6 @@ public class NotificationController {
             }
         });
     }
-
 
     public static void processIcon(Context context, String packageName, NotificationCompat.Builder notificationBuilder) {
         notificationBuilder.setSmallIcon(R.drawable.ic_notifications_black_24dp);
@@ -310,7 +313,6 @@ public class NotificationController {
         return context.getResources().getIdentifier(resourceName, "drawable", packageName);
     }
 
-
     public static void test(Context context, String packageName, String title, String description) {
         NotificationChannelManager.registerChannelIfNeeded(context, new PushMetaInfo(), packageName);
 
@@ -340,5 +342,4 @@ public class NotificationController {
 
         NotificationController.publish(context, new PushMetaInfo(), id, packageName, localBuilder);
     }
-
 }
