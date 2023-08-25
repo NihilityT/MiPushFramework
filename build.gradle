@@ -64,6 +64,11 @@ def getVersionName = { ->
         }
 
         def versionName = stdout.toString().trim()
+        if (versionName.contains('-')) {
+            versionName = versionName.replaceFirst("(\\d+\\.\\d+\\.)(\\d+)", {
+                return it[1] + (it[2].toInteger() + 1)
+            })
+        }
         if (versionName.startsWith("v")) {
             return versionName.substring(1)
         } else {
