@@ -49,6 +49,17 @@ android {
         }
     }
 
+    flavorDimensions "versionCode"
+    productFlavors {
+        normal {
+            dimension "versionCode"
+        }
+        vc105 {
+            dimension "versionCode"
+            versionCode = 105
+        }
+    }
+
     aspectjx {
         // 移除kotlin相关，编译错误和提升速度
         exclude 'kotlin.jvm', 'kotlin.internal'
