@@ -77,6 +77,11 @@ android {
 
     signingConfigs {
         debug {
+            v1SigningEnabled true
+            v2SigningEnabled true
+            enableV3Signing = true
+            enableV4Signing = true
+
             def locale = project.rootProject.file(".yuuta.jks")
             def keystorePwd = System.getenv("KEYSTORE_PASS")
             def alias = System.getenv("ALIAS_NAME")
@@ -96,13 +101,6 @@ android {
                 keyAlias alias
                 keyPassword pwd
             }
-        }
-        release {
-            // 满足下面两个条件时需要此配置
-            // 1. Gradle版本 >= 2.14.1
-            // 2. Android Gradle Plugin 版本 >= 2.2.0
-            // 作用是只使用旧版签名，禁用V2版签名模式
-            v2SigningEnabled false
         }
     }
     compileOptions {
