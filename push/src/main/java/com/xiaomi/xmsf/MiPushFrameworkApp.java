@@ -29,6 +29,7 @@ import com.xiaomi.channel.commonutils.android.MIUIUtils;
 import com.xiaomi.channel.commonutils.logger.LoggerInterface;
 import com.xiaomi.channel.commonutils.logger.MyLog;
 import com.xiaomi.mipush.sdk.Logger;
+import com.xiaomi.network.HostManager;
 import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.xmsf.push.control.PushControllerUtils;
 import com.xiaomi.xmsf.push.control.XMOutbound;
@@ -126,9 +127,44 @@ public class MiPushFrameworkApp extends Application {
         try {
             hookField(MIUIUtils.class, "isMIUI", 1);
             hookField(DeviceInfo.class, "sCachedIMEI", "");
-            ConnectionConfiguration.setXmppServerHost("cn.app.chat.xiaomi.net");
+            hookMiPushServerHost();
         } catch (Throwable e) {
             logger.e(e.getMessage(), e);
+        }
+    }
+
+    private static void hookMiPushServerHost() {
+        String xmppServerHost = "cn.app.chat.xiaomi.net";
+        ConnectionConfiguration.setXmppServerHost(xmppServerHost);
+
+        addReservedHost(xmppServerHost, new String[] {
+                xmppServerHost,
+                "220.181.106.151:5222",
+                "220.181.106.151:443",
+                "220.181.106.152:5222",
+                "118.26.252.226:443",
+                "118.26.252.225:443",
+                "58.83.177.235:5222",
+                "58.83.177.220:5222",
+        });
+
+        String resolver = "resolver.msg.xiaomi.net";
+        addReservedHost(resolver, new String[] {
+                resolver,
+                "111.13.142.153:5222",
+                "118.26.252.209:5222",
+                "39.156.150.162:5222",
+                "111.13.142.153:80",
+                "39.156.150.162:80",
+                "123.125.102.48:5222",
+                "220.181.106.150:5222",
+                "118.26.252.209:5222",
+        });
+    }
+
+    private static void addReservedHost(String host, String[] hosts) {
+        for (String h : hosts) {
+            HostManager.addReservedHost(host, h);
         }
     }
 
