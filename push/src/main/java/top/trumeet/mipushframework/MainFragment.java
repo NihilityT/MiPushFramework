@@ -57,7 +57,7 @@ public class MainFragment extends Fragment implements OnConnectStatusChangedList
         if (item.getItemId() == R.id.action_about) {
             ((TextView) (new AlertDialog.Builder(getContext()).setView(R.layout.dialog_about).show()
                     .findViewById(R.id.text_version)))
-                    .setText(getString(R.string.about_version, BuildConfig.VERSION_NAME));
+                    .setText(getString(R.string.about_version, BuildConfig.VERSION_NAME, String.valueOf(BuildConfig.VERSION_CODE)));
             return true;
         } else if (item.getItemId() == R.id.action_update) {
             startActivity(new Intent(Intent.ACTION_VIEW)

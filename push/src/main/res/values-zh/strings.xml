@@ -198,7 +198,7 @@
     <string name="connect_fail_doze">需要关闭电池优化</string>
 
 
-    <string name="about_version">版本 %1$s</string>
+    <string name="about_version">版本 %1$s（%2$s）</string>
     <string name="app_registered">已注册</string>
 
 

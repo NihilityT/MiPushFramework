@@ -221,7 +221,7 @@ Please grant the <b>Run in the background or wake up</b> permissions.
 
 
     <!-- Help -->
-    <string name="about_version">Version %1$s</string>
+    <string name="about_version">Version %1$s (%2$s)</string>
     <string name="app_registered">Registered</string>
     <string name="app_registered_error">Unregistered</string>
 
