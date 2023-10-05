@@ -24,6 +24,7 @@ import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.xiaomi.push.service.PushConstants;
 import com.xiaomi.push.service.PushServiceConstants;
+import com.xiaomi.push.service.XMPushServiceAspect;
 import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.utils.ConfigCenter;
@@ -68,9 +69,9 @@ public class SettingsFragment extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(mMessageReceiver,
-                new IntentFilter("setConnectionStatus"));
-        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent("getConnectionStatus"));
+        LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(getContext());
+        localBroadcast.registerReceiver(mMessageReceiver, new IntentFilter(XMPushServiceAspect.IntentSetConnectionStatus));
+        localBroadcast.sendBroadcast(new Intent(XMPushServiceAspect.IntentGetConnectionStatus));
     }
 
     @Override

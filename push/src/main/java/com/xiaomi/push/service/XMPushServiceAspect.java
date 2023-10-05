@@ -120,6 +120,8 @@ public class XMPushServiceAspect {
 
     public static String connectionStatus;
 
+    public static String IntentGetConnectionStatus = "getConnectionStatus";
+    public static String IntentSetConnectionStatus = "setConnectionStatus";
     public static String IntentStartForeground = "startForeground";
     @RequiresApi(N) private NotificationRevival mNotificationRevival;
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -167,7 +169,7 @@ public class XMPushServiceAspect {
         }
 
         LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(xmPushService);
-        localBroadcast.registerReceiver(mMessageReceiver, new IntentFilter("getConnectionStatus"));
+        localBroadcast.registerReceiver(mMessageReceiver, new IntentFilter(IntentGetConnectionStatus));
         localBroadcast.registerReceiver(mMessageReceiver, new IntentFilter(PushConstants.ACTION_RESET_CONNECTION));
         localBroadcast.registerReceiver(mMessageReceiver, new IntentFilter(IntentStartForeground));
     }
@@ -217,7 +219,7 @@ public class XMPushServiceAspect {
     }
 
     private void sendSetConnectionStatus() {
-        Intent intent = new Intent("setConnectionStatus");
+        Intent intent = new Intent(IntentSetConnectionStatus);
         intent.putExtra("status", connectionStatus);
         if (xmPushService.getCurrentConnection() != null) {
             intent.putExtra("host", xmPushService.getCurrentConnection().getHost());

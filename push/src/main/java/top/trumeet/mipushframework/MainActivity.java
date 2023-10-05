@@ -20,6 +20,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.android.material.elevation.SurfaceColors;
 import com.xiaomi.channel.commonutils.android.DeviceInfo;
 import com.xiaomi.channel.commonutils.android.MIUIUtils;
+import com.xiaomi.push.service.XMPushServiceAspect;
 import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.utils.ConfigCenter;
@@ -63,9 +64,9 @@ public abstract class MainActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(color);
         getWindow().setNavigationBarColor(color);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
-                new IntentFilter("setConnectionStatus"));
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("getConnectionStatus"));
+        LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(this);
+        localBroadcast.registerReceiver(mMessageReceiver, new IntentFilter(XMPushServiceAspect.IntentSetConnectionStatus));
+        localBroadcast.sendBroadcast(new Intent(XMPushServiceAspect.IntentGetConnectionStatus));
     }
 
 
