@@ -180,7 +180,7 @@
 
     <string name="helplib_action_issue">问题反馈</string>
     <string name="helplib_action_telegram_group">加入 Telegram 群组</string>
-    <string name="helplib_action_qq_group">加入 QQ 群</string>
+    <string name="helplib_action_qq_group">加入 QQ 频道</string>
     <string name="helplib_title">帮助和支持</string>
     <string name="helplib_title_contact">联系我们</string>
     <string name="helplib_title_faq">常见问题</string>

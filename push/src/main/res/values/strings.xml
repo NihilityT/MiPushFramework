@@ -243,7 +243,7 @@ Registration is determined and initiated by the application and generally begins
     <string name="helplib_action_about">About</string>
     <string name="helplib_action_issue">Feedback</string>
     <string name="helplib_action_telegram_group">Join Telegram group</string>
-    <string name="helplib_action_qq_group">Join QQ group</string>
+    <string name="helplib_action_qq_group">Join QQ channel</string>
     <string name="helplib_title"><![CDATA[Help & Support]]></string>
     <string name="helplib_title_contact">Contact us</string>
     <string name="helplib_title_faq">Frequently asked questions</string>

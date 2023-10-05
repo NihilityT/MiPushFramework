@@ -46,7 +46,7 @@ public class SupportFragment extends HelpFragment {
         preference.setTitle(R.string.helplib_action_qq_group);
         preference.setIcon(R.drawable.helplib_feedback_telegram_24dp);
         preference.setIntent(new Intent(Intent.ACTION_VIEW)
-                .setData(Uri.parse("mqqopensdkapi://bizAgent/qm/qr?url=http%3A%2F%2Fqm.qq.com%2Fcgi-bin%2Fqm%2Fqr%3Ffrom%3Dapp%26p%3Dandroid%26jump_from%3Dwebapi%26k%3D" + "2y-E1qhDtUckwLVKmidPX-j7gnO3x0ji")));
+                .setData(Uri.parse("https://pd.qq.com/s/4tsiu8hlu")));
         ((PreferenceGroup) findPreference(KEY_CONTACT)).addPreference(preference);
 
         load();
