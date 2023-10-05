@@ -80,6 +80,10 @@ public class ConfigCenter {
         return getSharedPreferences(Utils.getApplication()).getBoolean("DebugMode", false);
     }
 
+    public boolean isStartForegroundService() {
+        return getSharedPreferences(Utils.getApplication()).getBoolean("StartForegroundService", false);
+    }
+
     public void loadConfigurations(Context context) {
         Configurations.getInstance().init(context,
                 ConfigCenter.getInstance().getConfigurationDirectory(context));

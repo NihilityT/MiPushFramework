@@ -1,6 +1,7 @@
 package com.xiaomi.xmsf;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
@@ -11,8 +12,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.catchingnow.icebox.sdk_client.IceBox;
+import com.xiaomi.push.service.XMPushServiceAspect;
 import com.xiaomi.xmsf.push.notification.NotificationController;
 import com.xiaomi.xmsf.utils.LogUtils;
 
@@ -111,10 +114,14 @@ public class ManageSpaceActivity extends PreferenceActivity {
                     }
                     return true;
                 });
-
             }
 
-
+            SwitchPreference startForegroundService = (SwitchPreference) getPreferenceScreen().findPreference("StartForegroundService");
+            startForegroundService.setOnPreferenceChangeListener((preference, newValue) -> {
+                LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(getContext());
+                localBroadcast.sendBroadcast(new Intent(XMPushServiceAspect.IntentStartForeground));
+                return true;
+            });
         }
 
         private void requestIceBoxPermission() {

@@ -22,6 +22,7 @@ import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationChannelGroupCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.ServiceCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.elvishew.xlog.Logger;
@@ -118,6 +119,8 @@ public class XMPushServiceAspect {
     public static XMPushService xmPushService;
 
     public static String connectionStatus;
+
+    public static String IntentStartForeground = "startForeground";
     @RequiresApi(N) private NotificationRevival mNotificationRevival;
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
@@ -138,6 +141,8 @@ public class XMPushServiceAspect {
                         xmPushService.scheduleConnect(true);
                     }
                 });
+            } else if (TextUtils.equals(intent.getAction(), IntentStartForeground)) {
+                startForeground();
             }
             sendSetConnectionStatus();
         }
@@ -161,10 +166,10 @@ public class XMPushServiceAspect {
             mNotificationRevival.initialize();
         }
 
-        LocalBroadcastManager.getInstance(xmPushService).registerReceiver(mMessageReceiver,
-                new IntentFilter("getConnectionStatus"));
-        LocalBroadcastManager.getInstance(xmPushService).registerReceiver(mMessageReceiver,
-                new IntentFilter(PushConstants.ACTION_RESET_CONNECTION));
+        LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(xmPushService);
+        localBroadcast.registerReceiver(mMessageReceiver, new IntentFilter("getConnectionStatus"));
+        localBroadcast.registerReceiver(mMessageReceiver, new IntentFilter(PushConstants.ACTION_RESET_CONNECTION));
+        localBroadcast.registerReceiver(mMessageReceiver, new IntentFilter(IntentStartForeground));
     }
 
     @Before("execution(* com.xiaomi.push.service.XMPushService.onStartCommand(..))")
@@ -236,6 +241,10 @@ public class XMPushServiceAspect {
     }
 
     private void startForeground() {
+        if (!ConfigCenter.getInstance().isStartForegroundService()) {
+            xmPushService.stopForeground(ServiceCompat.STOP_FOREGROUND_REMOVE);
+            return;
+        }
         NotificationManagerCompat manager = NotificationManagerCompat.from(xmPushService.getApplicationContext());
         if (SDK_INT >= O) {
             String groupId = "status_group";
