@@ -243,10 +243,6 @@ public class XMPushServiceAspect {
     }
 
     private void startForeground() {
-        if (!ConfigCenter.getInstance().isStartForegroundService()) {
-            xmPushService.stopForeground(ServiceCompat.STOP_FOREGROUND_REMOVE);
-            return;
-        }
         NotificationManagerCompat manager = NotificationManagerCompat.from(xmPushService.getApplicationContext());
         if (SDK_INT >= O) {
             String groupId = "status_group";
@@ -260,6 +256,10 @@ public class XMPushServiceAspect {
                     .setName(xmPushService.getString(R.string.notification_category_alive)).setGroup(groupId);
             manager.createNotificationChannel(channel.build());
 
+        }
+        if (!ConfigCenter.getInstance().isStartForegroundService()) {
+            xmPushService.stopForeground(ServiceCompat.STOP_FOREGROUND_REMOVE);
+            return;
         }
         //if (ConfigCenter.getInstance().foregroundNotification || Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         {
