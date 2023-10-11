@@ -214,7 +214,7 @@ public class MyMIPushNotificationHelper {
         logger.i("title:" + title + "  description:" + description);
 
         Context pkgCtx = context;
-        if (NotificationManagerEx.INSTANCE.isSystemHookReady()) {
+        if (NotificationManagerEx.isHooked) {
             try {
                 pkgCtx = context.createPackageContext(packageName, 0);
             } catch (PackageManager.NameNotFoundException e) {

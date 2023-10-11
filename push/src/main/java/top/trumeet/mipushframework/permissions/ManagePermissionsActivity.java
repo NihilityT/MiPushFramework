@@ -351,7 +351,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
 
                 List<NotificationChannelGroup> groups = NotificationManagerEx.INSTANCE
                         .getNotificationChannelGroups(mApplicationItem.getPackageName());
-                if (NotificationManagerEx.INSTANCE.isSystemHookReady()) {
+                if (NotificationManagerEx.isHooked) {
                     groups.sort((lhs, rhs) -> {
                         if (TextUtils.equals(lhs.getId(), mipushGroup) || rhs.getId() == null) {
                             return -1;
@@ -404,7 +404,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
             notificationChannelsCategory.setTitle(categoryName);
             screen.addPreference(notificationChannelsCategory);
 
-            String configApp = NotificationManagerEx.INSTANCE.isSystemHookReady() ?
+            String configApp = NotificationManagerEx.isHooked ?
                     mApplicationItem.getPackageName() :
                     Constants.SERVICE_APP_NAME;
             List<NotificationChannel> notificationChannels =

@@ -14,9 +14,8 @@ object NotificationManagerEx {
 
     lateinit var notificationManager: NotificationManager
 
-    val isSystemHookReady: Boolean by lazy {
-        true == JavaCalls.callMethod(notificationManager, "isSystemConditionProviderEnabled", "is_system_hook_ready")
-    }
+    @kotlin.jvm.JvmField
+    var isHooked: Boolean = false
 
     fun notify(
         packageName: String,
