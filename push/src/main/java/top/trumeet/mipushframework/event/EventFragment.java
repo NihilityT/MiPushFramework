@@ -94,9 +94,6 @@ public class EventFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         view.setLayoutManager(
                 new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         view.setAdapter(mAdapter);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(view.getContext(),
-                LinearLayoutManager.VERTICAL);
-        view.addItemDecoration(dividerItemDecoration);
         view.addOnScrollListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore() {

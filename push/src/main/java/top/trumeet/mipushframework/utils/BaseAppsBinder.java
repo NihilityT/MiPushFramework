@@ -37,13 +37,6 @@ public abstract class BaseAppsBinder<T> extends ItemViewBinder<T, BaseAppsBinder
         super();
     }
 
-    @NonNull
-    @Override
-    protected final ViewHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
-        return new ViewHolder(inflater.inflate(R.layout.preference_app, parent,
-                false));
-    }
-
     public final void fillData(String pkgName, boolean fillName, ViewHolder holder) {
         Context context = holder.itemView.getContext();
         if (fillName) {
@@ -124,7 +117,7 @@ public abstract class BaseAppsBinder<T> extends ItemViewBinder<T, BaseAppsBinder
         public TextView text2;
         public TextView status;
 
-        ViewHolder(View itemView) {
+        public ViewHolder(View itemView) {
             super(itemView);
             icon = itemView.findViewById(android.R.id.icon);
             title = itemView.findViewById(android.R.id.title);

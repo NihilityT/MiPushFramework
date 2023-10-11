@@ -87,9 +87,6 @@ public class RegisteredApplicationFragment extends Fragment implements SwipeRefr
         view.setLayoutManager(new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false));
         view.setAdapter(mAdapter);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(view.getContext(),
-                LinearLayoutManager.VERTICAL);
-        view.addItemDecoration(dividerItemDecoration);
 
 
         swipeRefreshLayout = new SwipeRefreshLayout(getActivity());

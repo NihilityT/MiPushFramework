@@ -9,7 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -61,6 +63,12 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
 
     EventItemBinder() {
         super();
+    }
+
+    @NonNull
+    @Override
+    protected ViewHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
+        return new ViewHolder(inflater.inflate(R.layout.event_item, parent, false));
     }
 
     @Override
