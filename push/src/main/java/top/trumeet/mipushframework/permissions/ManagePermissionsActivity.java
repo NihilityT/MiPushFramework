@@ -302,26 +302,6 @@ public class ManagePermissionsActivity extends AppCompatActivity {
                 screen.addPreference(preferenceStatus);
             }
 
-
-            final SimpleMenuPreference preferenceRegisterMode =
-                    new SimpleMenuPreference(getActivity(),
-                            null, moe.shizuku.preference.simplemenu.R.attr.simpleMenuPreferenceStyle,
-                            R.style.SimpleMenuPreference);
-            preferenceRegisterMode.setEntries(R.array.register_types);
-            preferenceRegisterMode.setEntryValues(R.array.register_entries);
-            preferenceRegisterMode.setTitle(R.string.permission_register_type);
-            preferenceRegisterMode.setOnPreferenceChangeListener((preference, newValue) -> {
-                mApplicationItem.setType(Integer.parseInt(String.valueOf(newValue)));
-                updateRegisterType(mApplicationItem.getType(),
-                        preferenceRegisterMode);
-                return true;
-            });
-            if (mApplicationItem.getRegisteredType() == 0) {
-                preferenceRegisterMode.setEnabled(false);
-            }
-            updateRegisterType(mApplicationItem.getType(),
-                    preferenceRegisterMode);
-
             Preference viewRecentActivityPreference = new Preference(getActivity());
             viewRecentActivityPreference.setTitle(R.string.recent_activity_view);
             viewRecentActivityPreference.setOnPreferenceClickListener(preference -> {
@@ -331,10 +311,6 @@ public class ManagePermissionsActivity extends AppCompatActivity {
                 return true;
             });
 
-            if (mApplicationItem.getRegisteredType() == 0) {
-                preferenceRegisterMode.setEnabled(false);
-            }
-            screen.addPreference(preferenceRegisterMode);
             screen.addPreference(viewRecentActivityPreference);
 
             addItem(mApplicationItem.isNotificationOnRegister(),

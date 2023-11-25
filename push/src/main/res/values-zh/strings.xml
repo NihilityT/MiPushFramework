@@ -161,7 +161,6 @@
     <string name="permission_allow_receive_register_result">接收注册结果（暂时无效）</string>
     <string name="permission_notification_on_register">注册时显示通知</string>
     <string name="permission_summary_notification_on_register">需要在设置-高级配置中打开全局注册通知开关</string>
-    <string name="permission_register_type">注册方式</string>
     <string name="register_type_allow">允许并自动注册</string>
 
     <string name="register_type_deny">阻止注册</string>
