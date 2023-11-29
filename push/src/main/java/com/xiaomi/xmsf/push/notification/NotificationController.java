@@ -146,9 +146,28 @@ public class NotificationController {
             notificationBuilder.setLargeIcon(largeIcon);
         }
 
-        CustomConfiguration custom = new CustomConfiguration(metaInfo.getExtra());
-        String subText = custom.subText(null);
+        String subText = configuration.subText(null);
         buildExtraSubText(context, packageName, notificationBuilder, subText);
+
+        String focusParam = configuration.focusParam(null);
+        if (focusParam != null) {
+            Bundle focusBundle = new Bundle();
+            focusBundle.putString("miui.focus.param", focusParam);
+
+            Bundle picsBundle = new Bundle();
+            for (String key : configuration.keys()) {
+                if (key.startsWith("miui.focus.pic_")) {
+                    String url = configuration.get(key, null);
+                    focusBundle.putString(key, url);
+                    picsBundle.putParcelable(key,
+                            getBitmapFromUri(context, iconUri, 200 * KiB));
+                }
+            }
+            if (!picsBundle.isEmpty()) {
+                focusBundle.putBundle("miui.focus.pics", picsBundle);
+            }
+            notificationBuilder.addExtras(focusBundle);
+        }
 
         notificationBuilder.setAutoCancel(true);
         Notification notification = notificationBuilder.build();
