@@ -82,8 +82,7 @@ public class MiPushFrameworkApp extends Application {
         initLogger();
         hookMiPushSDK();
 
-        NotificationManagerEx.notificationManager = (NotificationManager)
-                getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManagerEx.init(getApplicationContext());
 
         RxActivityResult.register(this);
 

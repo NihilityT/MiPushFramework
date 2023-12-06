@@ -4,18 +4,23 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
+import android.content.Context
 import android.os.Build
 import android.service.notification.StatusBarNotification
 import com.elvishew.xlog.XLog
-import com.xiaomi.channel.commonutils.reflect.JavaCalls
 
 object NotificationManagerEx {
     private const val TAG = "NotificationManagerEx"
 
-    lateinit var notificationManager: NotificationManager
+    private lateinit var notificationManager: NotificationManager
 
-    @kotlin.jvm.JvmField
+    @JvmField
     var isHooked: Boolean = false
+
+    @JvmStatic
+    fun init(context: Context) {
+        notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    }
 
     fun notify(
         packageName: String,
