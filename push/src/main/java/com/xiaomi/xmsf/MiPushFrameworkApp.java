@@ -31,8 +31,9 @@ import com.xiaomi.channel.commonutils.logger.LoggerInterface;
 import com.xiaomi.channel.commonutils.logger.MyLog;
 import com.xiaomi.mipush.sdk.Logger;
 import com.xiaomi.network.HostManager;
-import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.push.service.AppRegionStorage;
+import com.xiaomi.smack.ConnectionConfiguration;
+import com.xiaomi.smack.SmackConfiguration;
 import com.xiaomi.xmsf.push.control.PushControllerUtils;
 import com.xiaomi.xmsf.push.control.XMOutbound;
 import com.xiaomi.xmsf.push.service.MiuiPushActivateService;
@@ -128,6 +129,7 @@ public class MiPushFrameworkApp extends Application {
         try {
             hookField(MIUIUtils.class, "isMIUI", 1);
             hookField(DeviceInfo.class, "sCachedIMEI", "");
+            hookField(SmackConfiguration.class, "pingInterval", 3 * 60 * 1000);
             hookMiPushServerHost();
             AppRegionStorage regionStorage = AppRegionStorage.getInstance(getApplicationContext());
             regionStorage.setRegion(Region.China.name());

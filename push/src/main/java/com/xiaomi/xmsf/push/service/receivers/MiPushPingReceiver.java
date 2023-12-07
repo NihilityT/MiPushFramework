@@ -18,7 +18,6 @@ public class MiPushPingReceiver extends BroadcastReceiver {
     }
 
     public void onReceive(Context paramContext, Intent paramIntent) {
-        Alarm.registerPing(false);
         MyLog.v(paramIntent.getPackage() + " is the package name");
         if (PushConstants.ACTION_PING_TIMER.equals(paramIntent.getAction())) {
             if (TextUtils.equals(paramContext.getPackageName(), paramIntent.getPackage())) {
