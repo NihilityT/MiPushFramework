@@ -79,7 +79,8 @@
     <string name="settings_notify_on_register">应用注册时显示通知</string>
     <string name="settings_show_loaded_file_after_configurations_loaded">在配置加载完成后显示加载成功的配置文件</string>
     <string name="settings_debug_mode">启用调试模式</string>
-    <string name="settings_debug_mode_summary">通知中展示调试按钮，事件列表中展示所有消息，打印完整日志</string>
+    <string name="settings_debug_mode_summary">通知中展示调试按钮，打印完整日志</string>
+    <string name="settings_show_all_events">事件列表中展示所有事件</string>
     <string name="settings_start_foreground_service">推送服务保活</string>
     <string name="settings_start_foreground_service_summary">显示一个前台通知来保活推送服务，可以通过禁用相应通知渠道来隐藏该通知</string>
 

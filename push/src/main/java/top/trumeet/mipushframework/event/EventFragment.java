@@ -210,7 +210,7 @@ public class EventFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         protected List<Event> doInBackground(Integer... integers) {
             mSignal = new CancellationSignal();
             Set<Integer> types = null;
-            if (!ConfigCenter.getInstance().isDebugMode()) {
+            if (!ConfigCenter.getInstance().isShowAllEvents()) {
                 types = new HashSet<>();
                 types.add(Event.Type.SendMessage);
                 types.add(Event.Type.Registration);
