@@ -1,5 +1,7 @@
 package top.trumeet.mipushframework;
 
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -55,9 +57,20 @@ public class MainFragment extends Fragment implements OnConnectStatusChangedList
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_about) {
-            ((TextView) (new AlertDialog.Builder(getContext()).setView(R.layout.dialog_about).show()
-                    .findViewById(R.id.text_version)))
-                    .setText(getString(R.string.about_version, BuildConfig.VERSION_NAME, String.valueOf(BuildConfig.VERSION_CODE)));
+            String versionInfo = String.format("name: %s\ncode: %d\nflavor: %s\ntype: %s",
+                    BuildConfig.VERSION_NAME,
+                    BuildConfig.VERSION_CODE,
+                    BuildConfig.FLAVOR,
+                    BuildConfig.BUILD_TYPE);
+            AlertDialog.Builder build = new AlertDialog.Builder(getContext())
+                    .setView(R.layout.dialog_about)
+                    .setPositiveButton("Copy", (dialogInterface, i) -> {
+                        ClipboardManager clipboardManager = (ClipboardManager)
+                                getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        clipboardManager.setText(versionInfo);
+                    });
+            TextView content = build.show().findViewById(R.id.text_version);
+            content.setText(versionInfo);
             return true;
         } else if (item.getItemId() == R.id.action_update) {
             startActivity(new Intent(Intent.ACTION_VIEW)
@@ -85,6 +98,20 @@ public class MainFragment extends Fragment implements OnConnectStatusChangedList
         View view = inflater.inflate(R.layout.activity_main, parent, false);
 
         final BottomNavigationView bottomNavigationView = view.findViewById(R.id.bottom_nav);
+        {
+            MenuItem menu = bottomNavigationView.getMenu().getItem(0);
+            menu.setTitle(menu.getTitle() + "(" + BuildConfig.VERSION_CODE + ")");
+        }
+        {
+            MenuItem menu = bottomNavigationView.getMenu().getItem(1);
+            menu.setTitle(menu.getTitle() + "(" + BuildConfig.VERSION_NAME + ")");
+        }
+        {
+            MenuItem menu = bottomNavigationView.getMenu().getItem(2);
+            menu.setTitle(menu.getTitle() + "(" + BuildConfig.FLAVOR + "-" + BuildConfig.BUILD_TYPE + ")");
+        }
+
+
         final ViewPager viewPager = view.findViewById(R.id.viewPager);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
