@@ -1,5 +1,9 @@
 package com.xiaomi.xmsf;
 
+import static android.provider.Settings.EXTRA_APP_PACKAGE;
+import static android.provider.Settings.EXTRA_CHANNEL_ID;
+
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -7,14 +11,21 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
+import android.provider.Settings;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.catchingnow.icebox.sdk_client.IceBox;
+import com.nihility.notification.NotificationManagerEx;
 import com.xiaomi.push.service.XMPushServiceAspect;
 import com.xiaomi.xmsf.push.notification.NotificationController;
 import com.xiaomi.xmsf.utils.LogUtils;
@@ -91,11 +102,38 @@ public class ManageSpaceActivity extends PreferenceActivity {
 
 
             getPreferenceScreen().findPreference("mock_notification").setOnPreferenceClickListener(preference -> {
-                String packageName = BuildConfig.APPLICATION_ID;
-                Date date = new Date();
-                String title = context.getString(R.string.debug_test_title);
-                String description = context.getString(R.string.debug_test_content) + date.toString();
-                NotificationController.test(context, packageName, title, description);
+                AlertDialog.Builder build = new AlertDialog.Builder(context)
+                        .setTitle("send notification")
+                        .setView(R.layout.dialog_send_notification);
+                AlertDialog dialog = build.create();
+                EditText editPackage = dialog.findViewById(R.id.package_name);
+                EditText editId = dialog.findViewById(R.id.id);
+                EditText editTitle = dialog.findViewById(R.id.title);
+                EditText editContent = dialog.findViewById(R.id.content);
+                EditText editExtra = dialog.findViewById(R.id.extra);
+                dialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.action_notify), (dialogInterface, i) -> {
+                    String packageName = String.valueOf(editPackage.getText());
+                    if (TextUtils.isEmpty(packageName)) {
+                        packageName = BuildConfig.APPLICATION_ID;
+                    }
+                    Date date = new Date();
+                    String title = String.valueOf(editTitle.getText());
+                    String content = String.valueOf(editContent.getText());
+                    String extra = String.valueOf(editExtra.getText());
+
+
+                    NotificationCompat.Builder localBuilder = new NotificationCompat.Builder(context);
+
+                    NotificationCompat.BigTextStyle style = new NotificationCompat.BigTextStyle();
+                    style.bigText(content);
+                    style.setBigContentTitle(title);
+                    style.setSummaryText(content);
+                    localBuilder.setStyle(style);
+                    localBuilder.setWhen(System.currentTimeMillis());
+                    localBuilder.setShowWhen(true);
+
+
+                });
                 return true;
             });
 
