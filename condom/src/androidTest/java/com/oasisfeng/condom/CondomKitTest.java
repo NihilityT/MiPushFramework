@@ -24,7 +24,7 @@ import android.content.ContextWrapper;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 import android.telephony.TelephonyManager;
 
 import com.oasisfeng.condom.kit.NullDeviceIdKit;

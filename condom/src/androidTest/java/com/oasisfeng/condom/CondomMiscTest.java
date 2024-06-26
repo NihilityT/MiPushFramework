@@ -30,7 +30,7 @@ import android.content.pm.ServiceInfo;
 import android.os.IBinder;
 import android.os.Process;
 import android.os.UserHandle;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 import android.util.DisplayMetrics;
 import android.util.EventLog;
 

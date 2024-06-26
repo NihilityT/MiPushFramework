@@ -30,7 +30,7 @@ import android.content.pm.ResolveInfo;
 import android.os.IBinder;
 import android.provider.Settings;
 import androidx.annotation.Nullable;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 
 import com.oasisfeng.condom.kit.NullDeviceIdKit;
 
