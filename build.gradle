@@ -4,9 +4,15 @@ buildscript {
     ext.kotlin_version = '1.6.21'
 
     repositories {
-        google()
-        jcenter()
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+
         mavenCentral()
+        maven { url 'https://jitpack.io' }
+        gradlePluginPortal()
+        google()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.1'
@@ -19,9 +25,14 @@ buildscript {
 
 allprojects {
     repositories {
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+
         mavenCentral()
-        jcenter()
         maven { url 'https://jitpack.io' }
+        gradlePluginPortal()
         google()
     }
 
