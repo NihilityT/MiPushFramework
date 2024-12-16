@@ -119,7 +119,7 @@ android.applicationVariants.all { variant ->
 
 dependencies {
 
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':mipush_hook')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     // Log
     implementation('com.elvishew:xlog:1.11.0', {
