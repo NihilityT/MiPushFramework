@@ -120,6 +120,8 @@ android.applicationVariants.all { variant ->
 dependencies {
 
     implementation project(':mipush_hook')
+    compileOnly files(project(':mipush_hook').ext.mipushLib)
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     // Log
     implementation('com.elvishew:xlog:1.11.0', {
