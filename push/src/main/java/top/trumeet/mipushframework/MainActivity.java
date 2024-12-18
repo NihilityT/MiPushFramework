@@ -25,8 +25,6 @@ import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.utils.ConfigCenter;
 
-import org.aspectj.lang.annotation.Aspect;
-
 import io.reactivex.disposables.CompositeDisposable;
 import top.trumeet.mipushframework.control.CheckPermissionsUtils;
 
@@ -35,7 +33,6 @@ import top.trumeet.mipushframework.control.CheckPermissionsUtils;
  *
  * @author Trumeet
  */
-@Aspect
 public abstract class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
