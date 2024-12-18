@@ -29,8 +29,11 @@ public class ConfigCenter {
     public static ConfigCenter getInstance() {
         return LazyHolder.INSTANCE;
     }
+    public static void setInstance(ConfigCenter configCenter) {
+        LazyHolder.INSTANCE = configCenter;
+    }
 
-    private ConfigCenter() {
+    public ConfigCenter() {
     }
 
     //using MODE_MULTI_PROCESS emmm.....

@@ -23,7 +23,7 @@ public class FallbackAspect {
     private static final Logger logger = XLog.tag(TAG).build();
 
     @Around("execution(* com.xiaomi.network.Fallback.getHosts(..)) && target(fallback) && args(usePort)")
-    public Object getHosts(final ProceedingJoinPoint joinPoint, Fallback fallback, boolean usePort) throws Throwable {
+    public Object useUserDefinedXmppServerHostFirst(final ProceedingJoinPoint joinPoint, Fallback fallback, boolean usePort) throws Throwable {
         logger.d(joinPoint.getSignature());
         Gson gson = new GsonBuilder()
                 .disableHtmlEscaping()
