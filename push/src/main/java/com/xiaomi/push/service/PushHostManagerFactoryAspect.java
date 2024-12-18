@@ -8,7 +8,7 @@ import org.aspectj.lang.annotation.Aspect;
 public class PushHostManagerFactoryAspect {
 
     @Around("execution(* com.xiaomi.push.service.PushHostManagerFactory.GslbHttpGet.doGet(..)) && args(url)")
-    public Object doGet(final ProceedingJoinPoint joinPoint, String url) throws Throwable {
+    public Object addCountryCodeToConfigurationUrl(final ProceedingJoinPoint joinPoint, String url) throws Throwable {
         return joinPoint.proceed(new Object[]{url + "&countrycode=CN"});
     }
 }
