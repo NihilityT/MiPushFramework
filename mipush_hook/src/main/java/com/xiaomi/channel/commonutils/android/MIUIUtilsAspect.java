@@ -1,7 +1,5 @@
 package com.xiaomi.channel.commonutils.android;
 
-import android.text.TextUtils;
-
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -11,7 +9,7 @@ public class MIUIUtilsAspect {
     @Around("(execution(* com.xiaomi.channel.commonutils.android.MIUIUtils.getProperty(..))" +
             " || execution(* com.xiaomi.channel.commonutils.android.SystemProperties.get(..)))" +
             "&& args(key, ..)")
-    public Object getProperty(ProceedingJoinPoint joinPoint, String key) throws Throwable {
+    public Object hookAllCountryCodeToCN(ProceedingJoinPoint joinPoint, String key) throws Throwable {
         if (key != null && (key.contains(".region") || key.contains(".country"))) {
             return "CN";
         }
