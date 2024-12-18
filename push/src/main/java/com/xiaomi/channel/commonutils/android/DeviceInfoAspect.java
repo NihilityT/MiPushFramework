@@ -8,7 +8,7 @@ import org.aspectj.lang.annotation.Aspect;
 @Aspect
 public class DeviceInfoAspect {
     @Around("execution(* com.xiaomi.channel.commonutils.android.DeviceInfo.getMacAddress(..))")
-    public Object getMacAddress(final JoinPoint joinPoint) {
+    public Object avoidTracking(final JoinPoint joinPoint) {
         return "";
     }
 }
