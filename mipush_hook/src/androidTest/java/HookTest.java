@@ -22,6 +22,7 @@ public class HookTest {
 
     @Test
     public void ensureDefaultXmppServerIsCnHost() {
-        assertEquals("cn.app.chat.xiaomi.net", ConnectionConfiguration.getXmppServerHost());
+        assertEquals(ConnectionConfiguration.XMPP_SERVER_CHINA_HOST_P,
+                ConnectionConfiguration.getXmppServerHost());
     }
 }

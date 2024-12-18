@@ -127,8 +127,6 @@ public class MiPushFrameworkApp extends Application {
 
     private void hookMiPushSDK() {
         try {
-            hookField(MIUIUtils.class, "isMIUI", 1);
-            hookField(DeviceInfo.class, "sCachedIMEI", "");
             hookField(SmackConfiguration.class, "pingInterval", 3 * 60 * 1000);
             hookMiPushServerHost();
             AppRegionStorage regionStorage = AppRegionStorage.getInstance(getApplicationContext());
@@ -140,11 +138,8 @@ public class MiPushFrameworkApp extends Application {
     }
 
     private static void hookMiPushServerHost() {
-        String xmppServerHost = "cn.app.chat.xiaomi.net";
-        ConnectionConfiguration.setXmppServerHost(xmppServerHost);
-
-        addReservedHost(xmppServerHost, new String[] {
-                xmppServerHost,
+        addReservedHost(ConnectionConfiguration.XMPP_SERVER_CHINA_HOST_P, new String[] {
+                ConnectionConfiguration.XMPP_SERVER_CHINA_HOST_P,
                 "220.181.106.151:5222",
                 "220.181.106.151:443",
                 "220.181.106.152:5222",

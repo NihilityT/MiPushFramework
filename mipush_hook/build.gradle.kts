@@ -43,6 +43,7 @@ android {
 
 dependencies {
     compileOnly(files(mipushLib))
+    implementation("androidx.startup:startup-runtime:1.1.1")
 
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
