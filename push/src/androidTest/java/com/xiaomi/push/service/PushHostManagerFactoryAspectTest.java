@@ -7,48 +7,53 @@ import static org.junit.Assert.assertThat;
 import com.xiaomi.channel.commonutils.logger.LoggerInterface;
 import com.xiaomi.channel.commonutils.logger.MyLog;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class PushHostManagerFactoryAspectTest {
+    public static final String cnCode = "countrycode=CN";
+    public static final String enCode = "countrycode=EN";
+    final String[] url = new String[1];
 
     @Test
     public void addCountryCodeToConfigurationUrl() {
-        final String[] url = new String[1];
-        saveUrlTo(url);
         PushHostManagerFactory.GslbHttpGet httpGet = new PushHostManagerFactory.GslbHttpGet();
 
         try {
             httpGet.doGet("http://test/");
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
-        assertThat(url[0], containsString("countrycode=CN"));
+        assertThat(url[0], containsString(cnCode));
     }
 
     @Test
     public void replaceCountryCodeToCN() {
-        final String[] url = new String[1];
-        saveUrlTo(url);
         PushHostManagerFactory.GslbHttpGet httpGet = new PushHostManagerFactory.GslbHttpGet();
 
         try {
-            httpGet.doGet("http://test/?countrycode=EN");
-        } catch (Exception ignored) {}
+            httpGet.doGet("http://test/?" + enCode);
+        } catch (Exception ignored) {
+        }
 
-        assertThat(url[0], not(containsString("countrycode=EN")));
-        assertThat(url[0], containsString("countrycode=CN"));
+        assertThat(url[0], not(containsString(enCode)));
+        assertThat(url[0], containsString(cnCode));
     }
 
-    private static void saveUrlTo(String[] urlLog) {
+    @Before
+    public void recordUrl() {
         MyLog.setLogger(new LoggerInterface() {
             @Override
             public void log(String s) {
                 if (s.contains("fetch bucket from :")) {
-                    urlLog[0] = s;
+                    url[0] = s;
                 }
             }
+
             @Override
             public void log(String s, Throwable throwable) {
             }
+
             @Override
             public void setTag(String s) {
             }
