@@ -9,9 +9,11 @@ import com.google.gson.GsonBuilder;
 import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.xmsf.utils.ConfigCenter;
 
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 
 import java.util.ArrayList;
 
@@ -24,12 +26,6 @@ public class FallbackAspect {
 
     @Around("execution(* com.xiaomi.network.Fallback.getHosts(..)) && target(fallback) && args(usePort)")
     public Object useUserDefinedXmppServerHostFirst(final ProceedingJoinPoint joinPoint, Fallback fallback, boolean usePort) throws Throwable {
-        logger.d(joinPoint.getSignature());
-        Gson gson = new GsonBuilder()
-                .disableHtmlEscaping()
-                .setPrettyPrinting()
-                .create();
-        logger.d("Fallback " + gson.toJsonTree(fallback));
         ArrayList<String> hosts = (ArrayList<String>) joinPoint.proceed();
 
         if (TextUtils.equals(fallback.host, ConnectionConfiguration.getXmppServerHost())) {
@@ -39,6 +35,16 @@ public class FallbackAspect {
             }
         }
         return hosts;
+    }
+
+    @Before("execution(* com.xiaomi.network.Fallback.getHosts(..)) && target(fallback) && args(usePort)")
+    public void logFallback(final JoinPoint joinPoint, Fallback fallback, boolean usePort) {
+        logger.d(joinPoint.getSignature());
+        Gson gson = new GsonBuilder()
+                .disableHtmlEscaping()
+                .setPrettyPrinting()
+                .create();
+        logger.d("Fallback " + gson.toJsonTree(fallback));
     }
 
 }
