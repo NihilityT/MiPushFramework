@@ -2,7 +2,7 @@ package com.xiaomi.push.service;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.xiaomi.channel.commonutils.logger.LoggerInterface;
 import com.xiaomi.channel.commonutils.logger.MyLog;
@@ -42,6 +42,7 @@ public class PushHostManagerFactoryAspectTest {
 
     @Before
     public void recordUrl() {
+        MyLog.setLogLevel(MyLog.INFO);
         MyLog.setLogger(new LoggerInterface() {
             @Override
             public void log(String s) {
