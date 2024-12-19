@@ -8,12 +8,10 @@ import com.xiaomi.channel.commonutils.logger.MyLog;
 
 import org.junit.Test;
 
-import java.io.IOException;
-
 public class PushHostManagerFactoryAspectTest {
 
     @Test
-    public void addCountryCodeToConfigurationUrl() throws IOException {
+    public void addCountryCodeToConfigurationUrl() {
         final String[] url = new String[1];
         saveUrlTo(url);
         PushHostManagerFactory.GslbHttpGet httpGet = new PushHostManagerFactory.GslbHttpGet();
