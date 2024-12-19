@@ -1,6 +1,7 @@
 package com.xiaomi.push.service;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 import com.xiaomi.channel.commonutils.logger.LoggerInterface;
@@ -20,6 +21,20 @@ public class PushHostManagerFactoryAspectTest {
             httpGet.doGet("http://test/");
         } catch (Exception ignored) {}
 
+        assertThat(url[0], containsString("countrycode=CN"));
+    }
+
+    @Test
+    public void replaceCountryCodeToCN() {
+        final String[] url = new String[1];
+        saveUrlTo(url);
+        PushHostManagerFactory.GslbHttpGet httpGet = new PushHostManagerFactory.GslbHttpGet();
+
+        try {
+            httpGet.doGet("http://test/?countrycode=EN");
+        } catch (Exception ignored) {}
+
+        assertThat(url[0], not(containsString("countrycode=EN")));
         assertThat(url[0], containsString("countrycode=CN"));
     }
 
