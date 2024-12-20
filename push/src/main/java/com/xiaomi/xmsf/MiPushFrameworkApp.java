@@ -14,18 +14,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationChannelGroupCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.elvishew.xlog.XLog;
+import com.nihility.Configurations;
+import com.nihility.Dependencies;
 import com.nihility.notification.NotificationManagerEx;
 import com.oasisfeng.condom.CondomOptions;
 import com.oasisfeng.condom.CondomProcess;
 import com.topjohnwu.superuser.Shell;
-import com.xiaomi.channel.commonutils.android.DeviceInfo;
-import com.xiaomi.channel.commonutils.android.MIUIUtils;
 import com.xiaomi.channel.commonutils.android.Region;
 import com.xiaomi.channel.commonutils.logger.LoggerInterface;
 import com.xiaomi.channel.commonutils.logger.MyLog;
@@ -37,6 +38,7 @@ import com.xiaomi.smack.SmackConfiguration;
 import com.xiaomi.xmsf.push.control.PushControllerUtils;
 import com.xiaomi.xmsf.push.control.XMOutbound;
 import com.xiaomi.xmsf.push.service.MiuiPushActivateService;
+import com.xiaomi.xmsf.utils.ConfigCenter;
 import com.xiaomi.xmsf.utils.LogUtils;
 
 import java.lang.reflect.Field;
@@ -80,6 +82,7 @@ public class MiPushFrameworkApp extends Application {
         Shell.getShell();
         instance = this;
 
+        initMiPushHookLib();
         initLogger();
         hookMiPushSDK();
 
@@ -117,6 +120,16 @@ public class MiPushFrameworkApp extends Application {
         }
 
 
+    }
+
+    private static void initMiPushHookLib() {
+        Dependencies.getInstance().init(new Configurations() {
+            @NonNull
+            @Override
+            public String getXMPPServer() {
+                return ConfigCenter.getInstance().getXMPPServer(getContext().getApplicationContext());
+            }
+        });
     }
 
     private void initLogger() {
