@@ -15,13 +15,11 @@ public class XMPushServiceMessenger extends InternalMessenger {
     public final static String IntentSetConnectionStatus = "setConnectionStatus";
     public final static String IntentStartForeground = "startForeground";
 
-    private final XMPushServiceAspect xmPushServiceAspect;
     private final XMPushService xmPushService;
     private int connectionStatus;
 
-    XMPushServiceMessenger(XMPushServiceAspect xmPushServiceAspect, XMPushService context) {
+    XMPushServiceMessenger(XMPushService context) {
         super(context);
-        this.xmPushServiceAspect = xmPushServiceAspect;
         this.xmPushService = context;
         register(new IntentFilter(IntentGetConnectionStatus));
         register(new IntentFilter(PushConstants.ACTION_RESET_CONNECTION));
@@ -53,7 +51,7 @@ public class XMPushServiceMessenger extends InternalMessenger {
         if (TextUtils.equals(intent.getAction(), PushConstants.ACTION_RESET_CONNECTION)) {
             resetConnection();
         } else if (TextUtils.equals(intent.getAction(), IntentStartForeground)) {
-            xmPushServiceAspect.startForeground();
+            new ForegroundHelper(xmPushService).startForeground();
         }
     }
 

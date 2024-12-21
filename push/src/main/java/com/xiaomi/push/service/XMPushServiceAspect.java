@@ -94,7 +94,7 @@ public class XMPushServiceAspect {
         initXMPushService(joinPoint, pushService);
         logger.d("Service started");
 
-        internalMessenger = new XMPushServiceMessenger(this, pushService);
+        internalMessenger = new XMPushServiceMessenger(pushService);
         foregroundHelper = new ForegroundHelper(pushService);
         foregroundHelper.startForeground();
         reviveNotifications();
@@ -158,10 +158,6 @@ public class XMPushServiceAspect {
 
     private static boolean isConnected(int newStatus) {
         return newStatus == 1;
-    }
-
-    public void startForeground() {
-        foregroundHelper.startForeground();
     }
 
     private void logIntent(Intent intent) {
