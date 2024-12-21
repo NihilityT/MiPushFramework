@@ -11,8 +11,6 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -24,11 +22,9 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
-import com.nihility.InternalMessenger;
 import com.oasisfeng.condom.CondomContext;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.push.revival.NotificationRevival;
-import com.xiaomi.smack.Connection;
 import com.xiaomi.smack.packet.Message;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
@@ -110,9 +106,6 @@ public class XMPushServiceAspect {
 
     public static String connectionStatus;
 
-    public static String IntentGetConnectionStatus = "getConnectionStatus";
-    public static String IntentSetConnectionStatus = "setConnectionStatus";
-    public static String IntentStartForeground = "startForeground";
     @RequiresApi(N)
     private NotificationRevival mNotificationRevival;
     private XMPushServiceMessenger internalMessenger;
@@ -123,7 +116,7 @@ public class XMPushServiceAspect {
         initXMPushService(joinPoint, pushService);
         logger.d("Service started");
 
-        internalMessenger = new XMPushServiceMessenger(pushService);
+        internalMessenger = new XMPushServiceMessenger(this, pushService);
         startForeground();
         reviveNotifications();
     }
@@ -198,7 +191,7 @@ public class XMPushServiceAspect {
         }
     }
 
-    private void startForeground() {
+    public void startForeground() {
         createNotificationGroupForPushStatus();
         if (ConfigCenter.getInstance().isStartForegroundService()) {
             showForegroundNotificationToKeepAlive();
@@ -305,43 +298,4 @@ public class XMPushServiceAspect {
         return notificationOnRegister;
     }
 
-    public class XMPushServiceMessenger extends InternalMessenger {
-        private final XMPushService xmPushService;
-
-        XMPushServiceMessenger(XMPushService context) {
-            super(context);
-            this.xmPushService = context;
-            register(new IntentFilter(IntentGetConnectionStatus));
-            register(new IntentFilter(PushConstants.ACTION_RESET_CONNECTION));
-            register(new IntentFilter(IntentStartForeground));
-        }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            handle(intent);
-            notifyConnectionStatusChanged();
-        }
-
-        private void notifyConnectionStatusChanged() {
-            Intent intent = new Intent(IntentSetConnectionStatus);
-            intent.putExtra("status", connectionStatus);
-            Connection currentConnection = xmPushService.getCurrentConnection();
-            if (currentConnection != null) {
-                intent.putExtra("host", currentConnection.getHost());
-            }
-            send(intent);
-        }
-
-        private void handle(Intent intent) {
-            if (TextUtils.equals(intent.getAction(), PushConstants.ACTION_RESET_CONNECTION)) {
-                resetConnection();
-            } else if (TextUtils.equals(intent.getAction(), IntentStartForeground)) {
-                startForeground();
-            }
-        }
-
-        private void resetConnection() {
-            xmPushService.executeJob(new ResetConnectJob(xmPushService));
-        }
-    }
 }
