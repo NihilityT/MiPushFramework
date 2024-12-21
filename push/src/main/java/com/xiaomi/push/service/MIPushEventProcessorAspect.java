@@ -164,27 +164,15 @@ public class MIPushEventProcessorAspect {
                 title = metaInfo.getTitle();
                 description = metaInfo.getDescription();
 
-                makeMessageNotifiableAsPossible(pushService, realTargetPackage, title, description, metaInfo);
+                completeTitleOrDescriptionIfExistsAnyone(pushService, realTargetPackage, title, description, metaInfo);
             }
 
             RegisteredApplication application = RegisteredApplicationDb.registerApplication(
                     realTargetPackage, false);
-            XmPushActionContainer decorated = container.deepCopy();
-            try {
-                Configurations.getInstance().handle(realTargetPackage, decorated);
-            } catch (Throwable e) {
-                // Ignore
-            }
+            XmPushActionContainer decorated = decoratedContainer(realTargetPackage, container);
             CustomConfiguration configuration = new CustomConfiguration(decorated.metaInfo.getExtra());
             boolean awake = configuration.get(PushConstants.EXTRA_PARAM_AWAKE, false);
-            boolean isSystemApp = false;
-            try {
-                int flags = pushService.getPackageManager().getApplicationInfo(realTargetPackage, 0).flags &
-                        (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP);
-                isSystemApp = flags != 0;
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
+            boolean isSystemApp = isSystemApp(pushService, realTargetPackage);
             if (metaInfo == null || TextUtils.isEmpty(metaInfo.getTitle()) || TextUtils.isEmpty(metaInfo.getDescription()) ||
                     decorated.metaInfo.passThrough == 1 /* ||
                     (!MIPushNotificationHelper.isNotifyForeground(metaInfo.getExtra()) && MIPushNotificationHelper.isApplicationForeground(pushService, container.packageName)) */) {
@@ -229,7 +217,29 @@ public class MIPushEventProcessorAspect {
         }
     }
 
-    private static void makeMessageNotifiableAsPossible(XMPushService pushService, String realTargetPackage, String title, String description, PushMetaInfo metaInfo) {
+    private static boolean isSystemApp(XMPushService pushService, String realTargetPackage) {
+        boolean isSystemApp = false;
+        try {
+            int flags = pushService.getPackageManager().getApplicationInfo(realTargetPackage, 0).flags &
+                    (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP);
+            isSystemApp = flags != 0;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return isSystemApp;
+    }
+
+    private static XmPushActionContainer decoratedContainer(String realTargetPackage, XmPushActionContainer container) {
+        XmPushActionContainer decorated = container.deepCopy();
+        try {
+            Configurations.getInstance().handle(realTargetPackage, decorated);
+        } catch (Throwable e) {
+            // Ignore
+        }
+        return decorated;
+    }
+
+    private static void completeTitleOrDescriptionIfExistsAnyone(XMPushService pushService, String realTargetPackage, String title, String description, PushMetaInfo metaInfo) {
         if (!TextUtils.isEmpty(title) || !TextUtils.isEmpty(description)) {
             if (TextUtils.isEmpty(title)) {
                 CharSequence appName = ApplicationNameCache.getInstance().getAppName(pushService, realTargetPackage);
