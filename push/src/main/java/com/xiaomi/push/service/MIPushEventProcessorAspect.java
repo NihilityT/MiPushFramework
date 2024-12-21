@@ -140,16 +140,10 @@ public class MIPushEventProcessorAspect {
                 MIPushAppInfo.getInstance(pushService).removeDisablePushPkg(pkgName);
                 MIPushAppInfo.getInstance(pushService).removeDisablePushPkgCache(pkgName);
 
-                String regSec = null;
-                try {
-                    XmPushActionRegistrationResult result = (XmPushActionRegistrationResult) PushContainerHelper.getResponseMessageBodyFromContainer(pushService, container);
-                    regSec = result.getRegSecret();
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
-                Utils.setRegSec(pkgName, regSec);
+                recordRegSec(pushService, container);
             }
 
+            // todo: delete tracking code {
             if (!TextUtils.isEmpty(metaInfo.getId())) {
                 intent.putExtra("messageId", metaInfo.getId());
             }
@@ -162,6 +156,7 @@ public class MIPushEventProcessorAspect {
             if (MIPushNotificationHelper.isBusinessMessage(container)) {
                 intent.putExtra(ReportConstants.EVENT_MESSAGE_TYPE, ReportConstants.AWAKE_TYPE);
             }
+            // }
 
             String title;
             String description;
@@ -169,16 +164,7 @@ public class MIPushEventProcessorAspect {
                 title = metaInfo.getTitle();
                 description = metaInfo.getDescription();
 
-                if (!TextUtils.isEmpty(title) || !TextUtils.isEmpty(description)) {
-                    if (TextUtils.isEmpty(title)) {
-                        CharSequence appName = ApplicationNameCache.getInstance().getAppName(pushService, realTargetPackage);
-                        metaInfo.setTitle(appName.toString());
-                    }
-
-                    if (TextUtils.isEmpty(description)) {
-                        metaInfo.setDescription(pushService.getString(R.string.see_pass_though_msg));
-                    }
-                }
+                makeMessageNotifiableAsPossible(pushService, realTargetPackage, title, description, metaInfo);
             }
 
             RegisteredApplication application = RegisteredApplicationDb.registerApplication(
@@ -241,5 +227,29 @@ public class MIPushEventProcessorAspect {
                 pushService.stopSelf();
             }
         }
+    }
+
+    private static void makeMessageNotifiableAsPossible(XMPushService pushService, String realTargetPackage, String title, String description, PushMetaInfo metaInfo) {
+        if (!TextUtils.isEmpty(title) || !TextUtils.isEmpty(description)) {
+            if (TextUtils.isEmpty(title)) {
+                CharSequence appName = ApplicationNameCache.getInstance().getAppName(pushService, realTargetPackage);
+                metaInfo.setTitle(appName.toString());
+            }
+
+            if (TextUtils.isEmpty(description)) {
+                metaInfo.setDescription(pushService.getString(R.string.see_pass_though_msg));
+            }
+        }
+    }
+
+    private static void recordRegSec(XMPushService pushService, XmPushActionContainer container) {
+        String regSec = null;
+        try {
+            XmPushActionRegistrationResult result = (XmPushActionRegistrationResult) PushContainerHelper.getResponseMessageBodyFromContainer(pushService, container);
+            regSec = result.getRegSecret();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        Utils.setRegSec(container.getPackageName(), regSec);
     }
 }

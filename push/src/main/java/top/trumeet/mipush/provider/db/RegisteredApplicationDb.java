@@ -6,6 +6,7 @@ import static top.trumeet.mipush.provider.DatabaseUtils.daoSession;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.greenrobot.greendao.query.QueryBuilder;
@@ -32,24 +33,28 @@ public class RegisteredApplicationDb {
             return list.get(0);
         }
         if (autoCreate) {
-            // TODO: Configurable defaults; use null for optional and global options?
-            RegisteredApplication registeredApplication =
-                    new RegisteredApplication(null
-                            , pkg
-                            , RegisteredApplication.Type.ASK
-                            , true
-                            , false
-                            , false
-                            , false
-                            , RegisteredApplication.RegisteredType.NotRegistered
-                            , ApplicationNameCache.getInstance()
-                            .getAppName(Utils.getApplication(), pkg).toString()
-
-                    );
-            registeredApplication.setId(insert(registeredApplication));
-            return registeredApplication;
+            return create(pkg);
         }
         return null;
+    }
+
+    private static @NonNull RegisteredApplication create(String pkg) {
+        // TODO: Configurable defaults; use null for optional and global options?
+        RegisteredApplication registeredApplication =
+                new RegisteredApplication(null
+                        , pkg
+                        , RegisteredApplication.Type.ASK
+                        , true
+                        , false
+                        , false
+                        , false
+                        , RegisteredApplication.RegisteredType.NotRegistered
+                        , ApplicationNameCache.getInstance()
+                        .getAppName(Utils.getApplication(), pkg).toString()
+
+                );
+        registeredApplication.setId(insert(registeredApplication));
+        return registeredApplication;
     }
 
     public static List<RegisteredApplication> getList(@Nullable String pkg) {
