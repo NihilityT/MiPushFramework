@@ -124,31 +124,7 @@ public class XMPushServiceAspect {
     public static String IntentSetConnectionStatus = "setConnectionStatus";
     public static String IntentStartForeground = "startForeground";
     @RequiresApi(N) private NotificationRevival mNotificationRevival;
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (TextUtils.equals(intent.getAction(), PushConstants.ACTION_RESET_CONNECTION)) {
-                xmPushService.executeJob(new XMPushService.Job(XMPushService.Job.TYPE_RESET_CONNECT) {
-                    @Override
-                    public String getDesc() {
-                        return "reset connection";
-                    }
-
-                    @Override
-                    public void process() {
-                        Fallback fallback = HostManager.getInstance().getFallbacksByHost(ConnectionConfiguration.getXmppServerHost(), false);
-                        JavaCalls.setField(fallback, "timestamp", 0);
-                        HostManager.getInstance().getFallbacksByHost(ConnectionConfiguration.getXmppServerHost(), true);
-                        xmPushService.disconnect(11, null);
-                        xmPushService.scheduleConnect(true);
-                    }
-                });
-            } else if (TextUtils.equals(intent.getAction(), IntentStartForeground)) {
-                startForeground();
-            }
-            sendSetConnectionStatus();
-        }
-    };
+    private BroadcastReceiver mMessageReceiver = new InternalMessenger();
 
     @Around("execution(* com.xiaomi.push.service.XMPushService.onCreate(..)) && this(pushService)")
     public void onCreate(final ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
@@ -162,12 +138,20 @@ public class XMPushServiceAspect {
         logger.d("Service started");
 
         startForeground();
+        reviveNotifications();
+
+        initLocalBroadcast();
+    }
+
+    private void reviveNotifications() {
         if (SDK_INT > P) BackgroundActivityStartEnabler.initialize(xmPushService);
         if (SDK_INT >= N) {
             mNotificationRevival = new NotificationRevival(xmPushService, sbn -> sbn.getTag() == null);  // Only push notifications (tag == null)
             mNotificationRevival.initialize();
         }
+    }
 
+    private void initLocalBroadcast() {
         LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(xmPushService);
         localBroadcast.registerReceiver(mMessageReceiver, new IntentFilter(IntentGetConnectionStatus));
         localBroadcast.registerReceiver(mMessageReceiver, new IntentFilter(PushConstants.ACTION_RESET_CONNECTION));
@@ -322,7 +306,7 @@ public class XMPushServiceAspect {
         }
     }
 
-    class PullAllApplicationDataJob extends XMPushService.Job {
+    static class PullAllApplicationDataJob extends XMPushService.Job {
         public PullAllApplicationDataJob() {
             super(XMPushService.Job.TYPE_SEND_MSG);
         }
@@ -355,6 +339,46 @@ public class XMPushServiceAspect {
                 byte[] msgBytes = XmPushThriftSerializeUtils.convertThriftObjectToBytes(sendMsgContainer);
                 xmPushService.sendMessage(packageName, msgBytes, false);
             }
+        }
+    }
+
+    private static class ResetConnectJob extends XMPushService.Job {
+        public ResetConnectJob() {
+            super(XMPushService.Job.TYPE_RESET_CONNECT);
+        }
+
+        @Override
+        public String getDesc() {
+            return "reset connection";
+        }
+
+        @Override
+        public void process() {
+            Fallback fallback = HostManager.getInstance().getFallbacksByHost(ConnectionConfiguration.getXmppServerHost(), false);
+            JavaCalls.setField(fallback, "timestamp", 0);
+            HostManager.getInstance().getFallbacksByHost(ConnectionConfiguration.getXmppServerHost(), true);
+            xmPushService.disconnect(11, null);
+            xmPushService.scheduleConnect(true);
+        }
+    }
+
+    private class InternalMessenger extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            handle(intent);
+            sendSetConnectionStatus();
+        }
+
+        private void handle(Intent intent) {
+            if (TextUtils.equals(intent.getAction(), PushConstants.ACTION_RESET_CONNECTION)) {
+                resetConnection();
+            } else if (TextUtils.equals(intent.getAction(), IntentStartForeground)) {
+                startForeground();
+            }
+        }
+
+        private void resetConnection() {
+            xmPushService.executeJob(new ResetConnectJob());
         }
     }
 }
