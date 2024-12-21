@@ -8,6 +8,7 @@ import static top.trumeet.common.Constants.TAG_CONDOM;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -21,7 +22,6 @@ import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationChannelGroupCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.app.ServiceCompat;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
@@ -226,7 +226,9 @@ public class XMPushServiceAspect {
 
         }
         if (!ConfigCenter.getInstance().isStartForegroundService()) {
-            xmPushService.stopForeground(ServiceCompat.STOP_FOREGROUND_REMOVE);
+            if (SDK_INT >= N) {
+                xmPushService.stopForeground(Service.STOP_FOREGROUND_REMOVE);
+            }
             return;
         }
         //if (ConfigCenter.getInstance().foregroundNotification || Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
