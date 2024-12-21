@@ -99,11 +99,15 @@ public class XMPushServiceAspect {
     }
 
     private static void initXMPushService(ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
+        condomContext(pushService);
+        joinPoint.proceed();
+        xmPushService = pushService;
+    }
+
+    private static void condomContext(XMPushService pushService) {
         Context mBase = pushService.getBaseContext();
         JavaCalls.setField(pushService, "mBase",
                 CondomContext.wrap(mBase, TAG_CONDOM, XMOutbound.create(mBase, TAG)));
-        joinPoint.proceed();
-        xmPushService = pushService;
     }
 
     private void reviveNotifications() {
