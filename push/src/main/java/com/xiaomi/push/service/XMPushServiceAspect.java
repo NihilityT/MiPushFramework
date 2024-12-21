@@ -282,19 +282,24 @@ public class XMPushServiceAspect {
     }
 
     private void showRegisterToastIfExistsConfiguration(RegisteredApplication application) {
-        String pkg = application.getPackageName();
-        boolean notificationOnRegister = ConfigCenter.getInstance().isNotificationOnRegister(xmPushService);
-        notificationOnRegister = notificationOnRegister && application.isNotificationOnRegister();
-        if (notificationOnRegister) {
-            CharSequence appName = ApplicationNameCache.getInstance().getAppName(xmPushService, pkg);
-            CharSequence usedString = xmPushService.getString(R.string.notification_registerAllowed, appName);
-            Utils.makeText(xmPushService, usedString, Toast.LENGTH_SHORT);
+        if (canShowRegisterNotification(application)) {
+            showRegisterNotification(application);
         } else {
             Log.e("XMPushService Bridge", "Notification disabled");
         }
     }
 
+    private static void showRegisterNotification(RegisteredApplication application) {
+        CharSequence appName = ApplicationNameCache.getInstance().getAppName(xmPushService, application.getPackageName());
+        CharSequence usedString = xmPushService.getString(R.string.notification_registerAllowed, appName);
+        Utils.makeText(xmPushService, usedString, Toast.LENGTH_SHORT);
+    }
 
+    private static boolean canShowRegisterNotification(RegisteredApplication application) {
+        boolean notificationOnRegister = ConfigCenter.getInstance().isNotificationOnRegister(xmPushService);
+        notificationOnRegister = notificationOnRegister && application.isNotificationOnRegister();
+        return notificationOnRegister;
+    }
 
     public class XMPushServiceMessenger extends InternalMessenger {
         XMPushServiceMessenger(Context context) {
