@@ -7,8 +7,11 @@ import android.content.IntentFilter;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-public abstract class InternalMessenger extends BroadcastReceiver {
+import java.util.ArrayList;
+
+public class InternalMessenger extends BroadcastReceiver {
     private final LocalBroadcastManager localBroadcast;
+    private final ArrayList<MessageListener> listeners = new ArrayList<>();
 
     public InternalMessenger(Context context) {
         localBroadcast = LocalBroadcastManager.getInstance(context);
@@ -20,5 +23,16 @@ public abstract class InternalMessenger extends BroadcastReceiver {
 
     public void register(IntentFilter intentFilter) {
         localBroadcast.registerReceiver(this, intentFilter);
+    }
+
+    public void addListener(MessageListener listener) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        for (MessageListener listener : listeners) {
+            listener.onReceive(intent);
+        }
     }
 }
