@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import com.nihility.InternalMessenger;
 import com.xiaomi.smack.Connection;
 
@@ -15,6 +17,7 @@ public class XMPushServiceMessenger extends InternalMessenger {
 
     private final XMPushServiceAspect xmPushServiceAspect;
     private final XMPushService xmPushService;
+    private int connectionStatus;
 
     XMPushServiceMessenger(XMPushServiceAspect xmPushServiceAspect, XMPushService context) {
         super(context);
@@ -28,17 +31,22 @@ public class XMPushServiceMessenger extends InternalMessenger {
     @Override
     public void onReceive(Context context, Intent intent) {
         handle(intent);
-        notifyConnectionStatusChanged();
+        notifyConnectionStatusChanged(connectionStatus);
     }
 
-    public void notifyConnectionStatusChanged() {
+    public void notifyConnectionStatusChanged(int connectionStatus) {
+        this.connectionStatus = connectionStatus;
+        send(setConnectionStatusIntent(connectionStatus));
+    }
+
+    private @NonNull Intent setConnectionStatusIntent(int connectionStatus) {
         Intent intent = new Intent(IntentSetConnectionStatus);
-        intent.putExtra("status", XMPushServiceAspect.connectionStatus);
+        intent.putExtra("status", connectionStatus);
         Connection currentConnection = xmPushService.getCurrentConnection();
         if (currentConnection != null) {
             intent.putExtra("host", currentConnection.getHost());
         }
-        send(intent);
+        return intent;
     }
 
     private void handle(Intent intent) {

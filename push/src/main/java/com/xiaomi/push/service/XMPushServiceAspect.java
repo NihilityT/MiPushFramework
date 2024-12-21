@@ -104,8 +104,6 @@ public class XMPushServiceAspect {
     public static final int NOTIFICATION_ALIVE_ID = 1;
     public static XMPushService xmPushService;
 
-    public static String connectionStatus;
-
     @RequiresApi(N)
     private NotificationRevival mNotificationRevival;
     private XMPushServiceMessenger internalMessenger;
@@ -170,24 +168,10 @@ public class XMPushServiceAspect {
     public void setConnectionStatus(final JoinPoint joinPoint,
                                     int newStatus, int reason, Exception e) {
         logger.d(joinPoint.getSignature());
-        connectionStatus = getDesc(newStatus);
 
-        internalMessenger.notifyConnectionStatusChanged();
+        internalMessenger.notifyConnectionStatusChanged(newStatus);
         if (newStatus == 1) {
             xmPushService.executeJob(new PullAllApplicationDataJob(xmPushService));
-        }
-    }
-
-    private String getDesc(int var1) {
-        switch (var1) {
-            case 0:
-                return "connecting";
-            case 1:
-                return "connected";
-            case 2:
-                return "disconnected";
-            default:
-                return "unknown";
         }
     }
 
