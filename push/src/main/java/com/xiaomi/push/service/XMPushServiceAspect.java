@@ -94,6 +94,7 @@ public class XMPushServiceAspect {
         internalMessenger = new XMPushServiceMessenger(pushService);
         foregroundHelper = new ForegroundHelper(pushService);
         foregroundHelper.startForeground();
+        if (SDK_INT > P) BackgroundActivityStartEnabler.initialize(xmPushService);
         reviveNotifications();
     }
 
@@ -106,7 +107,6 @@ public class XMPushServiceAspect {
     }
 
     private void reviveNotifications() {
-        if (SDK_INT > P) BackgroundActivityStartEnabler.initialize(xmPushService);
         if (SDK_INT >= M) {
             mNotificationRevival = new NotificationRevival(xmPushService, sbn -> sbn.getTag() == null);  // Only push notifications (tag == null)
             mNotificationRevival.initialize();
