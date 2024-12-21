@@ -16,7 +16,7 @@ public class XMPushServiceMessenger extends InternalMessenger {
     public final static String IntentStartForeground = "startForeground";
 
     private final XMPushService xmPushService;
-    private int connectionStatus;
+    private String connectionStatus;
 
     XMPushServiceMessenger(XMPushService context) {
         super(context);
@@ -32,12 +32,12 @@ public class XMPushServiceMessenger extends InternalMessenger {
         notifyConnectionStatusChanged(connectionStatus);
     }
 
-    public void notifyConnectionStatusChanged(int connectionStatus) {
+    public void notifyConnectionStatusChanged(String connectionStatus) {
         this.connectionStatus = connectionStatus;
         send(setConnectionStatusIntent(connectionStatus));
     }
 
-    private @NonNull Intent setConnectionStatusIntent(int connectionStatus) {
+    private @NonNull Intent setConnectionStatusIntent(String connectionStatus) {
         Intent intent = new Intent(IntentSetConnectionStatus);
         intent.putExtra("status", connectionStatus);
         Connection currentConnection = xmPushService.getCurrentConnection();
