@@ -79,7 +79,7 @@ public class XMPushServiceAspect {
     private static final Logger logger = XLog.tag(TAG).build();
 
     public static XMPushService xmPushService;
-    private final RegisterRecorder registerRecorder = new RegisterRecorder();
+    private RegisterRecorder registerRecorder;
     private ForegroundHelper foregroundHelper;
 
     private NotificationRevival mNotificationRevival;
@@ -91,6 +91,7 @@ public class XMPushServiceAspect {
         initXMPushService(joinPoint, pushService);
         logger.d("Service started");
 
+        registerRecorder = new RegisterRecorder(pushService);
         internalMessenger = new XMPushServiceMessenger(pushService);
         foregroundHelper = new ForegroundHelper(pushService);
         foregroundHelper.startForeground();

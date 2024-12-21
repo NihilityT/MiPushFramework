@@ -1,5 +1,6 @@
 package com.xiaomi.push.service;
 
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
@@ -19,10 +20,12 @@ import top.trumeet.mipush.provider.event.type.RegistrationType;
 import top.trumeet.mipush.provider.register.RegisteredApplication;
 
 public class RegisterRecorder {
-    private static final String TAG = XMPushServiceAspect.class.getSimpleName();
-    private static final Logger logger = XLog.tag(TAG).build();
+    private final String TAG = RegisterRecorder.class.getSimpleName();
+    private final Logger logger = XLog.tag(TAG).build();
+    private final Context context;
 
-    public RegisterRecorder() {
+    public RegisterRecorder(Context context) {
+        this.context = context;
     }
 
     void recordRegisterRequest(Intent intent) {
@@ -47,17 +50,17 @@ public class RegisterRecorder {
         }
     }
 
-    static void toastErrorMessage(RuntimeException e) {
-        Utils.makeText(XMPushServiceAspect.xmPushService, XMPushServiceAspect.xmPushService.getString(R.string.common_err, e.getMessage()), Toast.LENGTH_LONG);
+    void toastErrorMessage(RuntimeException e) {
+        Utils.makeText(context, context.getString(R.string.common_err, e.getMessage()), Toast.LENGTH_LONG);
     }
 
-    static void saveRegisterAppRecord(String pkg) {
+    void saveRegisterAppRecord(String pkg) {
         EventDb.insertEvent(Event.ResultType.OK,
                 new RegistrationType(null, pkg, null)
         );
     }
 
-    static boolean isRegisterAppRequest(Intent intent) {
+    boolean isRegisterAppRequest(Intent intent) {
         return intent != null && PushConstants.MIPUSH_ACTION_REGISTER_APP.equals(intent.getAction());
     }
 
@@ -69,14 +72,14 @@ public class RegisterRecorder {
         }
     }
 
-    static void showRegisterNotification(RegisteredApplication application) {
-        CharSequence appName = ApplicationNameCache.getInstance().getAppName(XMPushServiceAspect.xmPushService, application.getPackageName());
-        CharSequence usedString = XMPushServiceAspect.xmPushService.getString(R.string.notification_registerAllowed, appName);
-        Utils.makeText(XMPushServiceAspect.xmPushService, usedString, Toast.LENGTH_SHORT);
+    void showRegisterNotification(RegisteredApplication application) {
+        CharSequence appName = ApplicationNameCache.getInstance().getAppName(context, application.getPackageName());
+        CharSequence usedString = context.getString(R.string.notification_registerAllowed, appName);
+        Utils.makeText(context, usedString, Toast.LENGTH_SHORT);
     }
 
-    static boolean canShowRegisterNotification(RegisteredApplication application) {
-        boolean notificationOnRegister = ConfigCenter.getInstance().isNotificationOnRegister(XMPushServiceAspect.xmPushService);
+    boolean canShowRegisterNotification(RegisteredApplication application) {
+        boolean notificationOnRegister = ConfigCenter.getInstance().isNotificationOnRegister(context);
         notificationOnRegister = notificationOnRegister && application.isNotificationOnRegister();
         return notificationOnRegister;
     }
