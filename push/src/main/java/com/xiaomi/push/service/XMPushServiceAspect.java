@@ -11,7 +11,6 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -29,18 +28,11 @@ import com.elvishew.xlog.XLog;
 import com.nihility.InternalMessenger;
 import com.oasisfeng.condom.CondomContext;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
-import com.xiaomi.mipush.sdk.PushContainerHelper;
-import com.xiaomi.network.Fallback;
-import com.xiaomi.network.HostManager;
 import com.xiaomi.push.revival.NotificationRevival;
 import com.xiaomi.smack.Connection;
-import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.smack.packet.Message;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
-import com.xiaomi.xmpush.thrift.XmPushActionContainer;
-import com.xiaomi.xmpush.thrift.XmPushActionNotification;
-import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.control.XMOutbound;
 import com.xiaomi.xmsf.utils.ConfigCenter;
@@ -52,8 +44,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-
-import java.util.Map;
 
 import top.trumeet.common.Constants;
 import top.trumeet.common.cache.ApplicationNameCache;
@@ -189,7 +179,7 @@ public class XMPushServiceAspect {
 
         sendSetConnectionStatus();
         if (newStatus == 1) {
-            xmPushService.executeJob(new PullAllApplicationDataJob());
+            xmPushService.executeJob(new PullAllApplicationDataJob(xmPushService));
         }
     }
 
@@ -304,61 +294,7 @@ public class XMPushServiceAspect {
         }
     }
 
-    static class PullAllApplicationDataJob extends XMPushService.Job {
-        public PullAllApplicationDataJob() {
-            super(XMPushService.Job.TYPE_SEND_MSG);
-        }
 
-        @Override
-        public String getDesc() {
-            return "pull all application data";
-        }
-
-        @Override
-        public void process() {
-            SharedPreferences sp = Utils.getApplication().getSharedPreferences("pref_registered_pkg_names", 0);
-            for (Map.Entry<String, ?> entry : sp.getAll().entrySet()) {
-                String packageName = entry.getKey();
-                String appId = entry.getValue() == null ? null : entry.getValue().toString();
-                if (TextUtils.isEmpty(appId)) {
-                    continue;
-                }
-
-                XmPushActionNotification notification2 = new XmPushActionNotification();
-                notification2.setAppId(appId);
-                notification2.setType("pull");
-                notification2.setId("fake_pull_" + appId + "_" + System.currentTimeMillis());
-                notification2.setRequireAck(false);
-
-                XmPushActionContainer sendMsgContainer = JavaCalls.callStaticMethod(
-                        PushContainerHelper.class.getName(), "generateRequestContainer",
-                        Utils.getApplication(), notification2, ActionType.Notification,
-                        false, packageName, appId);
-                byte[] msgBytes = XmPushThriftSerializeUtils.convertThriftObjectToBytes(sendMsgContainer);
-                xmPushService.sendMessage(packageName, msgBytes, false);
-            }
-        }
-    }
-
-    private static class ResetConnectJob extends XMPushService.Job {
-        public ResetConnectJob() {
-            super(XMPushService.Job.TYPE_RESET_CONNECT);
-        }
-
-        @Override
-        public String getDesc() {
-            return "reset connection";
-        }
-
-        @Override
-        public void process() {
-            Fallback fallback = HostManager.getInstance().getFallbacksByHost(ConnectionConfiguration.getXmppServerHost(), false);
-            JavaCalls.setField(fallback, "timestamp", 0);
-            HostManager.getInstance().getFallbacksByHost(ConnectionConfiguration.getXmppServerHost(), true);
-            xmPushService.disconnect(11, null);
-            xmPushService.scheduleConnect(true);
-        }
-    }
 
     public class XMPushServiceMessenger extends InternalMessenger {
         XMPushServiceMessenger(Context context) {
@@ -383,7 +319,7 @@ public class XMPushServiceAspect {
         }
 
         private void resetConnection() {
-            xmPushService.executeJob(new ResetConnectJob());
+            xmPushService.executeJob(new ResetConnectJob(xmPushService));
         }
     }
 }
