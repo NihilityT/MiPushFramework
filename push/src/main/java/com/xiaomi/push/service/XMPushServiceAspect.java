@@ -16,7 +16,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationChannelGroupCompat;
@@ -115,7 +114,7 @@ public class XMPushServiceAspect {
     public static String IntentSetConnectionStatus = "setConnectionStatus";
     public static String IntentStartForeground = "startForeground";
     @RequiresApi(N) private NotificationRevival mNotificationRevival;
-    private InternalMessenger internalMessenger;
+    private XMPushServiceMessenger internalMessenger;
 
     @Around("execution(* com.xiaomi.push.service.XMPushService.onCreate(..)) && this(pushService)")
     public void onCreate(final ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
@@ -177,24 +176,10 @@ public class XMPushServiceAspect {
         logger.d(joinPoint.getSignature());
         connectionStatus = getDesc(newStatus);
 
-        sendSetConnectionStatus();
+        internalMessenger.notifyConnectionStatusChanged();
         if (newStatus == 1) {
             xmPushService.executeJob(new PullAllApplicationDataJob(xmPushService));
         }
-    }
-
-    private void sendSetConnectionStatus() {
-        internalMessenger.send(setConnectionStatusIntent());
-    }
-
-    private static @NonNull Intent setConnectionStatusIntent() {
-        Intent intent = new Intent(IntentSetConnectionStatus);
-        intent.putExtra("status", connectionStatus);
-        Connection currentConnection = xmPushService.getCurrentConnection();
-        if (currentConnection != null) {
-            intent.putExtra("host", currentConnection.getHost());
-        }
-        return intent;
     }
 
     private String getDesc(int var1) {
@@ -304,8 +289,11 @@ public class XMPushServiceAspect {
     }
 
     public class XMPushServiceMessenger extends InternalMessenger {
-        XMPushServiceMessenger(Context context) {
+        private final XMPushService xmPushService;
+
+        XMPushServiceMessenger(XMPushService context) {
             super(context);
+            this.xmPushService = context;
             register(new IntentFilter(IntentGetConnectionStatus));
             register(new IntentFilter(PushConstants.ACTION_RESET_CONNECTION));
             register(new IntentFilter(IntentStartForeground));
@@ -314,7 +302,17 @@ public class XMPushServiceAspect {
         @Override
         public void onReceive(Context context, Intent intent) {
             handle(intent);
-            sendSetConnectionStatus();
+            notifyConnectionStatusChanged();
+        }
+
+        private void notifyConnectionStatusChanged() {
+            Intent intent = new Intent(IntentSetConnectionStatus);
+            intent.putExtra("status", connectionStatus);
+            Connection currentConnection = xmPushService.getCurrentConnection();
+            if (currentConnection != null) {
+                intent.putExtra("host", currentConnection.getHost());
+            }
+            send(intent);
         }
 
         private void handle(Intent intent) {
