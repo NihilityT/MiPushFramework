@@ -120,18 +120,20 @@ public class XMPushServiceAspect {
     @Around("execution(* com.xiaomi.push.service.XMPushService.onCreate(..)) && this(pushService)")
     public void onCreate(final ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
         logger.d(joinPoint.getSignature());
+        initXMPushService(joinPoint, pushService);
+        logger.d("Service started");
+
+        internalMessenger = new XMPushServiceMessenger(pushService);
+        startForeground();
+        reviveNotifications();
+    }
+
+    private static void initXMPushService(ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
         Context mBase = pushService.getBaseContext();
         JavaCalls.setField(pushService, "mBase",
                 CondomContext.wrap(mBase, TAG_CONDOM, XMOutbound.create(mBase, TAG)));
         joinPoint.proceed();
         xmPushService = pushService;
-
-        internalMessenger = new XMPushServiceMessenger(pushService);
-
-        logger.d("Service started");
-
-        startForeground();
-        reviveNotifications();
     }
 
     private void reviveNotifications() {
@@ -260,7 +262,7 @@ public class XMPushServiceAspect {
             }
 
             logger.d("onHandleIntent -> A application want to register push");
-            showRegisterToastIfExistsConfiguration(
+            showRegisterToastIfUserAllow(
                     RegisteredApplicationDb.registerApplication(pkg, true));
             saveRegisterAppRecord(pkg);
         } catch (RuntimeException e) {
@@ -283,7 +285,7 @@ public class XMPushServiceAspect {
         return intent != null && PushConstants.MIPUSH_ACTION_REGISTER_APP.equals(intent.getAction());
     }
 
-    private void showRegisterToastIfExistsConfiguration(RegisteredApplication application) {
+    private void showRegisterToastIfUserAllow(RegisteredApplication application) {
         if (canShowRegisterNotification(application)) {
             showRegisterNotification(application);
         } else {
