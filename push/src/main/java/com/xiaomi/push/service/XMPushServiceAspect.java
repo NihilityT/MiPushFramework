@@ -196,26 +196,21 @@ public class XMPushServiceAspect {
     }
 
     private void startForeground() {
-        NotificationManagerCompat manager = NotificationManagerCompat.from(xmPushService.getApplicationContext());
-        if (SDK_INT >= O) {
-            String groupId = "status_group";
-            NotificationChannelGroupCompat.Builder group =
-                    new NotificationChannelGroupCompat.Builder(groupId)
-                            .setName(CHANNEL_STATUS);
-            manager.createNotificationChannelGroup(group.build());
-
-            NotificationChannelCompat.Builder channel = new NotificationChannelCompat
-                    .Builder(CHANNEL_STATUS, NotificationManager.IMPORTANCE_MIN)
-                    .setName(xmPushService.getString(R.string.notification_category_alive)).setGroup(groupId);
-            manager.createNotificationChannel(channel.build());
-
+        createNotificationGroupForPushStatus();
+        if (ConfigCenter.getInstance().isStartForegroundService()) {
+            showForegroundNotificationToKeepAlive();
+        } else {
+            stopForegroundNotification();
         }
-        if (!ConfigCenter.getInstance().isStartForegroundService()) {
-            if (SDK_INT >= N) {
-                xmPushService.stopForeground(Service.STOP_FOREGROUND_REMOVE);
-            }
-            return;
+    }
+
+    private static void stopForegroundNotification() {
+        if (SDK_INT >= N) {
+            xmPushService.stopForeground(Service.STOP_FOREGROUND_REMOVE);
         }
+    }
+
+    private static void showForegroundNotificationToKeepAlive() {
         //if (ConfigCenter.getInstance().foregroundNotification || Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         {
             Notification notification = new NotificationCompat.Builder(xmPushService,
@@ -228,6 +223,22 @@ public class XMPushServiceAspect {
                     .build();
 
             xmPushService.startForeground(NOTIFICATION_ALIVE_ID, notification);
+        }
+    }
+
+    private static void createNotificationGroupForPushStatus() {
+        NotificationManagerCompat manager = NotificationManagerCompat.from(xmPushService.getApplicationContext());
+        if (SDK_INT >= O) {
+            String groupId = "status_group";
+            NotificationChannelGroupCompat.Builder group =
+                    new NotificationChannelGroupCompat.Builder(groupId)
+                            .setName(CHANNEL_STATUS);
+            manager.createNotificationChannelGroup(group.build());
+
+            NotificationChannelCompat.Builder channel = new NotificationChannelCompat
+                    .Builder(CHANNEL_STATUS, NotificationManager.IMPORTANCE_MIN)
+                    .setName(xmPushService.getString(R.string.notification_category_alive)).setGroup(groupId);
+            manager.createNotificationChannel(channel.build());
         }
     }
 
