@@ -170,8 +170,9 @@ public class XMPushServiceAspect {
         logger.d(joinPoint.getSignature());
 
         internalMessenger.notifyConnectionStatusChanged(newStatus);
-        if (newStatus == 1) {
-            xmPushService.executeJob(new PullAllApplicationDataJob(xmPushService));
+        int connected = 1;
+        if (newStatus == connected) {
+            xmPushService.executeJob(new PullAllApplicationDataFromServerJob(xmPushService));
         }
     }
 

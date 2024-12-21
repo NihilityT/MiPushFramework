@@ -14,11 +14,11 @@ import java.util.Map;
 
 import top.trumeet.common.utils.Utils;
 
-class PullAllApplicationDataJob extends XMPushService.Job {
+class PullAllApplicationDataFromServerJob extends XMPushService.Job {
 
     private final XMPushService xmPushService;
 
-    public PullAllApplicationDataJob(XMPushService xmPushService) {
+    public PullAllApplicationDataFromServerJob(XMPushService xmPushService) {
         super(XMPushService.Job.TYPE_SEND_MSG);
         this.xmPushService = xmPushService;
     }
