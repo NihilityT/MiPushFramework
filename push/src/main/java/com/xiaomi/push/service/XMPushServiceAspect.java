@@ -8,7 +8,6 @@ import static top.trumeet.common.Constants.TAG_CONDOM;
 
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -24,10 +23,10 @@ import androidx.core.app.NotificationChannelGroupCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.ServiceCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.InternalMessenger;
 import com.oasisfeng.condom.CondomContext;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.mipush.sdk.PushContainerHelper;
@@ -137,7 +136,7 @@ public class XMPushServiceAspect {
         joinPoint.proceed();
         xmPushService = pushService;
 
-        internalMessenger = new InternalMessenger(pushService);
+        internalMessenger = new XMPushServiceMessenger(pushService);
 
         logger.d("Service started");
 
@@ -361,22 +360,12 @@ public class XMPushServiceAspect {
         }
     }
 
-    private class InternalMessenger extends BroadcastReceiver {
-        private final LocalBroadcastManager localBroadcast;
-
-        InternalMessenger(Context context) {
-            localBroadcast = LocalBroadcastManager.getInstance(context);
+    public class XMPushServiceMessenger extends InternalMessenger {
+        XMPushServiceMessenger(Context context) {
+            super(context);
             register(new IntentFilter(IntentGetConnectionStatus));
             register(new IntentFilter(PushConstants.ACTION_RESET_CONNECTION));
             register(new IntentFilter(IntentStartForeground));
-        }
-
-        public void send(Intent intent) {
-            localBroadcast.sendBroadcast(intent);
-        }
-
-        private void register(IntentFilter intentFilter) {
-            localBroadcast.registerReceiver(this, intentFilter);
         }
 
         @Override
