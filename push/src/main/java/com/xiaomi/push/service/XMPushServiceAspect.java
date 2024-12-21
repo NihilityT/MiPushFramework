@@ -1,14 +1,12 @@
 package com.xiaomi.push.service;
 
 import static android.os.Build.VERSION.SDK_INT;
-import static android.os.Build.VERSION_CODES.N;
+import static android.os.Build.VERSION_CODES.M;
 import static android.os.Build.VERSION_CODES.P;
 import static top.trumeet.common.Constants.TAG_CONDOM;
 
 import android.content.Context;
 import android.content.Intent;
-
-import androidx.annotation.RequiresApi;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
@@ -84,7 +82,6 @@ public class XMPushServiceAspect {
     private final RegisterRecorder registerRecorder = new RegisterRecorder();
     private ForegroundHelper foregroundHelper;
 
-    @RequiresApi(N)
     private NotificationRevival mNotificationRevival;
     private XMPushServiceMessenger internalMessenger;
 
@@ -110,7 +107,7 @@ public class XMPushServiceAspect {
 
     private void reviveNotifications() {
         if (SDK_INT > P) BackgroundActivityStartEnabler.initialize(xmPushService);
-        if (SDK_INT >= N) {
+        if (SDK_INT >= M) {
             mNotificationRevival = new NotificationRevival(xmPushService, sbn -> sbn.getTag() == null);  // Only push notifications (tag == null)
             mNotificationRevival.initialize();
         }
@@ -142,7 +139,7 @@ public class XMPushServiceAspect {
         logger.d("Service stopped");
         xmPushService.stopForeground(true);
 
-        if (SDK_INT >= N) mNotificationRevival.close();
+        if (SDK_INT >= M) mNotificationRevival.close();
     }
 
     @Before("execution(* com.xiaomi.smack.Connection.setConnectionStatus(..)) && args(newStatus, reason, e)")
