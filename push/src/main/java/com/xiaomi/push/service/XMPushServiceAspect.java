@@ -2,23 +2,13 @@ package com.xiaomi.push.service;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Build.VERSION_CODES.N;
-import static android.os.Build.VERSION_CODES.O;
 import static android.os.Build.VERSION_CODES.P;
 import static top.trumeet.common.Constants.TAG_CONDOM;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
-import androidx.core.app.NotificationChannelCompat;
-import androidx.core.app.NotificationChannelGroupCompat;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
@@ -28,9 +18,7 @@ import com.xiaomi.push.revival.NotificationRevival;
 import com.xiaomi.smack.packet.Message;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
-import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.control.XMOutbound;
-import com.xiaomi.xmsf.utils.ConfigCenter;
 import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import org.apache.thrift.TBase;
@@ -39,15 +27,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-
-import top.trumeet.common.Constants;
-import top.trumeet.common.cache.ApplicationNameCache;
-import top.trumeet.common.utils.Utils;
-import top.trumeet.mipush.provider.db.EventDb;
-import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
-import top.trumeet.mipush.provider.event.Event;
-import top.trumeet.mipush.provider.event.type.RegistrationType;
-import top.trumeet.mipush.provider.register.RegisteredApplication;
 
 /**
  * @author Trumeet
@@ -100,9 +79,10 @@ import top.trumeet.mipush.provider.register.RegisteredApplication;
 public class XMPushServiceAspect {
     private static final String TAG = XMPushServiceAspect.class.getSimpleName();
     private static final Logger logger = XLog.tag(TAG).build();
-    public static final String CHANNEL_STATUS = "status";
-    public static final int NOTIFICATION_ALIVE_ID = 1;
+
     public static XMPushService xmPushService;
+    private final RegisterRecorder registerRecorder = new RegisterRecorder();
+    private ForegroundHelper foregroundHelper;
 
     @RequiresApi(N)
     private NotificationRevival mNotificationRevival;
@@ -115,7 +95,8 @@ public class XMPushServiceAspect {
         logger.d("Service started");
 
         internalMessenger = new XMPushServiceMessenger(this, pushService);
-        startForeground();
+        foregroundHelper = new ForegroundHelper(pushService);
+        foregroundHelper.startForeground();
         reviveNotifications();
     }
 
@@ -139,14 +120,14 @@ public class XMPushServiceAspect {
     @Before("execution(* com.xiaomi.push.service.XMPushService.onStartCommand(..))")
     public void onStartCommand(final JoinPoint joinPoint) {
         logger.d(joinPoint.getSignature());
-        startForeground();
+        foregroundHelper.startForeground();
     }
 
     @Before("execution(* com.xiaomi.push.service.XMPushService.onStart(..)) && args(intent, startId)")
     public void onStart(final JoinPoint joinPoint, Intent intent, int startId) {
         logger.d(joinPoint.getSignature());
         logIntent(intent);
-        recordRegisterRequest(intent);
+        registerRecorder.recordRegisterRequest(intent);
     }
 
     @Before("execution(* com.xiaomi.push.service.XMPushService.onBind(..)) && args(intent)")
@@ -170,117 +151,21 @@ public class XMPushServiceAspect {
         logger.d(joinPoint.getSignature());
 
         internalMessenger.notifyConnectionStatusChanged(newStatus);
-        int connected = 1;
-        if (newStatus == connected) {
+        if (isConnected(newStatus)) {
             xmPushService.executeJob(new PullAllApplicationDataFromServerJob(xmPushService));
         }
     }
 
+    private static boolean isConnected(int newStatus) {
+        return newStatus == 1;
+    }
+
     public void startForeground() {
-        createNotificationGroupForPushStatus();
-        if (ConfigCenter.getInstance().isStartForegroundService()) {
-            showForegroundNotificationToKeepAlive();
-        } else {
-            stopForegroundNotification();
-        }
-    }
-
-    private static void stopForegroundNotification() {
-        if (SDK_INT >= N) {
-            xmPushService.stopForeground(Service.STOP_FOREGROUND_REMOVE);
-        }
-    }
-
-    private static void showForegroundNotificationToKeepAlive() {
-        //if (ConfigCenter.getInstance().foregroundNotification || Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        {
-            Notification notification = new NotificationCompat.Builder(xmPushService,
-                    CHANNEL_STATUS)
-                    .setContentTitle(xmPushService.getString(R.string.notification_alive))
-                    .setSmallIcon(R.drawable.ic_notifications_black_24dp)
-                    .setPriority(NotificationCompat.PRIORITY_MIN)
-                    .setOngoing(true)
-                    .setShowWhen(true)
-                    .build();
-
-            xmPushService.startForeground(NOTIFICATION_ALIVE_ID, notification);
-        }
-    }
-
-    private static void createNotificationGroupForPushStatus() {
-        NotificationManagerCompat manager = NotificationManagerCompat.from(xmPushService.getApplicationContext());
-        if (SDK_INT >= O) {
-            String groupId = "status_group";
-            NotificationChannelGroupCompat.Builder group =
-                    new NotificationChannelGroupCompat.Builder(groupId)
-                            .setName(CHANNEL_STATUS);
-            manager.createNotificationChannelGroup(group.build());
-
-            NotificationChannelCompat.Builder channel = new NotificationChannelCompat
-                    .Builder(CHANNEL_STATUS, NotificationManager.IMPORTANCE_MIN)
-                    .setName(xmPushService.getString(R.string.notification_category_alive)).setGroup(groupId);
-            manager.createNotificationChannel(channel.build());
-        }
+        foregroundHelper.startForeground();
     }
 
     private void logIntent(Intent intent) {
         logger.d("Intent" + " " + ConvertUtils.toJson(intent));
-    }
-
-    private void recordRegisterRequest(Intent intent) {
-        try {
-            if (!isRegisterAppRequest(intent)) {
-                return;
-            }
-
-            String pkg = intent.getStringExtra(Constants.EXTRA_MI_PUSH_PACKAGE);
-            if (pkg == null) {
-                logger.e("Package name is NULL!");
-                return;
-            }
-
-            logger.d("onHandleIntent -> A application want to register push");
-            showRegisterToastIfUserAllow(
-                    RegisteredApplicationDb.registerApplication(pkg, true));
-            saveRegisterAppRecord(pkg);
-        } catch (RuntimeException e) {
-            logger.e("XMPushService::onHandleIntent: ", e);
-            toastErrorMessage(e);
-        }
-    }
-
-    private static void toastErrorMessage(RuntimeException e) {
-        Utils.makeText(xmPushService, xmPushService.getString(R.string.common_err, e.getMessage()), Toast.LENGTH_LONG);
-    }
-
-    private static void saveRegisterAppRecord(String pkg) {
-        EventDb.insertEvent(Event.ResultType.OK,
-                new RegistrationType(null, pkg, null)
-        );
-    }
-
-    private static boolean isRegisterAppRequest(Intent intent) {
-        return intent != null && PushConstants.MIPUSH_ACTION_REGISTER_APP.equals(intent.getAction());
-    }
-
-    private void showRegisterToastIfUserAllow(RegisteredApplication application) {
-        if (canShowRegisterNotification(application)) {
-            showRegisterNotification(application);
-        } else {
-            Log.e("XMPushService Bridge", "Notification disabled");
-        }
-    }
-
-    private static void showRegisterNotification(RegisteredApplication application) {
-        CharSequence appName = ApplicationNameCache.getInstance().getAppName(xmPushService, application.getPackageName());
-        CharSequence usedString = xmPushService.getString(R.string.notification_registerAllowed, appName);
-        Utils.makeText(xmPushService, usedString, Toast.LENGTH_SHORT);
-    }
-
-    private static boolean canShowRegisterNotification(RegisteredApplication application) {
-        boolean notificationOnRegister = ConfigCenter.getInstance().isNotificationOnRegister(xmPushService);
-        notificationOnRegister = notificationOnRegister && application.isNotificationOnRegister();
-        return notificationOnRegister;
     }
 
 }
