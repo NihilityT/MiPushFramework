@@ -113,7 +113,8 @@ public class XMPushServiceAspect {
     public static String IntentGetConnectionStatus = "getConnectionStatus";
     public static String IntentSetConnectionStatus = "setConnectionStatus";
     public static String IntentStartForeground = "startForeground";
-    @RequiresApi(N) private NotificationRevival mNotificationRevival;
+    @RequiresApi(N)
+    private NotificationRevival mNotificationRevival;
     private XMPushServiceMessenger internalMessenger;
 
     @Around("execution(* com.xiaomi.push.service.XMPushService.onCreate(..)) && this(pushService)")
@@ -246,13 +247,9 @@ public class XMPushServiceAspect {
         logger.d("Intent" + " " + ConvertUtils.toJson(intent));
     }
 
-
     private void recordRegisterRequest(Intent intent) {
         try {
-            if (intent == null) {
-                return;
-            }
-            if (!PushConstants.MIPUSH_ACTION_REGISTER_APP.equals(intent.getAction())) {
+            if (!isRegisterAppRequest(intent)) {
                 return;
             }
 
@@ -262,21 +259,28 @@ public class XMPushServiceAspect {
                 return;
             }
 
-            RegisteredApplication application = RegisteredApplicationDb
-                    .registerApplication(pkg, true);
-            if (application == null) {
-                return;
-            }
-
             logger.d("onHandleIntent -> A application want to register push");
-            showRegisterToastIfExistsConfiguration(application);
-            EventDb.insertEvent(Event.ResultType.OK,
-                    new RegistrationType(null, pkg, null)
-            );
+            showRegisterToastIfExistsConfiguration(
+                    RegisteredApplicationDb.registerApplication(pkg, true));
+            saveRegisterAppRecord(pkg);
         } catch (RuntimeException e) {
             logger.e("XMPushService::onHandleIntent: ", e);
-            Utils.makeText(xmPushService, xmPushService.getString(R.string.common_err, e.getMessage()), Toast.LENGTH_LONG);
+            toastErrorMessage(e);
         }
+    }
+
+    private static void toastErrorMessage(RuntimeException e) {
+        Utils.makeText(xmPushService, xmPushService.getString(R.string.common_err, e.getMessage()), Toast.LENGTH_LONG);
+    }
+
+    private static void saveRegisterAppRecord(String pkg) {
+        EventDb.insertEvent(Event.ResultType.OK,
+                new RegistrationType(null, pkg, null)
+        );
+    }
+
+    private static boolean isRegisterAppRequest(Intent intent) {
+        return intent != null && PushConstants.MIPUSH_ACTION_REGISTER_APP.equals(intent.getAction());
     }
 
     private void showRegisterToastIfExistsConfiguration(RegisteredApplication application) {
