@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationChannelGroupCompat;
@@ -33,6 +34,7 @@ import com.xiaomi.mipush.sdk.PushContainerHelper;
 import com.xiaomi.network.Fallback;
 import com.xiaomi.network.HostManager;
 import com.xiaomi.push.revival.NotificationRevival;
+import com.xiaomi.smack.Connection;
 import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.smack.packet.Message;
 import com.xiaomi.xmpush.thrift.ActionType;
@@ -124,7 +126,7 @@ public class XMPushServiceAspect {
     public static String IntentSetConnectionStatus = "setConnectionStatus";
     public static String IntentStartForeground = "startForeground";
     @RequiresApi(N) private NotificationRevival mNotificationRevival;
-    private BroadcastReceiver mMessageReceiver = new InternalMessenger();
+    private InternalMessenger internalMessenger;
 
     @Around("execution(* com.xiaomi.push.service.XMPushService.onCreate(..)) && this(pushService)")
     public void onCreate(final ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
@@ -135,12 +137,12 @@ public class XMPushServiceAspect {
         joinPoint.proceed();
         xmPushService = pushService;
 
+        internalMessenger = new InternalMessenger(pushService);
+
         logger.d("Service started");
 
         startForeground();
         reviveNotifications();
-
-        initLocalBroadcast();
     }
 
     private void reviveNotifications() {
@@ -151,12 +153,6 @@ public class XMPushServiceAspect {
         }
     }
 
-    private void initLocalBroadcast() {
-        LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(xmPushService);
-        localBroadcast.registerReceiver(mMessageReceiver, new IntentFilter(IntentGetConnectionStatus));
-        localBroadcast.registerReceiver(mMessageReceiver, new IntentFilter(PushConstants.ACTION_RESET_CONNECTION));
-        localBroadcast.registerReceiver(mMessageReceiver, new IntentFilter(IntentStartForeground));
-    }
 
     @Before("execution(* com.xiaomi.push.service.XMPushService.onStartCommand(..))")
     public void onStartCommand(final JoinPoint joinPoint) {
@@ -199,27 +195,30 @@ public class XMPushServiceAspect {
     }
 
     private void sendSetConnectionStatus() {
+        internalMessenger.send(setConnectionStatusIntent());
+    }
+
+    private static @NonNull Intent setConnectionStatusIntent() {
         Intent intent = new Intent(IntentSetConnectionStatus);
         intent.putExtra("status", connectionStatus);
-        if (xmPushService.getCurrentConnection() != null) {
-            intent.putExtra("host", xmPushService.getCurrentConnection().getHost());
+        Connection currentConnection = xmPushService.getCurrentConnection();
+        if (currentConnection != null) {
+            intent.putExtra("host", currentConnection.getHost());
         }
-        LocalBroadcastManager.getInstance(xmPushService).sendBroadcast(intent);
+        return intent;
     }
 
     private String getDesc(int var1) {
-        String var2;
-        if (var1 == 1) {
-            var2 = "connected";
-        } else if (var1 == 0) {
-            var2 = "connecting";
-        } else if (var1 == 2) {
-            var2 = "disconnected";
-        } else {
-            var2 = "unknown";
+        switch (var1) {
+            case 0:
+                return "connecting";
+            case 1:
+                return "connected";
+            case 2:
+                return "disconnected";
+            default:
+                return "unknown";
         }
-
-        return var2;
     }
 
     private void startForeground() {
@@ -363,6 +362,23 @@ public class XMPushServiceAspect {
     }
 
     private class InternalMessenger extends BroadcastReceiver {
+        private final LocalBroadcastManager localBroadcast;
+
+        InternalMessenger(Context context) {
+            localBroadcast = LocalBroadcastManager.getInstance(context);
+            register(new IntentFilter(IntentGetConnectionStatus));
+            register(new IntentFilter(PushConstants.ACTION_RESET_CONNECTION));
+            register(new IntentFilter(IntentStartForeground));
+        }
+
+        public void send(Intent intent) {
+            localBroadcast.sendBroadcast(intent);
+        }
+
+        private void register(IntentFilter intentFilter) {
+            localBroadcast.registerReceiver(this, intentFilter);
+        }
+
         @Override
         public void onReceive(Context context, Intent intent) {
             handle(intent);
