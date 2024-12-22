@@ -46,7 +46,7 @@ private const val TIMEOUT_DEBUG = 5 * 60_000
  *
  * @author oasisfeng
  */
-@RequiresApi(M) class UpdatedAppNotificationsRevival(private val context: Context, private val filter: (StatusBarNotification) -> Boolean): BroadcastReceiver() {
+@RequiresApi(M) class UpdatedAppNotificationsRevival(private val context: Context, private val isTargetNotification: (StatusBarNotification) -> Boolean): BroadcastReceiver() {
 
     fun initialize() = context.packageManager.packageInstaller.registerSessionCallback(mInstallSessionCallback)
     fun close() = context.packageManager.packageInstaller.unregisterSessionCallback(mInstallSessionCallback)
@@ -56,21 +56,32 @@ private const val TIMEOUT_DEBUG = 5 * 60_000
         if (notifications.isEmpty()) return
         Log.i(TAG, "Save active notifications...")
 
+        val i = save(notifications)
+        Log.i(TAG, "Total $i (of ${notifications.size} active) notifications saved.")
+    }
+
+    private fun save(notifications: Array<StatusBarNotification>): Int {
         val payload = buildBackupIntent(context)
         val am = context.getSystemService(AlarmManager::class.java)!!
-        var i = 0; val expireAtElapsed = SystemClock.elapsedRealtime() + if (BuildConfig.DEBUG) TIMEOUT_DEBUG else TIMEOUT
+        val expireAtElapsed = SystemClock.elapsedRealtime() + timeout()
+        var i = 0;
         for (sbn in notifications) try {
-            if (sbn.notification.flags.and(Notification.FLAG_ONGOING_EVENT) != 0 || ! filter(sbn))
+            if (isOngoingEvent(sbn) || !isTargetNotification(sbn))
                 continue    // Skip sticky and filtered notifications
             payload.putExtra(null, sbn)
             val pi = PendingIntent.getBroadcast(context, BACKUP_VERSION + i, payload, FLAG_UPDATE_CURRENT)
             am.set(AlarmManager.ELAPSED_REALTIME, expireAtElapsed, pi)
-            i ++
+            i++
         } catch (e: RuntimeException) {
             Log.w(TAG, "Error saving ${sbn.key}", e)
         }
-        Log.i(TAG, "Total $i (of ${notifications.size} active) notifications saved.")
+        return i
     }
+
+    private fun timeout() = if (BuildConfig.DEBUG) TIMEOUT_DEBUG else TIMEOUT
+
+    private fun isOngoingEvent(sbn: StatusBarNotification) =
+        sbn.notification.flags.and(Notification.FLAG_ONGOING_EVENT) != 0
 
     override fun onReceive(context: Context, intent: Intent) {
         val index = intent.getIntExtra(EXTRA_INDEX, -1)
@@ -87,27 +98,49 @@ private const val TIMEOUT_DEBUG = 5 * 60_000
         fun restoreNotificationsAsync(restrictedContext: Context) {
             val context = restrictedContext.applicationContext
             val retriever = buildBackupIntent(context)
-            if (PendingIntent.getBroadcast(context, BACKUP_VERSION - 1, retriever, FLAG_NO_CREATE) != null)
+            if (incompatibleUpdated(context, retriever))
                 return Unit.also { Log.w(TAG, "Ignore incompatible backup created by old version.") }
-            var i = 0
-            while (true) {
-                (PendingIntent.getBroadcast(context, BACKUP_VERSION + i, retriever, FLAG_NO_CREATE) ?: break)
-                        .send(context, i, Intent().putExtra(EXTRA_INDEX, i), { pi, payload, index, _, _ ->
-                            val sbn = payload.getParcelableExtra<StatusBarNotification>(null)
-                            if (sbn != null) try {
-                                Log.i(TAG, "Restoring notification $index: ${sbn.key}")
-                                restoreNotification(context, sbn)
-                                context.getSystemService(AlarmManager::class.java)!!.cancel(pi)
-                                pi.cancel()
-                            } catch (e: RuntimeException) {
-                                Log.e(TAG, "Error restoring notification $index", e)
-                            } else Log.e(TAG, "Missing or corrupted payload in save $index")
-                        }, null)
-                i ++
-            }
+            val i = restoreNotifications(context, retriever)
             if (i == 0) Log.d(TAG, "Nothing to restore.")
             else Log.i(TAG, "Total $i to restore.")
         }
+
+        private fun restoreNotifications(context: Context, retriever: Intent): Int {
+            var i = 0
+            while (true) {
+                (getSavedNotification(context, BACKUP_VERSION + i, retriever) ?: break)
+                    .send(context, i, Intent().putExtra(EXTRA_INDEX, i), onRestore(context), null)
+                i++
+            }
+            return i
+        }
+
+        private fun onRestore(context: Context) = PendingIntent.OnFinished { pi, payload, index, _, _ ->
+                val sbn = payload.getParcelableExtra<StatusBarNotification>(null)
+                if (sbn != null) try {
+                    Log.i(TAG, "Restoring notification $index: ${sbn.key}")
+                    restoreNotification(context, sbn)
+                    deleteSavedNotification(context, pi)
+                } catch (e: RuntimeException) {
+                    Log.e(TAG, "Error restoring notification $index", e)
+                } else Log.e(TAG, "Missing or corrupted payload in save $index")
+            }
+
+        private fun deleteSavedNotification(context: Context, pi: PendingIntent) {
+            context.getSystemService(AlarmManager::class.java)!!.cancel(pi)
+            pi.cancel()
+        }
+
+        private fun incompatibleUpdated(
+            context: Context?,
+            retriever: Intent
+        ): Boolean = getSavedNotification(context, BACKUP_VERSION - 1, retriever) != null
+
+        private fun getSavedNotification(
+            context: Context?,
+            identity: Int,
+            retriever: Intent
+        ): PendingIntent? = PendingIntent.getBroadcast(context, identity, retriever, FLAG_NO_CREATE)
 
         private fun restoreNotification(context: Context, sbn: StatusBarNotification) {
             var n = sbn.notification
