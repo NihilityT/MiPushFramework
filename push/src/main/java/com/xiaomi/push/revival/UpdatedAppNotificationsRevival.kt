@@ -46,7 +46,7 @@ private const val TIMEOUT_DEBUG = 5 * 60_000
  *
  * @author oasisfeng
  */
-@RequiresApi(M) class NotificationRevival(private val context: Context, private val filter: (StatusBarNotification) -> Boolean): BroadcastReceiver() {
+@RequiresApi(M) class UpdatedAppNotificationsRevival(private val context: Context, private val filter: (StatusBarNotification) -> Boolean): BroadcastReceiver() {
 
     fun initialize() = context.packageManager.packageInstaller.registerSessionCallback(mInstallSessionCallback)
     fun close() = context.packageManager.packageInstaller.unregisterSessionCallback(mInstallSessionCallback)
@@ -121,7 +121,7 @@ private const val TIMEOUT_DEBUG = 5 * 60_000
         }
 
         private fun buildBackupIntent(context: Context)
-                = Intent(context, NotificationRevival::class.java).addFlags(FLAG_RECEIVER_FOREGROUND)
+                = Intent(context, UpdatedAppNotificationsRevival::class.java).addFlags(FLAG_RECEIVER_FOREGROUND)
     }
 
     private val mInstallSessionCallback = object: PackageInstaller.SessionCallback() {

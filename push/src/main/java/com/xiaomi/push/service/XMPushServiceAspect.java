@@ -12,7 +12,7 @@ import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.oasisfeng.condom.CondomContext;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
-import com.xiaomi.push.revival.NotificationRevival;
+import com.xiaomi.push.revival.UpdatedAppNotificationsRevival;
 import com.xiaomi.smack.packet.Message;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
@@ -82,7 +82,7 @@ public class XMPushServiceAspect {
     private RegisterRecorder registerRecorder;
     private ForegroundHelper foregroundHelper;
 
-    private NotificationRevival mNotificationRevival;
+    private UpdatedAppNotificationsRevival mUpdatedAppNotificationsRevival;
     private XMPushServiceMessenger internalMessenger;
 
     @Around("execution(* com.xiaomi.push.service.XMPushService.onCreate(..)) && this(pushService)")
@@ -96,7 +96,7 @@ public class XMPushServiceAspect {
         foregroundHelper = new ForegroundHelper(pushService);
         foregroundHelper.startForeground();
         if (SDK_INT > P) BackgroundActivityStartEnabler.initialize(xmPushService);
-        reviveNotifications();
+        listenAppUpdateForNotificationsRevival();
     }
 
     private static void initXMPushService(ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
@@ -111,10 +111,10 @@ public class XMPushServiceAspect {
                 CondomContext.wrap(mBase, TAG_CONDOM, XMOutbound.create(mBase, TAG)));
     }
 
-    private void reviveNotifications() {
+    private void listenAppUpdateForNotificationsRevival() {
         if (SDK_INT >= M) {
-            mNotificationRevival = new NotificationRevival(xmPushService, sbn -> sbn.getTag() == null);  // Only push notifications (tag == null)
-            mNotificationRevival.initialize();
+            mUpdatedAppNotificationsRevival = new UpdatedAppNotificationsRevival(xmPushService, sbn -> sbn.getTag() == null);  // Only push notifications (tag == null)
+            mUpdatedAppNotificationsRevival.initialize();
         }
     }
 
@@ -144,7 +144,7 @@ public class XMPushServiceAspect {
         logger.d("Service stopped");
         xmPushService.stopForeground(true);
 
-        if (SDK_INT >= M) mNotificationRevival.close();
+        if (SDK_INT >= M) mUpdatedAppNotificationsRevival.close();
     }
 
     @Before("execution(* com.xiaomi.smack.Connection.setConnectionStatus(..)) && args(newStatus, reason, e)")
