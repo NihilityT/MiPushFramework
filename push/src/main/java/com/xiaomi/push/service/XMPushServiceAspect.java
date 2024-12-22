@@ -152,22 +152,9 @@ public class XMPushServiceAspect {
                                     int newStatus, int reason, Exception e) {
         logger.d(joinPoint.getSignature());
 
-        internalMessenger.notifyConnectionStatusChanged(getDesc(newStatus));
+        internalMessenger.notifyConnectionStatusChanged(newStatus);
         if (isConnected(newStatus)) {
             xmPushService.executeJob(new PullAllApplicationDataFromServerJob(xmPushService));
-        }
-    }
-
-    private String getDesc(int var1) {
-        switch (var1) {
-            case 0:
-                return "connecting";
-            case 1:
-                return "connected";
-            case 2:
-                return "disconnected";
-            default:
-                return "unknown";
         }
     }
 
