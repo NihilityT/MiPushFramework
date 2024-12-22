@@ -13,8 +13,8 @@ import org.aspectj.lang.annotation.Aspect;
 import java.util.Collections;
 
 @Aspect
-public class DebugAspect {
-    private static final String TAG = DebugAspect.class.getSimpleName();
+public class LogDebugAspect {
+    private static final String TAG = LogDebugAspect.class.getSimpleName();
     private static final Logger logger = XLog.tag(TAG).build();
     private static final ThreadLocal<Integer> level = new ThreadLocal<Integer>() {
         @Override

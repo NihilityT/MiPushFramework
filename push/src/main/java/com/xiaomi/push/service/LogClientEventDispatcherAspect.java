@@ -42,8 +42,8 @@ import top.trumeet.common.BuildConfig;
  */
 
 @Aspect
-public class ClientEventDispatcherAspect {
-    private static final String TAG = ClientEventDispatcherAspect.class.getSimpleName();
+public class LogClientEventDispatcherAspect {
+    private static final String TAG = LogClientEventDispatcherAspect.class.getSimpleName();
     private static final Logger logger = XLog.tag(TAG).build();
 
     @Before("execution(* com.xiaomi.push.service.ClientEventDispatcher.notifyPacketArrival(..)) && args(pushService, chid, data)")

@@ -10,8 +10,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 
 @Aspect
-public class FallbackAspectLog {
-    private static final String TAG = FallbackAspectLog.class.getSimpleName();
+public class LogFallbackAspect {
+    private static final String TAG = LogFallbackAspect.class.getSimpleName();
     private static final Logger logger = XLog.tag(TAG).build();
 
     @Before("execution(* com.xiaomi.network.Fallback.getHosts(..)) && target(fallback) && args(usePort)")

@@ -11,8 +11,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 
 @Aspect
-public class PushMessageProcessorAspect {
-    private static final String TAG = PushMessageProcessorAspect.class.getSimpleName();
+public class LogPushMessageProcessorAspect {
+    private static final String TAG = LogPushMessageProcessorAspect.class.getSimpleName();
     private static final Logger logger = XLog.tag(TAG).build();
 
     @Before("execution(* com.xiaomi.mipush.sdk.PushMessageProcessor.processIntent(..)) && args(intent)")
