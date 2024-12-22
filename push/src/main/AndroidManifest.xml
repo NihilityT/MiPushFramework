@@ -180,7 +180,7 @@
         </receiver>
 
         <receiver
-            android:name="com.xiaomi.push.revival.UpdatedAppNotificationsRevival" />
+            android:name="com.xiaomi.push.revival.NotificationsRevivalForSelfUpdated" />
 
         <service
             android:name=".push.service.HttpService"

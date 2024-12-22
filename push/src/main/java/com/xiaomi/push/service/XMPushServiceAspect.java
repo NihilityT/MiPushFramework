@@ -12,7 +12,7 @@ import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.oasisfeng.condom.CondomContext;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
-import com.xiaomi.push.revival.UpdatedAppNotificationsRevival;
+import com.xiaomi.push.revival.NotificationsRevivalForSelfUpdated;
 import com.xiaomi.smack.packet.Message;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
@@ -82,7 +82,7 @@ public class XMPushServiceAspect {
     private RegisterRecorder registerRecorder;
     private ForegroundHelper foregroundHelper;
 
-    private UpdatedAppNotificationsRevival mUpdatedAppNotificationsRevival;
+    private NotificationsRevivalForSelfUpdated mNotificationsRevivalForSelfUpdated;
     private XMPushServiceMessenger internalMessenger;
 
     @Around("execution(* com.xiaomi.push.service.XMPushService.onCreate(..)) && this(pushService)")
@@ -113,8 +113,8 @@ public class XMPushServiceAspect {
 
     private void listenAppUpdateForNotificationsRevival() {
         if (SDK_INT >= M) {
-            mUpdatedAppNotificationsRevival = new UpdatedAppNotificationsRevival(xmPushService, sbn -> sbn.getTag() == null);  // Only push notifications (tag == null)
-            mUpdatedAppNotificationsRevival.initialize();
+            mNotificationsRevivalForSelfUpdated = new NotificationsRevivalForSelfUpdated(xmPushService, sbn -> sbn.getTag() == null);  // Only push notifications (tag == null)
+            mNotificationsRevivalForSelfUpdated.initialize();
         }
     }
 
@@ -144,7 +144,7 @@ public class XMPushServiceAspect {
         logger.d("Service stopped");
         xmPushService.stopForeground(true);
 
-        if (SDK_INT >= M) mUpdatedAppNotificationsRevival.close();
+        if (SDK_INT >= M) mNotificationsRevivalForSelfUpdated.close();
     }
 
     @Before("execution(* com.xiaomi.smack.Connection.setConnectionStatus(..)) && args(newStatus, reason, e)")
