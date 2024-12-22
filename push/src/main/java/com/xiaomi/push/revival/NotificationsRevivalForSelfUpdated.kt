@@ -68,14 +68,25 @@ private const val TIMEOUT_DEBUG = 5 * 60_000
         for (sbn in notifications) try {
             if (isOngoingEvent(sbn) || !isTargetNotification(sbn))
                 continue    // Skip sticky and filtered notifications
-            payload.putExtra(null, sbn)
-            val pi = PendingIntent.getBroadcast(context, BACKUP_VERSION + i, payload, FLAG_UPDATE_CURRENT)
-            am.set(AlarmManager.ELAPSED_REALTIME, expireAtElapsed, pi)
+            saveNotification(payload, sbn, BACKUP_VERSION + i, am, expireAtElapsed)
             i++
         } catch (e: RuntimeException) {
             Log.w(TAG, "Error saving ${sbn.key}", e)
         }
         return i
+    }
+
+    private fun saveNotification(
+        payload: Intent,
+        sbn: StatusBarNotification,
+        identity: Int,
+        am: AlarmManager,
+        expireAtElapsed: Long
+    ) {
+        payload.putExtra(null, sbn)
+        val pi =
+            PendingIntent.getBroadcast(context, identity, payload, FLAG_UPDATE_CURRENT)
+        am.set(AlarmManager.ELAPSED_REALTIME, expireAtElapsed, pi)
     }
 
     private fun timeout() = if (BuildConfig.DEBUG) TIMEOUT_DEBUG else TIMEOUT
