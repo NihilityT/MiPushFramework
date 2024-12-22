@@ -43,10 +43,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.settings.applications.LayoutPreference;
 import com.topjohnwu.superuser.Shell;
-import com.xiaomi.channel.commonutils.reflect.JavaCalls;
-import com.xiaomi.mipush.sdk.PushContainerHelper;
 import com.xiaomi.push.sdk.MyPushMessageHandler;
 import com.xiaomi.push.service.PushConstants;
+import com.xiaomi.push.service.XmPushActionOperator;
 import com.xiaomi.xmpush.thrift.NotificationType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
@@ -240,10 +239,7 @@ public class EntityHeaderController {
         regIdExpiredNotification.setId(id);
         PushMetaInfo metaInfo = new PushMetaInfo();
         metaInfo.setId(id);
-        XmPushActionContainer regIdExpiredContainer = JavaCalls.callStaticMethod(PushContainerHelper.class.getName(), "generateRequestContainer",
-                Utils.getApplication(), regIdExpiredNotification,
-                com.xiaomi.xmpush.thrift.ActionType.Notification, false,
-                packageName, "");
+        XmPushActionContainer regIdExpiredContainer = XmPushActionOperator.packToContainer(regIdExpiredNotification, packageName);
         regIdExpiredContainer.setMetaInfo(metaInfo);
         return regIdExpiredContainer;
     }
