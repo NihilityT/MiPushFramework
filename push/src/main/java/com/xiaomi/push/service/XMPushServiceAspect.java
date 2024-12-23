@@ -95,10 +95,6 @@ public class XMPushServiceAspect {
     @Before("execution(* com.xiaomi.smack.Connection.setConnectionStatus(..)) && args(newStatus, reason, e)")
     public void setConnectionStatus(final JoinPoint joinPoint,
                                     int newStatus, int reason, Exception e) {
-        ConnectionStatus status = ConnectionStatus.of(newStatus);
-        listener.connectionStatusChanged(status);
-        if (status == ConnectionStatus.connected) {
-            xmPushService.executeJob(new PullAllApplicationDataFromServerJob(xmPushService));
-        }
+        listener.connectionStatusChanged(ConnectionStatus.of(newStatus));
     }
 }

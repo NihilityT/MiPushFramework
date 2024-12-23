@@ -13,6 +13,7 @@ import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.push.revival.NotificationsRevivalForSelfUpdated;
 import com.xiaomi.push.service.BackgroundActivityStartEnabler;
 import com.xiaomi.push.service.ForegroundHelper;
+import com.xiaomi.push.service.PullAllApplicationDataFromServerJob;
 import com.xiaomi.push.service.RegisterRecorder;
 import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.push.service.XMPushServiceMessenger;
@@ -47,6 +48,14 @@ public class XMPushServiceAbility implements XMPushServiceListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             addListener(new NotificationsRevivalAbility(new NotificationsRevivalForSelfUpdated(pushService, sbn -> sbn.getTag() == null)));
         }
+        addListener(new XMPushServiceListener() {
+            @Override
+            public void connectionStatusChanged(ConnectionStatus connectionStatus) {
+                if (connectionStatus == ConnectionStatus.connected) {
+                    xmPushService.executeJob(new PullAllApplicationDataFromServerJob(xmPushService));
+                }
+            }
+        });
     }
 
     @Override

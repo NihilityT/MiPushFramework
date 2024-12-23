@@ -11,7 +11,7 @@ import java.util.Map;
 
 import top.trumeet.common.utils.Utils;
 
-class PullAllApplicationDataFromServerJob extends XMPushService.Job {
+public class PullAllApplicationDataFromServerJob extends XMPushService.Job {
     private final XmPushActionOperator xmPushActionOperator;
 
     public PullAllApplicationDataFromServerJob(XMPushService xmPushService) {
