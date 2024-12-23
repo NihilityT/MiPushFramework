@@ -2,7 +2,13 @@ package com.nihility.service;
 
 import android.content.Intent;
 
+import com.xiaomi.push.service.XMPushService;
+
 public interface XMPushServiceListener {
+
+    default void initialize(XMPushService pushService) {
+    }
+
     default void created() {
     }
 
