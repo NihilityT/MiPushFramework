@@ -77,16 +77,12 @@ public class XMPushServiceAspect {
 
     @Around("execution(* com.xiaomi.push.service.XMPushService.onCreate(..)) && this(pushService)")
     public void onCreate(final ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
-        initXMPushService(joinPoint, pushService);
-
-        ability.initialize(pushService);
-        ability.created();
-    }
-
-    private static void initXMPushService(ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
         condomContext(pushService);
         joinPoint.proceed();
         xmPushService = pushService;
+
+        ability.initialize(pushService);
+        ability.created();
     }
 
     private static void condomContext(XMPushService pushService) {
