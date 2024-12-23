@@ -5,8 +5,6 @@ import static top.trumeet.common.Constants.TAG_CONDOM;
 import android.content.Context;
 import android.content.Intent;
 
-import com.elvishew.xlog.Logger;
-import com.elvishew.xlog.XLog;
 import com.nihility.service.XMPushServiceAbility;
 import com.nihility.service.XMPushServiceListener.ConnectionStatus;
 import com.oasisfeng.condom.CondomContext;
@@ -15,7 +13,6 @@ import com.xiaomi.smack.packet.Message;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmsf.push.control.XMOutbound;
-import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import org.apache.thrift.TBase;
 import org.aspectj.lang.JoinPoint;
@@ -74,16 +71,13 @@ import org.aspectj.lang.annotation.Before;
 @Aspect
 public class XMPushServiceAspect {
     private static final String TAG = XMPushServiceAspect.class.getSimpleName();
-    private static final Logger logger = XLog.tag(TAG).build();
 
     public static XMPushService xmPushService;
     XMPushServiceAbility ability = new XMPushServiceAbility();
 
     @Around("execution(* com.xiaomi.push.service.XMPushService.onCreate(..)) && this(pushService)")
     public void onCreate(final ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
-        logger.d(joinPoint.getSignature());
         initXMPushService(joinPoint, pushService);
-        logger.d("Service started");
 
         ability.initialize(pushService);
         ability.created();
@@ -98,52 +92,28 @@ public class XMPushServiceAspect {
     private static void condomContext(XMPushService pushService) {
         Context mBase = pushService.getBaseContext();
         JavaCalls.setField(pushService, "mBase",
-                CondomContext.wrap(mBase, TAG_CONDOM, XMOutbound.create(mBase, TAG)));
-    }
-
-
-    @Before("execution(* com.xiaomi.push.service.XMPushService.onStartCommand(..))")
-    public void onStartCommand(final JoinPoint joinPoint) {
-        logger.d(joinPoint.getSignature());
+                CondomContext.wrap(mBase, TAG_CONDOM, XMOutbound.create(mBase,TAG)));
     }
 
     @Before("execution(* com.xiaomi.push.service.XMPushService.onStart(..)) && args(intent, startId)")
     public void onStart(final JoinPoint joinPoint, Intent intent, int startId) {
-        logger.d(joinPoint.getSignature());
-        logIntent(intent);
         ability.start(intent);
-
     }
 
-    @Before("execution(* com.xiaomi.push.service.XMPushService.onBind(..)) && args(intent)")
-    public void onBind(final JoinPoint joinPoint, Intent intent) {
-        logger.d(joinPoint.getSignature());
-        logIntent(intent);
-    }
 
     @Before("execution(* com.xiaomi.push.service.XMPushService.onDestroy(..))")
     public void onDestroy(final JoinPoint joinPoint) {
-        logger.d(joinPoint.getSignature());
-        logger.d("Service stopped");
         xmPushService.stopForeground(true);
-
         ability.destroy();
     }
 
     @Before("execution(* com.xiaomi.smack.Connection.setConnectionStatus(..)) && args(newStatus, reason, e)")
     public void setConnectionStatus(final JoinPoint joinPoint,
                                     int newStatus, int reason, Exception e) {
-        logger.d(joinPoint.getSignature());
-
         ConnectionStatus status = ConnectionStatus.of(newStatus);
         ability.connectionStatusChanged(status);
         if (status == ConnectionStatus.connected) {
             xmPushService.executeJob(new PullAllApplicationDataFromServerJob(xmPushService));
         }
     }
-
-    private void logIntent(Intent intent) {
-        logger.d("Intent" + " " + ConvertUtils.toJson(intent));
-    }
-
 }
