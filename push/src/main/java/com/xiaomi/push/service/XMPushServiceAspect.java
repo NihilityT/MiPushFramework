@@ -122,7 +122,6 @@ public class XMPushServiceAspect {
     @Before("execution(* com.xiaomi.push.service.XMPushService.onStartCommand(..))")
     public void onStartCommand(final JoinPoint joinPoint) {
         logger.d(joinPoint.getSignature());
-        foregroundHelper.startForeground();
     }
 
     @Before("execution(* com.xiaomi.push.service.XMPushService.onStart(..)) && args(intent, startId)")
