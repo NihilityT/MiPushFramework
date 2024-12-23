@@ -2,7 +2,7 @@ package com.xiaomi.push.service;
 
 import android.content.Intent;
 
-import com.nihility.service.XMPushServiceAbility;
+import com.nihility.Dependencies;
 import com.nihility.service.XMPushServiceListener;
 import com.nihility.service.XMPushServiceListener.ConnectionStatus;
 import com.xiaomi.smack.packet.Message;
@@ -65,10 +65,11 @@ import org.aspectj.lang.annotation.Before;
 
 @Aspect
 public class XMPushServiceAspect {
-    XMPushServiceListener listener = new XMPushServiceAbility();
+    XMPushServiceListener listener;
 
     @Around("execution(* com.xiaomi.push.service.XMPushService.onCreate(..)) && this(pushService)")
     public void onCreate(final ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
+        listener = Dependencies.getInstance().serviceListener();
         listener.initialize(pushService);
         joinPoint.proceed();
         listener.created();

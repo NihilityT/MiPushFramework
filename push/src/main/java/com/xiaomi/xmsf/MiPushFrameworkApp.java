@@ -24,6 +24,7 @@ import com.elvishew.xlog.XLog;
 import com.nihility.Configurations;
 import com.nihility.Dependencies;
 import com.nihility.notification.NotificationManagerEx;
+import com.nihility.service.XMPushServiceAbility;
 import com.oasisfeng.condom.CondomOptions;
 import com.oasisfeng.condom.CondomProcess;
 import com.topjohnwu.superuser.Shell;
@@ -123,13 +124,16 @@ public class MiPushFrameworkApp extends Application {
     }
 
     private static void initMiPushHookLib() {
-        Dependencies.getInstance().init(new Configurations() {
+        Configurations configurations = new Configurations() {
             @NonNull
             @Override
             public String getXMPPServer() {
                 return ConfigCenter.getInstance().getXMPPServer(getContext().getApplicationContext());
             }
-        });
+        };
+        Dependencies dependencies = Dependencies.getInstance();
+        dependencies.init(configurations);
+        dependencies.init(new XMPushServiceAbility());
     }
 
     private void initLogger() {
