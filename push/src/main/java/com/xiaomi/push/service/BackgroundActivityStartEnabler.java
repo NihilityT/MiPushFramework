@@ -42,7 +42,7 @@ public class BackgroundActivityStartEnabler {
         }
     }
 
-    static void initialize(final Context context) {
+    public static void initialize(final Context context) {
         final NotificationManager nm = Objects.requireNonNull(context.getSystemService(NotificationManager.class));
         String channelId = tryGetValidPushStatusChannelId(context, nm);
         if (channelId == null) return;

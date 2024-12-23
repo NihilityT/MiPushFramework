@@ -28,7 +28,7 @@ public class RegisterRecorder {
         this.context = context;
     }
 
-    void recordRegisterRequest(Intent intent) {
+    public void recordRegisterRequest(Intent intent) {
         try {
             if (!isRegisterAppRequest(intent)) {
                 return;

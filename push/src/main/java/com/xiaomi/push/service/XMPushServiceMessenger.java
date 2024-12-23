@@ -18,7 +18,7 @@ public class XMPushServiceMessenger extends InternalMessenger {
     private final XMPushService xmPushService;
     private int connectionStatus;
 
-    XMPushServiceMessenger(XMPushService context) {
+    public XMPushServiceMessenger(XMPushService context) {
         super(context);
         this.xmPushService = context;
         register(new IntentFilter(IntentGetConnectionStatus));
