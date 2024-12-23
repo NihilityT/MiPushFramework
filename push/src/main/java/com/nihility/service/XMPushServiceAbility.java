@@ -2,7 +2,6 @@ package com.nihility.service;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Build.VERSION_CODES.P;
-
 import static top.trumeet.common.Constants.TAG_CONDOM;
 
 import android.content.Context;
@@ -52,7 +51,7 @@ public class XMPushServiceAbility implements XMPushServiceListener {
             @Override
             public void connectionStatusChanged(ConnectionStatus connectionStatus) {
                 if (connectionStatus == ConnectionStatus.connected) {
-                    xmPushService.executeJob(new PullAllApplicationDataFromServerJob(xmPushService));
+                    pushService.executeJob(new PullAllApplicationDataFromServerJob(pushService));
                 }
             }
         });

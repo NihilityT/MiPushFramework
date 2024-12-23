@@ -65,7 +65,6 @@ import org.aspectj.lang.annotation.Before;
 
 @Aspect
 public class XMPushServiceAspect {
-
     public static XMPushService xmPushService;
     XMPushServiceListener listener = new XMPushServiceAbility();
 
@@ -88,7 +87,6 @@ public class XMPushServiceAspect {
 
     @Before("execution(* com.xiaomi.push.service.XMPushService.onDestroy(..))")
     public void onDestroy(final JoinPoint joinPoint) {
-        xmPushService.stopForeground(true);
         listener.destroy();
     }
 

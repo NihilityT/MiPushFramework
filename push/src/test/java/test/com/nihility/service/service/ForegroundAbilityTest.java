@@ -25,4 +25,10 @@ public class ForegroundAbilityTest {
         verify(foregroundHelper).startForeground();
     }
 
+    @Test
+    public void stopServiceForegroundAfterDestroy() {
+        listener.destroy();
+
+        verify(foregroundHelper).stopForegroundNotification();
+    }
 }

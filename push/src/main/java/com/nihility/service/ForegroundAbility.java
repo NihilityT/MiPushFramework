@@ -13,4 +13,9 @@ public class ForegroundAbility implements XMPushServiceListener {
     public void created() {
         foregroundHelper.startForeground();
     }
+
+    @Override
+    public void destroy() {
+        foregroundHelper.stopForegroundNotification();
+    }
 }
