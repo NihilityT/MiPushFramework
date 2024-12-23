@@ -65,16 +65,12 @@ import org.aspectj.lang.annotation.Before;
 
 @Aspect
 public class XMPushServiceAspect {
-    public static XMPushService xmPushService;
     XMPushServiceListener listener = new XMPushServiceAbility();
 
     @Around("execution(* com.xiaomi.push.service.XMPushService.onCreate(..)) && this(pushService)")
     public void onCreate(final ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
         listener.initialize(pushService);
-
         joinPoint.proceed();
-        xmPushService = pushService;
-
         listener.created();
     }
 

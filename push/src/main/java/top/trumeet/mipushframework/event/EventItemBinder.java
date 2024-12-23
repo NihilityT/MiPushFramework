@@ -24,8 +24,8 @@ import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.nihility.service.XMPushServiceAbility;
 import com.xiaomi.push.service.MIPushEventProcessorAspect;
-import com.xiaomi.push.service.XMPushServiceAspect;
 import com.xiaomi.xmpush.thrift.XmPushActionCommandResult;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmpush.thrift.XmPushActionNotification;
@@ -175,7 +175,7 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
 
             build.setPositiveButton(R.string.action_notify, (dialogInterface, i) ->
                     MIPushEventProcessorAspect.mockProcessMIPushMessage(
-                            XMPushServiceAspect.xmPushService, containerWithRegSec.deepCopy()));
+                            XMPushServiceAbility.xmPushService, containerWithRegSec.deepCopy()));
             build.setNeutralButton(R.string.action_configurate, null);
 
             dialog = build.create();

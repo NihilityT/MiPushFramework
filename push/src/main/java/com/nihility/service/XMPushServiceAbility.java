@@ -21,6 +21,7 @@ import com.xiaomi.xmsf.push.control.XMOutbound;
 import java.util.ArrayList;
 
 public class XMPushServiceAbility implements XMPushServiceListener {
+    public static XMPushService xmPushService;
     private final ArrayList<XMPushServiceListener> listeners = new ArrayList<>();
 
     public void addListener(XMPushServiceListener listener) {
@@ -28,6 +29,7 @@ public class XMPushServiceAbility implements XMPushServiceListener {
     }
 
     public void initialize(XMPushService pushService) {
+        xmPushService = pushService;
         condomContext(pushService);
         initListeners(pushService);
     }
