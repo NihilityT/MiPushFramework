@@ -1,8 +1,5 @@
 package com.xiaomi.push.service;
 
-import static android.os.Build.VERSION.SDK_INT;
-import static android.os.Build.VERSION_CODES.M;
-import static android.os.Build.VERSION_CODES.P;
 import static top.trumeet.common.Constants.TAG_CONDOM;
 
 import android.content.Context;
@@ -10,9 +7,10 @@ import android.content.Intent;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.service.XMPushServiceAbility;
+import com.nihility.service.XMPushServiceListener.ConnectionStatus;
 import com.oasisfeng.condom.CondomContext;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
-import com.xiaomi.push.revival.NotificationsRevivalForSelfUpdated;
 import com.xiaomi.smack.packet.Message;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
@@ -79,11 +77,7 @@ public class XMPushServiceAspect {
     private static final Logger logger = XLog.tag(TAG).build();
 
     public static XMPushService xmPushService;
-    private RegisterRecorder registerRecorder;
-    private ForegroundHelper foregroundHelper;
-
-    private NotificationsRevivalForSelfUpdated mNotificationsRevivalForSelfUpdated;
-    private XMPushServiceMessenger internalMessenger;
+    XMPushServiceAbility ability = new XMPushServiceAbility();
 
     @Around("execution(* com.xiaomi.push.service.XMPushService.onCreate(..)) && this(pushService)")
     public void onCreate(final ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
@@ -91,12 +85,8 @@ public class XMPushServiceAspect {
         initXMPushService(joinPoint, pushService);
         logger.d("Service started");
 
-        registerRecorder = new RegisterRecorder(pushService);
-        internalMessenger = new XMPushServiceMessenger(pushService);
-        foregroundHelper = new ForegroundHelper(pushService);
-        foregroundHelper.startForeground();
-        if (SDK_INT > P) BackgroundActivityStartEnabler.initialize(xmPushService);
-        listenAppUpdateForNotificationsRevival();
+        ability.initialize(pushService);
+        ability.created();
     }
 
     private static void initXMPushService(ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
@@ -111,13 +101,6 @@ public class XMPushServiceAspect {
                 CondomContext.wrap(mBase, TAG_CONDOM, XMOutbound.create(mBase, TAG)));
     }
 
-    private void listenAppUpdateForNotificationsRevival() {
-        if (SDK_INT >= M) {
-            mNotificationsRevivalForSelfUpdated = new NotificationsRevivalForSelfUpdated(xmPushService, sbn -> sbn.getTag() == null);  // Only push notifications (tag == null)
-            mNotificationsRevivalForSelfUpdated.initialize();
-        }
-    }
-
 
     @Before("execution(* com.xiaomi.push.service.XMPushService.onStartCommand(..))")
     public void onStartCommand(final JoinPoint joinPoint) {
@@ -128,7 +111,8 @@ public class XMPushServiceAspect {
     public void onStart(final JoinPoint joinPoint, Intent intent, int startId) {
         logger.d(joinPoint.getSignature());
         logIntent(intent);
-        registerRecorder.recordRegisterRequest(intent);
+        ability.start(intent);
+
     }
 
     @Before("execution(* com.xiaomi.push.service.XMPushService.onBind(..)) && args(intent)")
@@ -143,7 +127,7 @@ public class XMPushServiceAspect {
         logger.d("Service stopped");
         xmPushService.stopForeground(true);
 
-        if (SDK_INT >= M) mNotificationsRevivalForSelfUpdated.close();
+        ability.destroy();
     }
 
     @Before("execution(* com.xiaomi.smack.Connection.setConnectionStatus(..)) && args(newStatus, reason, e)")
@@ -151,14 +135,11 @@ public class XMPushServiceAspect {
                                     int newStatus, int reason, Exception e) {
         logger.d(joinPoint.getSignature());
 
-        internalMessenger.notifyConnectionStatusChanged(newStatus);
-        if (isConnected(newStatus)) {
+        ConnectionStatus status = ConnectionStatus.of(newStatus);
+        ability.connectionStatusChanged(status);
+        if (status == ConnectionStatus.connected) {
             xmPushService.executeJob(new PullAllApplicationDataFromServerJob(xmPushService));
         }
-    }
-
-    private static boolean isConnected(int newStatus) {
-        return newStatus == 1;
     }
 
     private void logIntent(Intent intent) {

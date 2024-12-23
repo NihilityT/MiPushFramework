@@ -15,7 +15,11 @@ public interface XMPushServiceListener {
     enum ConnectionStatus {
         connecting,
         connected,
-        disconnected,
+        disconnected;
+
+        public static ConnectionStatus of(int i) {
+            return values()[i];
+        }
     }
 
     default void connectionStatusChanged(ConnectionStatus connectionStatus) {
