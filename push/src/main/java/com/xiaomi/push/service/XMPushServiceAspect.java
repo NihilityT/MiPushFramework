@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.nihility.service.XMPushServiceAbility;
+import com.nihility.service.XMPushServiceListener;
 import com.nihility.service.XMPushServiceListener.ConnectionStatus;
 import com.oasisfeng.condom.CondomContext;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
@@ -73,7 +74,7 @@ public class XMPushServiceAspect {
     private static final String TAG = XMPushServiceAspect.class.getSimpleName();
 
     public static XMPushService xmPushService;
-    XMPushServiceAbility ability = new XMPushServiceAbility();
+    XMPushServiceListener listener = new XMPushServiceAbility();
 
     @Around("execution(* com.xiaomi.push.service.XMPushService.onCreate(..)) && this(pushService)")
     public void onCreate(final ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
@@ -81,8 +82,8 @@ public class XMPushServiceAspect {
         joinPoint.proceed();
         xmPushService = pushService;
 
-        ability.initialize(pushService);
-        ability.created();
+        listener.initialize(pushService);
+        listener.created();
     }
 
     private static void condomContext(XMPushService pushService) {
@@ -93,21 +94,21 @@ public class XMPushServiceAspect {
 
     @Before("execution(* com.xiaomi.push.service.XMPushService.onStart(..)) && args(intent, startId)")
     public void onStart(final JoinPoint joinPoint, Intent intent, int startId) {
-        ability.start(intent);
+        listener.start(intent);
     }
 
 
     @Before("execution(* com.xiaomi.push.service.XMPushService.onDestroy(..))")
     public void onDestroy(final JoinPoint joinPoint) {
         xmPushService.stopForeground(true);
-        ability.destroy();
+        listener.destroy();
     }
 
     @Before("execution(* com.xiaomi.smack.Connection.setConnectionStatus(..)) && args(newStatus, reason, e)")
     public void setConnectionStatus(final JoinPoint joinPoint,
                                     int newStatus, int reason, Exception e) {
         ConnectionStatus status = ConnectionStatus.of(newStatus);
-        ability.connectionStatusChanged(status);
+        listener.connectionStatusChanged(status);
         if (status == ConnectionStatus.connected) {
             xmPushService.executeJob(new PullAllApplicationDataFromServerJob(xmPushService));
         }
