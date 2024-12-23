@@ -134,6 +134,7 @@ public class MiPushFrameworkApp extends Application {
         Dependencies dependencies = Dependencies.getInstance();
         dependencies.init(configurations);
         dependencies.init(new XMPushServiceAbility());
+        dependencies.check();
     }
 
     private void initLogger() {
