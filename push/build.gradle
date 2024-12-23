@@ -60,7 +60,7 @@ android {
         debug = true
     }
 
-    greendao{
+    greendao {
         // Must upgrade version code!
         schemaVersion 16
         daoPackage 'top.trumeet.mipush.provider.gen.db'
@@ -118,31 +118,51 @@ android.applicationVariants.all { variant ->
 }
 
 dependencies {
-
+// modules {
+    implementation project(':common')
+    implementation project(':condom')
     implementation project(':mipush_hook')
     compileOnly files(project(':mipush_hook').ext.mipushLib)
+// }
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+// feature dependencies {
     // Log
     implementation('com.elvishew:xlog:1.11.0', {
         exclude group: 'com.android.support'
     })
-    implementation 'com.google.android.material:material:1.6.1'
-    // Hook
+
+    implementation 'com.github.heruoxin:IceBox-SDK:55dd857d74'
+    implementation 'com.google.code.gson:gson:2.10'
+
+    // The core module that provides APIs to a shell
+    implementation "com.github.topjohnwu.libsu:core:5.0.5"
+
+    // https://mvnrepository.com/artifact/com.github.promeg/tinypinyin
+    implementation 'com.github.promeg:tinypinyin:2.0.3'
+
+    // GreenDao
+    implementation 'org.greenrobot:greendao:3.3.0'
+    implementation 'com.github.yuweiguocn:GreenDaoUpgradeHelper:v2.0.0'
+// }
+
+// Test {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
     androidTestImplementation("org.mockito:mockito-android:4.11.0")
     testImplementation("org.mockito:mockito-core:4.11.0")
     testImplementation("org.mockito:mockito-inline:4.11.0")
+// }
 
-
-    implementation project(':common')
-    implementation project(':condom')
+// Base {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.palette:palette:1.0.0'
+    // Support
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.appcompat:appcompat:1.5.0'
 
-    implementation 'com.github.heruoxin:IceBox-SDK:55dd857d74'
 
     implementation('com.github.AndroidSnippet:SetupWizardLibCompat:0.3', {
         exclude group: 'com.android.support'
@@ -151,14 +171,10 @@ dependencies {
     implementation('com.github.drakeet:MultiType:v3.3.0', {
         exclude group: 'com.android.support'
     })
-    // Support
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation 'androidx.appcompat:appcompat:1.5.0'
     // Preference
     implementation 'moe.shizuku.preference:preference:2.2.3'
     implementation 'moe.shizuku.preference:preference-switchcompat:2.2.3'
     implementation 'moe.shizuku.preference:preference-simplemenu:2.2.3'
-
     // Help
     implementation('com.github.yfdyh000.RikkaX:helplib:mipush_helplib-SNAPSHOT', {
         exclude group: 'moe.shizuku.preference'
@@ -168,20 +184,7 @@ dependencies {
     implementation('com.github.VictorAlbertos:RxActivityResult:0.4.5-2.x', {
         exclude group: 'com.android.support'
     })
+// }
 
-    implementation 'com.google.code.gson:gson:2.10'
 
-    // https://mvnrepository.com/artifact/com.github.promeg/tinypinyin
-    implementation 'com.github.promeg:tinypinyin:2.0.3'
-
-    implementation 'org.greenrobot:greendao:3.3.0'
-
-    def libsuVersion = '5.0.5'
-
-    // The core module that provides APIs to a shell
-    implementation "com.github.topjohnwu.libsu:core:${libsuVersion}"
-
-    // GreenDao
-    implementation 'org.greenrobot:greendao:3.3.0'
-    implementation 'com.github.yuweiguocn:GreenDaoUpgradeHelper:v2.0.0'
 }
