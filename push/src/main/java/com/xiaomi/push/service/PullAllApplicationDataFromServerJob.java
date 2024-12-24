@@ -40,7 +40,7 @@ public class PullAllApplicationDataFromServerJob extends XMPushService.Job {
         }
     }
 
-    private static @NonNull XmPushActionNotification getPullAction(String appId) {
+    static @NonNull XmPushActionNotification getPullAction(String appId) {
         XmPushActionNotification notification2 = new XmPushActionNotification();
         notification2.setAppId(appId);
         notification2.setType("pull");

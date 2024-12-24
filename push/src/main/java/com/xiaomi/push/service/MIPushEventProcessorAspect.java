@@ -12,6 +12,9 @@ import android.content.pm.PackageManager;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.xiaomi.channel.commonutils.android.AppInfoUtils;
@@ -92,6 +95,29 @@ public class MIPushEventProcessorAspect {
         return false;
     }
 
+    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.buildIntent(..))")
+    public Intent buildIntent(final ProceedingJoinPoint joinPoint) throws Throwable {
+        Intent intent = (Intent) joinPoint.proceed();
+        return new Intent(intent) {
+            @NonNull
+            @Override
+            public Intent putExtra(String name, @Nullable String value) {
+                if ("messageId".equals(name))
+                    return this;
+                return super.putExtra(name, value);
+            }
+
+            @NonNull
+            @Override
+            public Intent putExtra(String name, int value) {
+                if (ReportConstants.EVENT_MESSAGE_TYPE.equals(name))
+                    return this;
+                return super.putExtra(name, value);
+            }
+        };
+    }
+
+
     @Before("execution(* com.xiaomi.push.service.MIPushEventProcessor.processMIPushMessage(..)) && args(pushService, decryptedContent, packetBytesLen)")
     public void processMIPushMessage(final JoinPoint joinPoint,
                                      XMPushService pushService, byte[] decryptedContent, long packetBytesLen) {
@@ -113,7 +139,6 @@ public class MIPushEventProcessorAspect {
 
         XmPushActionContainer container = buildContainer(decryptedContent);
         PushMetaInfo metaInfo = container.getMetaInfo();
-        boolean mock = isMockMessage(container);
 
         boolean isBusinessMessage = MIPushNotificationHelper.isBusinessMessage(container);
         boolean pkgInstalled = AppInfoUtils.isPkgInstalled(pushService, container.packageName);
@@ -193,7 +218,7 @@ public class MIPushEventProcessorAspect {
                     key = metaInfo.getId();
                 }
                 boolean isDupMessage = MiPushMessageDuplicate.isDuplicateMessage(pushService, container.packageName, key);
-                if (isDupMessage && !mock) {
+                if (isDupMessage && !isMockMessage(container)) {
                     logger.w("drop a duplicate message, key=" + key);
                 } else {
                     MyMIPushNotificationHelper.notifyPushMessage(pushService, decryptedContent);

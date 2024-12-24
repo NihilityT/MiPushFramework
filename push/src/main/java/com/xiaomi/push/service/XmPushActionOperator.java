@@ -9,6 +9,8 @@ import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmpush.thrift.XmPushActionNotification;
 import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
 
+import org.apache.thrift.TBase;
+
 import top.trumeet.common.utils.Utils;
 
 public class XmPushActionOperator {
@@ -28,5 +30,9 @@ public class XmPushActionOperator {
                 PushContainerHelper.class.getName(), "generateRequestContainer",
                 Utils.getApplication(), action, ActionType.Notification,
                 false, packageName, action.appId);
+    }
+
+    public static <T extends TBase<T, ?>> byte[] packToBytes(T container) {
+        return XmPushThriftSerializeUtils.convertThriftObjectToBytes(container);
     }
 }
