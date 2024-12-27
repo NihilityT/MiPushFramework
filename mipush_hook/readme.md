@@ -19,6 +19,13 @@ subgraph app.that.support.mipush
     subgraph com.xiaomi.mipush.sdk
         subgraph PushMessageProcessor
             processIntent --> processMessage
+            --NotificationType.ForceSync--> SyncInfoHelper.doSyncInfoAsync
+        end
+        subgraph MessageHandleService
+            processJob
+        end
+        subgraph PushMessageReceiver
+            onReceive --> processJob
         end
         subgraph PushMessageHandler
             PushMessageHandler.onStart --> PushMessageHandler.onHandleIntent
@@ -26,6 +33,13 @@ subgraph app.that.support.mipush
             --> processIntent
             PushMessageHandler.onHandleIntent --CallbackPushMode--> processIntent
             processMessage --> processMessageForCallback
+        end
+        subgraph PushServiceReceiver
+            PushServiceReceiver.onReceive --> PushMessageHandler.onHandleIntent
+        end
+        subgraph PushMessageHelper
+            sendCommandMessageBroadcast --> PushServiceReceiver.onReceive
+            sendQuitMessageBroadcast --> PushServiceReceiver.onReceive
         end
     end
 end
@@ -56,6 +70,7 @@ subgraph com.xiaomi.push.service
         --> processMIPushMessage
         --Intent(MIPUSH_ACTION_NEW_MESSAGE)--> postProcessMIPushMessage
         --> notifyPushMessage --> notify --notification--> PushMessageHandler.onStart
+        postProcessMIPushMessage --broadcast MIPUSH_ACTION_MESSAGE_ARRIVED--> onReceive
     end
     subgraph PacketSync
         onPacketReceive --> notifyPacketArrival
