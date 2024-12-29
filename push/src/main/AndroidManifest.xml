@@ -101,7 +101,7 @@
         <activity
             android:name="top.trumeet.mipushframework.help.HelpActivity"
             android:label="@string/helplib_title"
-            android:theme="@style/HelpTheme.DayNight" />
+            android:theme="@style/AppTheme" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
