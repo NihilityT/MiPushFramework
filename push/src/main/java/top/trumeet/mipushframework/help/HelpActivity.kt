@@ -4,6 +4,7 @@ package top.trumeet.mipushframework.help
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
@@ -24,12 +25,21 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.android.material.elevation.SurfaceColors
 import com.xiaomi.xmsf.R
+import top.trumeet.ui.theme.Theme
 import java.io.InputStreamReader
 
-fun init(activity: AppCompatActivity) {
-    activity.setContent {
-        HelpPage()
+class HelpActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            val color = SurfaceColors.SURFACE_2.getColor(this)
+            window.statusBarColor = color
+            Theme {
+                HelpPage()
+            }
+        }
     }
 }
 
@@ -38,10 +48,15 @@ fun init(activity: AppCompatActivity) {
     showBackground = true,
 )
 @Composable
-fun HelpPage() {
+fun HelpPage(modifier: Modifier = Modifier) {
+    HelpList()
+}
+
+@Composable
+fun HelpList(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "list") {
-        composable("list") { HelpView(navController) }
+    NavHost(navController = navController, startDestination = "list", modifier = modifier) {
+        composable("list") { HelpList(navController) }
         composable("markdown/{markdownResId}") { backStackEntry ->
             val markdownResId = backStackEntry.arguments?.getString("markdownResId")?.toInt()
             Markdown(markdownResId)
@@ -50,7 +65,7 @@ fun HelpPage() {
 }
 
 @Composable
-fun HelpView(navController: NavHostController) {
+fun HelpList(navController: NavHostController) {
     Column {
         FAQ(navController)
         Divider()
@@ -60,7 +75,9 @@ fun HelpView(navController: NavHostController) {
 
 @Composable
 private fun Markdown(markdownResId: Int?) {
-    MarkdownView(readRawFile(LocalContext.current, markdownResId!!), modifier = Modifier.padding(16.dp))
+    MarkdownView(
+        readRawFile(LocalContext.current, markdownResId!!), modifier = Modifier.padding(16.dp)
+    )
 }
 
 @Composable
@@ -95,6 +112,7 @@ private fun Group(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.headlineSmall,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(16.dp)
     )
 }
@@ -113,7 +131,11 @@ private fun ClickableListItem(item: String, onClick: () -> Unit) {
             .padding(start = 24.dp)
             .fillMaxWidth()
     ) {
-        Text(text = item, style = MaterialTheme.typography.bodyLarge)
+        Text(
+            text = item,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
