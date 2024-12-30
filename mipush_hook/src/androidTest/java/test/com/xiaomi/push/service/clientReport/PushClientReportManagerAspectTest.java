@@ -1,4 +1,4 @@
-package test.com.xiaomi.push.service;
+package test.com.xiaomi.push.service.clientReport;
 
 import static org.junit.Assert.assertTrue;
 
