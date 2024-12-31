@@ -121,6 +121,10 @@ public class MIPushEventProcessorAspect {
     public boolean shouldSendBroadcast(final ProceedingJoinPoint joinPoint,
                                        XMPushService pushService, String packageName, XmPushActionContainer container, PushMetaInfo metaInfo) throws Throwable {
         joinPoint.proceed();
+        return checkAwakeField(metaInfo);
+    }
+
+    public static boolean checkAwakeField(PushMetaInfo metaInfo) {
         boolean extraExists = metaInfo != null && metaInfo.extra != null;
         if (extraExists) {
             String awakeField = metaInfo.extra.get(PushConstants.EXTRA_PARAM_AWAKE);
