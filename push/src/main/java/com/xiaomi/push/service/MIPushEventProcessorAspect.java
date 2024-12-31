@@ -117,6 +117,17 @@ public class MIPushEventProcessorAspect {
         };
     }
 
+    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.shouldSendBroadcast(..)) && args(pushService, packageName, container, metaInfo)")
+    public boolean shouldSendBroadcast(final ProceedingJoinPoint joinPoint,
+                                       XMPushService pushService, String packageName, XmPushActionContainer container, PushMetaInfo metaInfo) throws Throwable {
+        joinPoint.proceed();
+        boolean extraExists = metaInfo != null && metaInfo.extra != null;
+        if (extraExists) {
+            String awakeField = metaInfo.extra.get(PushConstants.EXTRA_PARAM_AWAKE);
+            return Boolean.parseBoolean(awakeField);
+        }
+        return false;
+    }
 
     @Before("execution(* com.xiaomi.push.service.MIPushEventProcessor.processMIPushMessage(..)) && args(pushService, decryptedContent, packetBytesLen)")
     public void processMIPushMessage(final JoinPoint joinPoint,
