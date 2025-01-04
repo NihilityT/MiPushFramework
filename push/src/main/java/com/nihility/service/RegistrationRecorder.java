@@ -29,7 +29,7 @@ public class RegistrationRecorder {
     }
 
     public void recordRegSec(XmPushActionContainer container) {
-        if (ActionType.Registration != container.getAction()) {
+        if (container == null || ActionType.Registration != container.getAction()) {
             return;
         }
         String regSec = getRegSec(context, container);
