@@ -17,14 +17,13 @@ import androidx.annotation.Nullable;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.service.RegistrationRecorder;
 import com.xiaomi.channel.commonutils.android.AppInfoUtils;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
-import com.xiaomi.mipush.sdk.PushContainerHelper;
 import com.xiaomi.push.service.clientReport.ReportConstants;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
-import com.xiaomi.xmpush.thrift.XmPushActionRegistrationResult;
 import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.type.TypeFactory;
@@ -180,7 +179,7 @@ public class MIPushEventProcessorAspect {
                 MIPushAppInfo.getInstance(pushService).removeDisablePushPkg(pkgName);
                 MIPushAppInfo.getInstance(pushService).removeDisablePushPkgCache(pkgName);
 
-                recordRegSec(pushService, container);
+                RegistrationRecorder.recordRegSec(pushService, container);
             }
 
             // todo: delete tracking code {
@@ -292,14 +291,4 @@ public class MIPushEventProcessorAspect {
         }
     }
 
-    private static void recordRegSec(XMPushService pushService, XmPushActionContainer container) {
-        String regSec = null;
-        try {
-            XmPushActionRegistrationResult result = (XmPushActionRegistrationResult) PushContainerHelper.getResponseMessageBodyFromContainer(pushService, container);
-            regSec = result.getRegSecret();
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-        Utils.setRegSec(container.getPackageName(), regSec);
-    }
 }
