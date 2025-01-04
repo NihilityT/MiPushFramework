@@ -5,18 +5,22 @@ import static com.xiaomi.push.service.MIPushEventProcessor.postProcessMIPushMess
 import static com.xiaomi.push.service.PullAllApplicationDataFromServerJob.getPullAction;
 import static com.xiaomi.push.service.XmPushActionOperator.packToBytes;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.content.Intent;
 
 import com.nihility.service.RegistrationRecorder;
+import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.push.service.clientReport.ReportConstants;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.lang.reflect.InvocationTargetException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MIPushEventProcessorAspectTest {
@@ -44,5 +48,10 @@ public class MIPushEventProcessorAspectTest {
         }
 
         verify(recorder).recordRegSec(container);
+    }
+
+    @Test
+    public void bypassIsIntentAvailableCheck() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        assertTrue(JavaCalls.callStaticMethodOrThrow(MIPushEventProcessor.class, "isIntentAvailable", null, null));
     }
 }
