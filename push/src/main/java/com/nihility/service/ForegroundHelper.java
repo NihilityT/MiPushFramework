@@ -1,4 +1,4 @@
-package com.xiaomi.push.service;
+package com.nihility.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;

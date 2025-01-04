@@ -3,7 +3,7 @@ package test.com.nihility.service.service;
 import static org.mockito.Mockito.verify;
 
 import com.nihility.service.ForegroundAbility;
-import com.xiaomi.push.service.ForegroundHelper;
+import com.nihility.service.ForegroundHelper;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

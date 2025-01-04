@@ -2,7 +2,7 @@ package com.xiaomi.push.service;
 
 import static android.app.Notification.GROUP_ALERT_SUMMARY;
 import static android.app.NotificationManager.IMPORTANCE_LOW;
-import static com.xiaomi.push.service.ForegroundHelper.CHANNEL_STATUS;
+import static com.nihility.service.ForegroundHelper.CHANNEL_STATUS;
 
 import android.app.Notification;
 import android.app.NotificationChannel;

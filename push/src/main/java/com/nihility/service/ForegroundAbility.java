@@ -1,7 +1,5 @@
 package com.nihility.service;
 
-import com.xiaomi.push.service.ForegroundHelper;
-
 public class ForegroundAbility implements XMPushServiceListener {
     public final ForegroundHelper foregroundHelper;
 

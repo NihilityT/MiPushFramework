@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.nihility.InternalMessenger;
+import com.nihility.service.ForegroundHelper;
 import com.xiaomi.smack.Connection;
 
 public class XMPushServiceMessenger extends InternalMessenger {

@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 import android.content.Intent;
 
 import com.nihility.service.RegisterRecordAbility;
-import com.xiaomi.push.service.RegisterRecorder;
+import com.nihility.service.RegisterRecorder;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

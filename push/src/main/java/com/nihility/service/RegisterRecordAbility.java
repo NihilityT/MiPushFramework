@@ -2,8 +2,6 @@ package com.nihility.service;
 
 import android.content.Intent;
 
-import com.xiaomi.push.service.RegisterRecorder;
-
 public class RegisterRecordAbility implements XMPushServiceListener {
     private final RegisterRecorder registerRecorder;
 
