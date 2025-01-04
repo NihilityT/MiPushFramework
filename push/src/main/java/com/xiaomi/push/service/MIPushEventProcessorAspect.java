@@ -121,6 +121,8 @@ public class MIPushEventProcessorAspect {
     public XmPushActionContainer buildContainerHook(final ProceedingJoinPoint joinPoint) throws Throwable {
         XmPushActionContainer container = (XmPushActionContainer) joinPoint.proceed();
         RegistrationRecorder.getInstance().recordRegSec(container);
+        XmPushActionContainer decorated = decoratedContainer(container.packageName, container);
+        AppInfoUtilsAspect.setLastMetaInfo(decorated.metaInfo);
         return container;
     }
 
@@ -128,7 +130,8 @@ public class MIPushEventProcessorAspect {
     public boolean shouldSendBroadcast(final ProceedingJoinPoint joinPoint,
                                        XMPushService pushService, String packageName, XmPushActionContainer container, PushMetaInfo metaInfo) throws Throwable {
         joinPoint.proceed();
-        return AppInfoUtilsAspect.checkAwakeField(metaInfo);
+        XmPushActionContainer decorated = decoratedContainer(container.packageName, container);
+        return AppInfoUtilsAspect.checkAwakeField(decorated.metaInfo);
     }
 
     @Before("execution(* com.xiaomi.push.service.MIPushEventProcessor.processMIPushMessage(..)) && args(pushService, decryptedContent, packetBytesLen)")

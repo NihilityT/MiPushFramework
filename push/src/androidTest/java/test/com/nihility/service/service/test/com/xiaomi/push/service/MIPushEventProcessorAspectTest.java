@@ -82,6 +82,7 @@ public class MIPushEventProcessorAspectTest {
 
     private boolean shouldAwake(PushMetaInfo metaInfo) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         String packageName = "test";
+        container.metaInfo = metaInfo;
         return JavaCalls.callStaticMethodOrThrow(MIPushEventProcessor.class, "shouldSendBroadcast",
                 service, packageName, container, metaInfo);
     }
