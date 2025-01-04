@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.com.xiaomi.channel.commonutils.android.AppInfoUtilsAspect;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.nihility.service.RegistrationRecorder;
@@ -127,16 +128,7 @@ public class MIPushEventProcessorAspect {
     public boolean shouldSendBroadcast(final ProceedingJoinPoint joinPoint,
                                        XMPushService pushService, String packageName, XmPushActionContainer container, PushMetaInfo metaInfo) throws Throwable {
         joinPoint.proceed();
-        return checkAwakeField(metaInfo);
-    }
-
-    public static boolean checkAwakeField(PushMetaInfo metaInfo) {
-        boolean extraExists = metaInfo != null && metaInfo.extra != null;
-        if (extraExists) {
-            String awakeField = metaInfo.extra.get(PushConstants.EXTRA_PARAM_AWAKE);
-            return Boolean.parseBoolean(awakeField);
-        }
-        return false;
+        return AppInfoUtilsAspect.checkAwakeField(metaInfo);
     }
 
     @Before("execution(* com.xiaomi.push.service.MIPushEventProcessor.processMIPushMessage(..)) && args(pushService, decryptedContent, packetBytesLen)")
