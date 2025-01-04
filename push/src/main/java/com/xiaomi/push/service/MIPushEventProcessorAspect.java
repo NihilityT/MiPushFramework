@@ -115,7 +115,13 @@ public class MIPushEventProcessorAspect {
         return container;
     }
 
-    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.shouldSendBroadcast(..)) && args(pushService, packageName, container, metaInfo)")
+    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.isIntentAvailable(..))")
+    public boolean isIntentAvailable(final ProceedingJoinPoint joinPoint) {
+        return true;
+    }
+
+
+        @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.shouldSendBroadcast(..)) && args(pushService, packageName, container, metaInfo)")
     public boolean shouldSendBroadcast(final ProceedingJoinPoint joinPoint,
                                        XMPushService pushService, String packageName, XmPushActionContainer container, PushMetaInfo metaInfo) throws Throwable {
         joinPoint.proceed();
