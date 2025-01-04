@@ -116,6 +116,13 @@ public class MIPushEventProcessorAspect {
         };
     }
 
+    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.buildContainer(..))")
+    public XmPushActionContainer buildContainerHook(final ProceedingJoinPoint joinPoint) throws Throwable {
+        XmPushActionContainer container = (XmPushActionContainer) joinPoint.proceed();
+        RegistrationRecorder.getInstance().recordRegSec(container);
+        return container;
+    }
+
     @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.shouldSendBroadcast(..)) && args(pushService, packageName, container, metaInfo)")
     public boolean shouldSendBroadcast(final ProceedingJoinPoint joinPoint,
                                        XMPushService pushService, String packageName, XmPushActionContainer container, PushMetaInfo metaInfo) throws Throwable {
@@ -179,7 +186,8 @@ public class MIPushEventProcessorAspect {
                 MIPushAppInfo.getInstance(pushService).removeDisablePushPkg(pkgName);
                 MIPushAppInfo.getInstance(pushService).removeDisablePushPkgCache(pkgName);
 
-                RegistrationRecorder.recordRegSec(pushService, container);
+                RegistrationRecorder.getInstance().initContext(pushService);
+                RegistrationRecorder.getInstance().recordRegSec(container);
             }
 
             // todo: delete tracking code {

@@ -30,6 +30,7 @@ public class XMPushServiceAbility implements XMPushServiceListener {
 
     public void initialize(XMPushService pushService) {
         xmPushService = pushService;
+        RegistrationRecorder.getInstance().initContext(pushService);
         condomContext(pushService);
         initListeners(pushService);
     }
