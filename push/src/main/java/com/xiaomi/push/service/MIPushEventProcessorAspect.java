@@ -4,6 +4,7 @@ import static com.xiaomi.push.service.MIPushEventProcessor.buildContainer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -59,29 +60,32 @@ public class MIPushEventProcessorAspect {
 
     public static void mockProcessMIPushMessage(XMPushService pushService, XmPushActionContainer container) {
         try {
-            if (container != null) {
-                PushMetaInfo metaInfo = container.getMetaInfo();
-                if (metaInfo != null) {
-                    metaInfo.putToExtra(mockFlag, Boolean.toString(true));
-                    byte[] mockDecryptedContent = XmPushThriftSerializeUtils.convertThriftObjectToBytes(container);
-                    JavaCalls.<Boolean>callStaticMethodOrThrow(MIPushEventProcessor.class.getName(), "processMIPushMessage",
-                            pushService, mockDecryptedContent, (long) mockDecryptedContent.length);
-                }
-            }
+            MiPushMessageDuplicateAspect.mockId = getMessageId(container);
+            byte[] mockDecryptedContent = XmPushThriftSerializeUtils.convertThriftObjectToBytes(container);
+            JavaCalls.<Boolean>callStaticMethodOrThrow(MIPushEventProcessor.class.getName(), "processMIPushMessage",
+                    pushService, mockDecryptedContent, (long) mockDecryptedContent.length);
         } catch (Exception e) {
             logger.e("mock notification failure: ", e);
             Utils.makeText(pushService, "failure", Toast.LENGTH_SHORT);
         }
     }
 
-    static boolean isMockMessage(XmPushActionContainer container) {
-        if (container != null) {
-            PushMetaInfo metaInfo = container.getMetaInfo();
-            if (metaInfo != null) {
-                return metaInfo.getExtra() != null && Boolean.parseBoolean(metaInfo.getExtra().get(mockFlag));
+    private static String getMessageId(XmPushActionContainer container) {
+        PushMetaInfo metaInfo = container.metaInfo;
+        if (metaInfo == null) {
+            return null;
+        }
+        if (metaInfo.extra != null) {
+            String jobId = metaInfo.extra.get(PushConstants.EXTRA_JOB_KEY);
+            if (!TextUtils.isEmpty(jobId)) {
+                return jobId;
             }
         }
-        return false;
+        return metaInfo.getId();
+    }
+
+    static boolean isMockMessage(XmPushActionContainer container) {
+        return TextUtils.equals(getMessageId(container), MiPushMessageDuplicateAspect.mockId);
     }
 
     @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.buildIntent(..))")
@@ -121,7 +125,7 @@ public class MIPushEventProcessorAspect {
     }
 
 
-        @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.shouldSendBroadcast(..)) && args(pushService, packageName, container, metaInfo)")
+    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.shouldSendBroadcast(..)) && args(pushService, packageName, container, metaInfo)")
     public boolean shouldSendBroadcast(final ProceedingJoinPoint joinPoint,
                                        XMPushService pushService, String packageName, XmPushActionContainer container, PushMetaInfo metaInfo) throws Throwable {
         joinPoint.proceed();
