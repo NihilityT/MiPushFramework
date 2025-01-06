@@ -39,6 +39,7 @@ import com.elvishew.xlog.XLog;
 import com.nihility.notification.NotificationManagerEx;
 import com.xiaomi.channel.commonutils.android.AppInfoUtils;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
+import com.xiaomi.mipush.sdk.PushMessageProcessor;
 import com.xiaomi.push.sdk.MyPushMessageHandler;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
@@ -150,14 +151,20 @@ public class MyMIPushNotificationHelper {
         if (!tryLoadConfigurations) {
             tryLoadConfigurations = true;
             try {
-                if (Configurations.getInstance().init(context,
-                        ConfigCenter.getInstance().getConfigurationDirectory(context))) {
-                    IconConfigurations.getInstance().init(context,
-                            ConfigCenter.getInstance().getConfigurationDirectory(context));
-                }
+                ConfigCenter configCenter = ConfigCenter.getInstance();
+                Uri configurationDirectory = configCenter.getConfigurationDirectory(context);
+                loadConfigurations(context, configurationDirectory);
             } catch (Exception e) {
                 Utils.makeText(context, e.toString(), Toast.LENGTH_LONG);
             }
+        }
+    }
+
+    private static void loadConfigurations(Context context, Uri configurationDirectory) {
+        Configurations configurations = Configurations.getInstance();
+        if (configurations.init(context, configurationDirectory)) {
+            IconConfigurations iconConfigurations = IconConfigurations.getInstance();
+            iconConfigurations.init(context, configurationDirectory);
         }
     }
 
@@ -173,6 +180,7 @@ public class MyMIPushNotificationHelper {
 
     private static Notification findActiveNotification(String packageName, int notificationId) {
         StatusBarNotification[] notifications = getNotificationManagerEx().getActiveNotifications(packageName);
+        assert notifications != null;
         for (StatusBarNotification notification : notifications) {
             if (notification.getId() == notificationId) {
                 return notification.getNotification();
@@ -181,22 +189,21 @@ public class MyMIPushNotificationHelper {
         return null;
     }
 
-    private static NotificationCompat.Builder addMessage(
+    private static NotificationCompat.Builder addToExistingMessageNotification(
             Context context, String packageName, int notificationId,
             NotificationCompat.MessagingStyle.Message message) {
         try {
             Notification activeNotification = findActiveNotification(packageName, notificationId);
-            if (activeNotification == null) {
-                return null;
+            if (activeNotification != null) {
+                NotificationCompat.MessagingStyle activeStyle = NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(activeNotification); // todo: try remove
+                if (activeStyle != null) {
+                    NotificationCompat.Builder builder = new NotificationCompat.Builder(context, activeNotification);
+                    activeStyle.addMessage(message);
+                    builder.setStyle(activeStyle); // todo: try remove
+                    return builder;
+                }
             }
-            NotificationCompat.MessagingStyle activeStyle = NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(activeNotification);
-            if (activeStyle == null) {
-                return null;
-            }
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, activeNotification);
-            activeStyle.addMessage(message);
-            builder.setStyle(activeStyle);
-            return builder;
+            return null;
         } catch (Exception e) {
             logger.e(e.getLocalizedMessage(), e);
             return null;
@@ -205,84 +212,38 @@ public class MyMIPushNotificationHelper {
 
     private static void doNotifyPushMessage(Context context, XmPushActionContainer container, byte[] decryptedContent) {
         PushMetaInfo metaInfo = container.getMetaInfo();
-        String packageName = container.getPackageName();
+        logPushMessage(metaInfo);
 
+        NotificationInfo result = getNotificationFor(context, container, decryptedContent);
+
+        NotificationController.publish(context, metaInfo, result.notificationId, container.getPackageName(), result.notificationBuilder);
+    }
+
+    private static void logPushMessage(PushMetaInfo metaInfo) {
         String title = metaInfo.getTitle();
         String description = metaInfo.getDescription();
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
-
         logger.i("title:" + title + "  description:" + description);
+    }
 
-        Context pkgCtx = context;
-        if (NotificationManagerEx.isHooked) {
-            try {
-                pkgCtx = context.createPackageContext(packageName, 0);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-        NotificationCompat.MessagingStyle.Message message = getMessage(context, container, pkgCtx);
+    @NonNull
+    private static NotificationInfo getNotificationFor(Context context, XmPushActionContainer container, byte[] decryptedContent) {
+        PushMetaInfo metaInfo = container.getMetaInfo();
+        String packageName = container.getPackageName();
+
+        Context pkgCtx = getPackageContext(context, packageName);
+        NotificationCompat.MessagingStyle.Message message = createMessage(context, container, pkgCtx);
         CustomConfiguration custom = new CustomConfiguration(metaInfo.getExtra());
         boolean useMessagingStyle = message != null && custom.useMessagingStyle(false);
 
         int notificationId = getNotificationId(container);
 
+        NotificationCompat.Builder notificationBuilder;
+
         if (useMessagingStyle) {
-            NotificationCompat.Builder messagingBuilder = addMessage(
-                    context, packageName, notificationId, message);
-            if (messagingBuilder != null) {
-                notificationBuilder = messagingBuilder;
-            } else {
-                Person group = getGroup(context, metaInfo).build();
-                NotificationCompat.MessagingStyle style =
-                        new NotificationCompat.MessagingStyle(group);
-                style.setConversationTitle(group.getName());
-                style.setGroupConversation(isGroupConversation(metaInfo));
-                style.addMessage(message);
-                notificationBuilder.setStyle(style);
-
-                // if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                try {
-                    String key = group.getKey() != null ? group.getKey() : group.getName().toString();
-                    Intent intent = getSdkIntent(context, container);
-                    if (intent == null) {
-                        PackageManager packageManager = context.getPackageManager();
-                        intent = packageManager.getLaunchIntentForPackage(packageName);
-                    }
-                    ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(pkgCtx, key)
-                            .setIntent(intent)
-                            .setLongLived(true)
-                            .setShortLabel(group.getName())
-                            .setIcon(group.getIcon())
-                            .build();
-
-                    ShortcutManagerCompat.pushDynamicShortcut(pkgCtx, shortcut);
-                    notificationBuilder.setShortcutInfo(shortcut);
-                } catch (Throwable ignore) {
-                }
-            }
+            notificationBuilder = messagingStyleNotificationBuilder(context, container, notificationId, message, pkgCtx);
         } else {
-            CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
-            String bigPicUri = configuration.notificationBigPicUri(null);
-            Bitmap bigPic = IconCache.getInstance().getBitmap(context, bigPicUri,
-                    (context1, iconUri) -> getBitmapFromUri(
-                            context1, iconUri, 1 * MiB));
-            if (bigPic != null) {
-                NotificationCompat.BigPictureStyle style = new NotificationCompat.BigPictureStyle();
-                style.bigPicture(bigPic);
-                style.setBigContentTitle(title);
-                notificationBuilder.setStyle(style);
-            } else if (description.length() > NOTIFICATION_BIG_STYLE_MIN_LEN) {
-                NotificationCompat.BigTextStyle style = new NotificationCompat.BigTextStyle();
-                style.bigText(description);
-                style.setBigContentTitle(title);
-                notificationBuilder.setStyle(style);
-            }
-
-            String[] titleAndDesp = determineTitleAndDespByDIP(context, metaInfo);
-            notificationBuilder.setContentTitle(titleAndDesp[0]);
-            notificationBuilder.setContentText(titleAndDesp[1]);
+            notificationBuilder = normalStyleNotificationBuilder(context, container.getMetaInfo());
         }
 
         if (metaInfo.getExtra() != null) {
@@ -307,18 +268,137 @@ public class MyMIPushNotificationHelper {
             notificationBuilder.setContentIntent(localPendingIntent);
             carryPendingIntentForTemporarilyWhitelisted(context, container, notificationBuilder);
         }
+        return new NotificationInfo(notificationId, notificationBuilder);
+    }
 
-        NotificationController.publish(context, metaInfo, notificationId, packageName, notificationBuilder);
+    private static class NotificationInfo {
+        public final int notificationId;
+        public final NotificationCompat.Builder notificationBuilder;
+
+        public NotificationInfo(int notificationId, NotificationCompat.Builder notificationBuilder) {
+            this.notificationId = notificationId;
+            this.notificationBuilder = notificationBuilder;
+        }
+    }
+
+    private static Context getPackageContext(Context context, String packageName) {
+        Context pkgCtx = context;
+        if (NotificationManagerEx.isHooked) {
+            try {
+                pkgCtx = context.createPackageContext(packageName, 0);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return pkgCtx;
+    }
+
+    @NonNull
+    private static NotificationCompat.Builder normalStyleNotificationBuilder(Context context, PushMetaInfo metaInfo) {
+        String title = metaInfo.getTitle();
+        String description = metaInfo.getDescription();
+
+        Bitmap bigPic = getBigPic(context, metaInfo);
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
+        if (bigPic != null) {
+            NotificationCompat.BigPictureStyle style = new NotificationCompat.BigPictureStyle();
+            style.bigPicture(bigPic);
+            style.setBigContentTitle(title);
+            notificationBuilder.setStyle(style);
+        } else if (description.length() > NOTIFICATION_BIG_STYLE_MIN_LEN) {
+            NotificationCompat.BigTextStyle style = new NotificationCompat.BigTextStyle();
+            style.bigText(description);
+            style.setBigContentTitle(title);
+            notificationBuilder.setStyle(style);
+        }
+
+        String[] titleAndDesp = determineTitleAndDespByDIP(context, metaInfo);
+        notificationBuilder.setContentTitle(titleAndDesp[0]);
+        notificationBuilder.setContentText(titleAndDesp[1]);
+        return notificationBuilder;
+    }
+
+    private static Bitmap getBigPic(Context context, PushMetaInfo metaInfo) {
+        CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
+        String bigPicUri = configuration.notificationBigPicUri(null);
+        return IconCache.getInstance().getBitmap(context, bigPicUri,
+                (context1, iconUri) -> getBitmapFromUri(
+                        context1, iconUri, 1 * MiB));
+    }
+
+    @NonNull
+    private static NotificationCompat.Builder messagingStyleNotificationBuilder(
+            Context context, XmPushActionContainer container, int notificationId, NotificationCompat.MessagingStyle.Message message, Context pkgCtx) {
+        String packageName = container.getPackageName();
+        NotificationCompat.Builder messagingBuilder = addToExistingMessageNotification(context, packageName, notificationId, message);
+        if (messagingBuilder != null) {
+            return messagingBuilder;
+        }
+
+        return createMessageStyleNotificationBuilder(context, container, message, pkgCtx, packageName);
+    }
+
+    @NonNull
+    private static NotificationCompat.Builder createMessageStyleNotificationBuilder(Context context, XmPushActionContainer container, NotificationCompat.MessagingStyle.Message message, Context pkgCtx, String packageName) {
+        PushMetaInfo metaInfo = container.getMetaInfo();
+        Person group = getGroupFor(context, metaInfo).build();
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
+        attachMessagingStyle(message, group, metaInfo, notificationBuilder);
+        addShortcutToEnableMessagingStyle(context, container, pkgCtx, packageName, group, notificationBuilder);
+        return notificationBuilder;
+    }
+
+    private static void attachMessagingStyle(NotificationCompat.MessagingStyle.Message message, Person group, PushMetaInfo metaInfo, NotificationCompat.Builder notificationBuilder) {
+        NotificationCompat.MessagingStyle style = new NotificationCompat.MessagingStyle(group);
+        style.setConversationTitle(group.getName());
+        style.setGroupConversation(isGroupConversation(metaInfo));
+        style.addMessage(message);
+        notificationBuilder.setStyle(style);
+    }
+
+    private static void addShortcutToEnableMessagingStyle(Context context, XmPushActionContainer container, Context pkgCtx, String packageName, Person group, NotificationCompat.Builder notificationBuilder) {
+        // if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+        try {
+            String key = group.getKey() != null ? group.getKey() : group.getName().toString();
+            Intent intent = getIntentForMessagingStyle(context, container, packageName);
+            ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(pkgCtx, key)
+                    .setIntent(intent)
+                    .setLongLived(true)
+                    .setShortLabel(group.getName())
+                    .setIcon(group.getIcon())
+                    .build();
+
+            ShortcutManagerCompat.pushDynamicShortcut(pkgCtx, shortcut);
+            notificationBuilder.setShortcutInfo(shortcut);
+        } catch (Throwable ignore) {
+        }
     }
 
     @Nullable
-    private static NotificationCompat.MessagingStyle.Message getMessage(Context context, XmPushActionContainer container, Context pkgCtx) {
+    private static Intent getIntentForMessagingStyle(Context context, XmPushActionContainer container, String packageName) {
+        Intent intent = getSdkIntent(context, container);
+        if (intent == null) {
+            PackageManager packageManager = context.getPackageManager();
+            intent = packageManager.getLaunchIntentForPackage(packageName);
+        }
+        return intent;
+    }
+
+    @Nullable
+    private static NotificationCompat.MessagingStyle.Message createMessage(Context context, XmPushActionContainer container, Context pkgCtx) {
         PushMetaInfo metaInfo = container.metaInfo;
         CustomConfiguration custom = new CustomConfiguration(metaInfo.getExtra());
         String senderMessage = custom.conversationMessage(null);
         if (senderMessage == null) {
             return null;
         }
+        return createMessage(context, pkgCtx, metaInfo, senderMessage);
+    }
+
+    @NonNull
+    private static NotificationCompat.MessagingStyle.Message createMessage(Context context, Context pkgCtx, PushMetaInfo metaInfo, String senderMessage) {
         boolean atLeastP = pkgCtx != null &&
                 pkgCtx.getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.P;
 
@@ -336,7 +416,7 @@ public class MyMIPushNotificationHelper {
     }
 
     @NonNull
-    private static Person.Builder getGroup(Context context, PushMetaInfo metaInfo) {
+    private static Person.Builder getGroupFor(Context context, PushMetaInfo metaInfo) {
         CustomConfiguration custom = new CustomConfiguration(metaInfo.getExtra());
         String conversation = custom.conversationTitle(null);
         String conversationId = custom.conversationId(null);
@@ -390,7 +470,7 @@ public class MyMIPushNotificationHelper {
     public static int getNotificationId(XmPushActionContainer container) {
         final PushMetaInfo metaInfo = container.getMetaInfo();
         String id = metaInfo.isSetNotifyId() ? String.valueOf(metaInfo.getNotifyId()) : metaInfo.getId();
-        String idWithPackage = MIPushNotificationHelper.getTargetPackage(container) + "_" + id;
+        String idWithPackage = getTargetPackage(container) + "_" + id;
         return idWithPackage.hashCode();
     }
 
@@ -507,7 +587,7 @@ public class MyMIPushNotificationHelper {
     }
 
     /**
-     * @see com.xiaomi.mipush.sdk.PushMessageProcessor#getNotificationMessageIntent
+     * @see PushMessageProcessor#getNotificationMessageIntent
      */
     public static Intent getSdkIntent(Context context, XmPushActionContainer container) {
         String pkgName = container.packageName;
@@ -628,16 +708,13 @@ public class MyMIPushNotificationHelper {
         if (isBusinessMessage(paramXmPushActionContainer)) {
             localIntent = new Intent();
             localIntent.setComponent(new ComponentName("com.xiaomi.xmsf", "com.xiaomi.mipush.sdk.PushMessageHandler"));
-            localIntent.putExtra(PushConstants.MIPUSH_EXTRA_PAYLOAD, paramArrayOfByte);
-            localIntent.putExtra(FROM_NOTIFICATION, true);
-            localIntent.addCategory(String.valueOf(paramPushMetaInfo.getNotifyId()));
         } else {
             localIntent = new Intent(PushConstants.MIPUSH_ACTION_NEW_MESSAGE);
             localIntent.setComponent(new ComponentName(paramXmPushActionContainer.packageName, "com.xiaomi.mipush.sdk.PushMessageHandler"));
-            localIntent.putExtra(PushConstants.MIPUSH_EXTRA_PAYLOAD, paramArrayOfByte);
-            localIntent.putExtra(FROM_NOTIFICATION, true);
-            localIntent.addCategory(String.valueOf(paramPushMetaInfo.getNotifyId()));
         }
+        localIntent.putExtra(PushConstants.MIPUSH_EXTRA_PAYLOAD, paramArrayOfByte);
+        localIntent.putExtra(FROM_NOTIFICATION, true);
+        localIntent.addCategory(String.valueOf(paramPushMetaInfo.getNotifyId()));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return PendingIntent.getForegroundService(paramContext, 0, localIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         } else {
