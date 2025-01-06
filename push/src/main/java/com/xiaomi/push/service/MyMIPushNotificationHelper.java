@@ -117,42 +117,46 @@ public class MyMIPushNotificationHelper {
         if (notificationOp == AppInfoUtils.AppNotificationOp.NOT_ALLOWED) {
             logger.w("Do not notify because user block " + getTargetPackage(container) + "'s notification");
         } else {
+            loadConfigurationsOnce(context);
+            handleNotificationByConfigurations(context, decryptedContent, container.getPackageName(), container);
+        }
+    }
 
-            String packageName = container.getPackageName();
+    private static void handleNotificationByConfigurations(Context context, byte[] decryptedContent, String packageName, XmPushActionContainer container) {
+        try {
+            Set<String> operations = Configurations.getInstance().handle(packageName, container);
 
-            if (!tryLoadConfigurations) {
-                tryLoadConfigurations = true;
-                boolean success = false;
-                try {
-                    success = Configurations.getInstance().init(context,
-                            ConfigCenter.getInstance().getConfigurationDirectory(context)) &&
-                            IconConfigurations.getInstance().init(context,
-                                    ConfigCenter.getInstance().getConfigurationDirectory(context));
-                } catch (Exception e) {
-                    Utils.makeText(context, e.toString(), Toast.LENGTH_LONG);
-                }
+            if (operations.contains(PackageConfig.OPERATION_WAKE)) {
+                wakeScreen(context, packageName);
             }
+            if (!operations.contains(PackageConfig.OPERATION_IGNORE)) {
+                executorService.execute(() -> {
+                    try {
+                        doNotifyPushMessage(context, container, decryptedContent);
+                    } catch (Exception e) {
+                        logger.e(e.getLocalizedMessage(), e);
+                    }
+                });
+            }
+            if (operations.contains(PackageConfig.OPERATION_OPEN)) {
+                MyPushMessageHandler.startService(context, container, decryptedContent);
+            }
+        } catch (Exception e) {
+            logger.e(e.getLocalizedMessage(), e);
+        }
+    }
 
+    private static void loadConfigurationsOnce(Context context) {
+        if (!tryLoadConfigurations) {
+            tryLoadConfigurations = true;
             try {
-                Set<String> operations = Configurations.getInstance().handle(packageName, container);
-
-                if (operations.contains(PackageConfig.OPERATION_WAKE)) {
-                    wakeScreen(context, packageName);
-                }
-                if (!operations.contains(PackageConfig.OPERATION_IGNORE)) {
-                    executorService.execute(() -> {
-                        try {
-                            doNotifyPushMessage(context, container, decryptedContent);
-                        } catch (Exception e) {
-                            logger.e(e.getLocalizedMessage(), e);
-                        }
-                    });
-                }
-                if (operations.contains(PackageConfig.OPERATION_OPEN)) {
-                    MyPushMessageHandler.startService(context, container, decryptedContent);
+                if (Configurations.getInstance().init(context,
+                        ConfigCenter.getInstance().getConfigurationDirectory(context))) {
+                    IconConfigurations.getInstance().init(context,
+                            ConfigCenter.getInstance().getConfigurationDirectory(context));
                 }
             } catch (Exception e) {
-                logger.e(e.getLocalizedMessage(), e);
+                Utils.makeText(context, e.toString(), Toast.LENGTH_LONG);
             }
         }
     }
