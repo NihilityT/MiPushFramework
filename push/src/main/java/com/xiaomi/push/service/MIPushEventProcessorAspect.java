@@ -113,10 +113,17 @@ public class MIPushEventProcessorAspect {
     @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.buildContainer(..))")
     public XmPushActionContainer buildContainerHook(final ProceedingJoinPoint joinPoint) throws Throwable {
         XmPushActionContainer container = (XmPushActionContainer) joinPoint.proceed();
+        recordContainer(container);
+        return container;
+    }
+
+    private static void recordContainer(XmPushActionContainer container) {
+        if (container == null) {
+            return;
+        }
         RegistrationRecorder.getInstance().recordRegSec(container);
         XmPushActionContainer decorated = decoratedContainer(container.packageName, container);
         AppInfoUtilsAspect.setLastMetaInfo(decorated.metaInfo);
-        return container;
     }
 
     @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.isIntentAvailable(..))")
