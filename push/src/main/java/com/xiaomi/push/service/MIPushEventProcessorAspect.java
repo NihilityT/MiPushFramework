@@ -2,9 +2,7 @@ package com.xiaomi.push.service;
 
 import static com.xiaomi.push.service.MIPushEventProcessor.buildContainer;
 
-import android.content.Context;
 import android.content.Intent;
-import android.text.TextUtils;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -29,67 +27,53 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 
+import java.lang.reflect.InvocationTargetException;
+
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
 import top.trumeet.mipush.provider.event.Event;
 import top.trumeet.mipush.provider.event.EventType;
-import top.trumeet.mipush.provider.register.RegisteredApplication;
 
 @Aspect
 public class MIPushEventProcessorAspect {
     private static final String TAG = MIPushEventProcessorAspect.class.getSimpleName();
     private static final Logger logger = XLog.tag(TAG).build();
-    public static String mockFlag = "__mock__";
 
-    static boolean userAllow(EventType type, Context context) {
-        RegisteredApplication application = RegisteredApplicationDb.registerApplication(type.getPkg());
-        if (application == null) {
-            return false;
-        }
+    static void recordEvent(EventType type) {
+        RegisteredApplicationDb.registerApplication(type.getPkg());
         logger.d("insertEvent -> " + type);
         EventDb.insertEvent(Event.ResultType.OK, type);
-        return true;
-    }
-
-    public static void mockProcessMIPushMessage(XMPushService pushService, byte[] decryptedContent) {
-        XmPushActionContainer container = buildContainer(decryptedContent);
-        mockProcessMIPushMessage(pushService, container);
     }
 
     public static void mockProcessMIPushMessage(XMPushService pushService, XmPushActionContainer container) {
         try {
-            MiPushMessageDuplicateAspect.mockId = getMessageId(container);
-            byte[] mockDecryptedContent = XmPushThriftSerializeUtils.convertThriftObjectToBytes(container);
-            JavaCalls.<Boolean>callStaticMethodOrThrow(MIPushEventProcessor.class.getName(), "processMIPushMessage",
-                    pushService, mockDecryptedContent, (long) mockDecryptedContent.length);
+            MiPushMessageDuplicateAspect.markAsMock(container);
+            invokeProcessMiPushMessage(pushService, container);
         } catch (Exception e) {
             logger.e("mock notification failure: ", e);
             Utils.makeText(pushService, "failure", Toast.LENGTH_SHORT);
         }
     }
 
-    private static String getMessageId(XmPushActionContainer container) {
-        PushMetaInfo metaInfo = container.metaInfo;
-        if (metaInfo == null) {
-            return null;
-        }
-        if (metaInfo.extra != null) {
-            String jobId = metaInfo.extra.get(PushConstants.EXTRA_JOB_KEY);
-            if (!TextUtils.isEmpty(jobId)) {
-                return jobId;
-            }
-        }
-        return metaInfo.getId();
+    private static void invokeProcessMiPushMessage(XMPushService pushService, XmPushActionContainer container) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+        byte[] mockDecryptedContent = XmPushThriftSerializeUtils.convertThriftObjectToBytes(container);
+        invokeProcessMiPushMessage(pushService, mockDecryptedContent);
     }
 
-    static boolean isMockMessage(XmPushActionContainer container) {
-        return TextUtils.equals(getMessageId(container), MiPushMessageDuplicateAspect.mockId);
+    private static void invokeProcessMiPushMessage(XMPushService pushService, byte[] mockDecryptedContent) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+        JavaCalls.<Boolean>callStaticMethodOrThrow(MIPushEventProcessor.class.getName(), "processMIPushMessage",
+                pushService, mockDecryptedContent, (long) mockDecryptedContent.length);
     }
 
     @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.buildIntent(..))")
     public Intent buildIntent(final ProceedingJoinPoint joinPoint) throws Throwable {
         Intent intent = (Intent) joinPoint.proceed();
+        return ignoreMessageIdAndMessageTypeExtra(intent);
+    }
+
+    @NonNull
+    private Intent ignoreMessageIdAndMessageTypeExtra(Intent intent) {
         return new Intent(intent) {
             @NonNull
             @Override
@@ -145,12 +129,11 @@ public class MIPushEventProcessorAspect {
         logger.d(joinPoint.getSignature());
 
         XmPushActionContainer buildContainer = buildContainer(decryptedContent);
-        if (isMockMessage(buildContainer)) {
+        if (MiPushMessageDuplicateAspect.isMockMessage(buildContainer)) {
             return;
         }
         logger.d("buildContainer" + " " + ConvertUtils.toJson(buildContainer));
-        EventType type = TypeFactory.create(buildContainer, buildContainer.packageName);
-        userAllow(type, pushService);
+        recordEvent(TypeFactory.create(buildContainer, buildContainer.packageName));
     }
 
     private static XmPushActionContainer decoratedContainer(String realTargetPackage, XmPushActionContainer container) {
