@@ -401,8 +401,7 @@ public class MyMIPushNotificationHelper {
     private static String getGroupName(Context xmPushService, XmPushActionContainer buildContainer) {
         PushMetaInfo metaInfo = buildContainer.getMetaInfo();
         String packageName = buildContainer.getPackageName();
-        RegisteredApplication application = RegisteredApplicationDb.registerApplication(
-                packageName, false);
+        RegisteredApplication application = RegisteredApplicationDb.getRegisteredApplication(packageName);
 
         boolean groupSession = application != null && application.getGroupNotificationsForSameSession();
         CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());

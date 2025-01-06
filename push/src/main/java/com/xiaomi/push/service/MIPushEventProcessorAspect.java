@@ -43,8 +43,7 @@ public class MIPushEventProcessorAspect {
     public static String mockFlag = "__mock__";
 
     static boolean userAllow(EventType type, Context context) {
-        RegisteredApplication application = RegisteredApplicationDb.registerApplication(type.getPkg(),
-                true);
+        RegisteredApplication application = RegisteredApplicationDb.registerApplication(type.getPkg());
         if (application == null) {
             return false;
         }

@@ -24,16 +24,23 @@ import top.trumeet.mipush.provider.register.RegisteredApplication;
 
 public class RegisteredApplicationDb {
 
-    public static RegisteredApplication registerApplication(String pkg, boolean autoCreate) {
+    @NonNull
+    public static RegisteredApplication registerApplication(String pkg) {
+        RegisteredApplication registeredApplication = getRegisteredApplication(pkg);
+        if (registeredApplication == null) {
+            return create(pkg);
+        }
+        return registeredApplication;
+    }
+
+    @Nullable
+    public static RegisteredApplication getRegisteredApplication(String pkg) {
         List<RegisteredApplication> list = getList(pkg);
         if (DEBUG) {
             Log.d("RegisteredApplicationDb", "register -> existing list = " + list.toString());
         }
         if (!list.isEmpty()) {
             return list.get(0);
-        }
-        if (autoCreate) {
-            return create(pkg);
         }
         return null;
     }

@@ -43,7 +43,7 @@ public class RegisterRecorder {
 
             logger.d("onHandleIntent -> A application want to register push");
             showRegisterToastIfUserAllow(
-                    RegisteredApplicationDb.registerApplication(pkg, true));
+                    RegisteredApplicationDb.registerApplication(pkg));
             saveRegisterAppRecord(pkg);
         } catch (RuntimeException e) {
             logger.e("XMPushService::onHandleIntent: ", e);

@@ -162,7 +162,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
         @Override
         protected RegisteredApplication doInBackground(Void... voids) {
             mSignal = new CancellationSignal();
-            RegisteredApplication application = RegisteredApplicationDb.registerApplication(pkg, false);
+            RegisteredApplication application = RegisteredApplicationDb.getRegisteredApplication(pkg);
 
             if (application == null && getIntent().getBooleanExtra(EXTRA_IGNORE_NOT_REGISTERED, false)) {
                 application = new RegisteredApplication();
