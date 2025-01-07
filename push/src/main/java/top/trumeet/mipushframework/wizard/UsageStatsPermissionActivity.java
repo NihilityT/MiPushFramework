@@ -78,12 +78,12 @@ public class UsageStatsPermissionActivity extends PushControllerWizardActivity i
 
     @Override
     public void onNavigateNext() {
+        nextClicked = true;
         if (!isPermissionGranted()) {
-            if (!nextClicked || !PermissionUtils.canAssignPermissionViaAppOps()) {
-                nextClicked = true;
-                requestPermission();
-            } else {
+            if (PermissionUtils.canAssignPermissionViaAppOps()) {
                 requestPermissionSilently();
+            } else {
+                requestPermission();
             }
         } else {
             nextPage();
