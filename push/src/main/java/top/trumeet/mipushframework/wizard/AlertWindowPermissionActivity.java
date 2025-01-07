@@ -24,7 +24,6 @@ import top.trumeet.mipushframework.utils.PermissionUtils;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class AlertWindowPermissionActivity extends PushControllerWizardActivity implements NavigationBar.NavigationBarListener {
-    private boolean allow;
     private boolean nextClicked = false;
 
     @Override
@@ -42,8 +41,7 @@ public class AlertWindowPermissionActivity extends PushControllerWizardActivity 
     public void onResume() {
         super.onResume();
 
-        check();
-        if (allow) {
+        if (isPermissionGranted()) {
             nextPage();
             finish();
         } else if (nextClicked) {
@@ -53,16 +51,15 @@ public class AlertWindowPermissionActivity extends PushControllerWizardActivity 
         }
     }
 
-    private void check() {
-        allow = Settings.canDrawOverlays(this);
+    private boolean isPermissionGranted() {
+        return Settings.canDrawOverlays(this);
     }
 
     @Override
     public void onConnected(Bundle savedInstanceState) {
         super.onConnected(savedInstanceState);
-        check();
 
-        if (allow) {
+        if (isPermissionGranted()) {
             nextPage();
             finish();
             return;
@@ -81,20 +78,28 @@ public class AlertWindowPermissionActivity extends PushControllerWizardActivity 
 
     @Override
     public void onNavigateNext() {
-        if (!allow) {
-            if (!nextClicked || !PermissionUtils.canAppOpsPermission()) {
+        if (!isPermissionGranted()) {
+            if (!nextClicked || !PermissionUtils.canAssignPermissionViaAppOps()) {
                 nextClicked = true;
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:" + getPackageName()));
-                startActivity(intent);
+                requestPermission();
             } else {
-                PermissionUtils.lunchAppOps(this,
-                        AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW,
-                        getString(R.string.wizard_title_alert_window_text));
+                requestPermissionSilently();
             }
         } else {
             nextPage();
         }
+    }
+
+    private void requestPermissionSilently() {
+        PermissionUtils.lunchAppOps(this,
+                AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW,
+                getString(R.string.wizard_title_alert_window_text));
+    }
+
+    private void requestPermission() {
+        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:" + getPackageName()));
+        startActivity(intent);
     }
 
     private void nextPage() {

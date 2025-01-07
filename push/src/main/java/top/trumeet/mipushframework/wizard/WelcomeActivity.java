@@ -2,11 +2,13 @@ package top.trumeet.mipushframework.wizard;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.setupwizardlib.SetupWizardLayout;
 import com.android.setupwizardlib.view.NavigationBar;
@@ -23,23 +25,39 @@ public class WelcomeActivity extends AppCompatActivity implements NavigationBar.
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!WizardSPUtils.shouldShowWizard(this)) {
-            startActivity (new Intent(this,
-                    MainActivity.class));
+        if (isPermissionRequested()) {
+            jumpToMainActivity();
             finish();
             return;
         }
+        setContentView(createWelcomeContent());
+    }
+
+    private @NonNull SetupWizardLayout createWelcomeContent() {
         SetupWizardLayout layout = new SetupWizardLayout(this);
         layout.getNavigationBar()
                 .setNavigationBarListener(this);
-        TextView textView = new TextView(this);
-        textView.setText(Html.fromHtml(getString(R.string.wizard_descr)));
-        int padding = (int) getResources().getDimension(R.dimen.suw_glif_margin_sides);
-        textView.setPadding(padding, padding, padding, padding);
-        textView.setMovementMethod(LinkMovementMethod.getInstance());
-        layout.addView(textView);
+        layout.addView(createDescriptionTextView());
         layout.setHeaderText(R.string.app_name);
-        setContentView(layout);
+        return layout;
+    }
+
+    private void jumpToMainActivity() {
+        startActivity (new Intent(this,
+                MainActivity.class));
+    }
+
+    private boolean isPermissionRequested() {
+        return !WizardSPUtils.shouldShowWizard(this);
+    }
+
+    private @NonNull TextView createDescriptionTextView() {
+        TextView descriptionTextView = new TextView(this);
+        descriptionTextView.setText(Html.fromHtml(getString(R.string.wizard_descr)));
+        int padding = (int) getResources().getDimension(R.dimen.suw_glif_margin_sides);
+        descriptionTextView.setPadding(padding, padding, padding, padding);
+        descriptionTextView.setMovementMethod(LinkMovementMethod.getInstance());
+        return descriptionTextView;
     }
 
     @Override

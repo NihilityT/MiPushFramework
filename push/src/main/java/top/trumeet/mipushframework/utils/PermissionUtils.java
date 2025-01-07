@@ -28,9 +28,8 @@ import top.trumeet.common.Constants;
 import top.trumeet.common.utils.Utils;
 
 public class PermissionUtils {
-    public static boolean canAppOpsPermission() {
-        return Utils.isAppOpsInstalled() ||
-                ShellUtils.isSuAvailable();
+    public static boolean canAssignPermissionViaAppOps() {
+        return Utils.isAppOpsInstalled() || ShellUtils.isSuAvailable();
     }
 
     public static boolean lunchAppOps(Context context, String permission, CharSequence tips) {

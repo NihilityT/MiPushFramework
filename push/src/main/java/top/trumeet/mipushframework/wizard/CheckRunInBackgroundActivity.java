@@ -22,12 +22,11 @@ import top.trumeet.mipushframework.utils.PermissionUtils;
  */
 
 public class CheckRunInBackgroundActivity extends PushControllerWizardActivity implements NavigationBar.NavigationBarListener {
-    private boolean allow;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N || !PermissionUtils.canAppOpsPermission()) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N || !PermissionUtils.canAssignPermissionViaAppOps()) {
             nextPage();
             finish();
             return;
@@ -39,7 +38,7 @@ public class CheckRunInBackgroundActivity extends PushControllerWizardActivity i
     public void onResume() {
         super.onResume();
 
-        if (!PermissionUtils.canAppOpsPermission()) {
+        if (!PermissionUtils.canAssignPermissionViaAppOps()) { // logic error ?
             nextPage();
             finish();
             return;
@@ -49,24 +48,23 @@ public class CheckRunInBackgroundActivity extends PushControllerWizardActivity i
                 "" : (Utils.isAppOpsInstalled() ? getString(R.string.run_in_background_rikka_appops) :
                 getString(R.string.run_in_background_appops_root))))); // TODO: I18n more, no append.
 
-        int result = Utils.checkOp(this, AppOpsManagerOverride.OP_RUN_IN_BACKGROUND);
-        allow = (result == AppOpsManager.MODE_ALLOWED);
-
-        if (allow) {
+        if (isPermissionGranted()) {
             nextPage();
             finish();
-            return;
         }
 
+    }
+
+    private boolean isPermissionGranted() {
+        int result = Utils.checkOp(this, AppOpsManagerOverride.OP_RUN_IN_BACKGROUND);
+        return (result == AppOpsManager.MODE_ALLOWED);
     }
 
     @Override
     public void onConnected(Bundle savedInstanceState) {
         super.onConnected(savedInstanceState);
-        int result = Utils.checkOp(this, AppOpsManagerOverride.OP_RUN_IN_BACKGROUND);
-        allow = (result != AppOpsManager.MODE_IGNORED);
 
-        if (allow) {
+        if (isPermissionGranted()) {
             nextPage();
             finish();
             return;
@@ -86,7 +84,7 @@ public class CheckRunInBackgroundActivity extends PushControllerWizardActivity i
 
     @Override
     public void onNavigateNext() {
-        if (!allow && PermissionUtils.canAppOpsPermission()) {
+        if (!isPermissionGranted() && PermissionUtils.canAssignPermissionViaAppOps()) {
             PermissionUtils.lunchAppOps(this,
                     String.valueOf(AppOpsManagerOverride.OP_RUN_IN_BACKGROUND),
                     Utils.getString(R.string.rikka_appops_help_toast, this));

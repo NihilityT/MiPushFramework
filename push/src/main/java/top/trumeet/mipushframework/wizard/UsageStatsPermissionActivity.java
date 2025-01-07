@@ -23,7 +23,6 @@ import top.trumeet.mipushframework.utils.PermissionUtils;
  */
 
 public class UsageStatsPermissionActivity extends PushControllerWizardActivity implements NavigationBar.NavigationBarListener {
-    private boolean allow;
     private boolean nextClicked = false;
 
     @Override
@@ -41,8 +40,7 @@ public class UsageStatsPermissionActivity extends PushControllerWizardActivity i
     public void onResume() {
         super.onResume();
 
-        check();
-        if (allow) {
+        if (isPermissionGranted()) {
             nextPage();
             finish();
         } else if (nextClicked) {
@@ -52,17 +50,16 @@ public class UsageStatsPermissionActivity extends PushControllerWizardActivity i
         }
     }
 
-    private void check() {
+    private boolean isPermissionGranted() {
         int result = Utils.checkOp(this, AppOpsManagerOverride.OP_GET_USAGE_STATS);
-        allow = (result == AppOpsManager.MODE_ALLOWED);
+        return (result == AppOpsManager.MODE_ALLOWED);
     }
 
     @Override
     public void onConnected(Bundle savedInstanceState) {
         super.onConnected(savedInstanceState);
-        check();
 
-        if (allow) {
+        if (isPermissionGranted()) {
             nextPage();
             finish();
             return;
@@ -81,19 +78,26 @@ public class UsageStatsPermissionActivity extends PushControllerWizardActivity i
 
     @Override
     public void onNavigateNext() {
-        if (!allow) {
-            if (!nextClicked || !PermissionUtils.canAppOpsPermission()) {
+        if (!isPermissionGranted()) {
+            if (!nextClicked || !PermissionUtils.canAssignPermissionViaAppOps()) {
                 nextClicked = true;
-                startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
+                requestPermission();
             } else {
-                PermissionUtils.lunchAppOps(this,
-                        AppOpsManager.OPSTR_GET_USAGE_STATS,
-                        getString(R.string.wizard_title_stats_permission_text));
-                check();
+                requestPermissionSilently();
             }
         } else {
             nextPage();
         }
+    }
+
+    private void requestPermissionSilently() {
+        PermissionUtils.lunchAppOps(this,
+                AppOpsManager.OPSTR_GET_USAGE_STATS,
+                getString(R.string.wizard_title_stats_permission_text));
+    }
+
+    private void requestPermission() {
+        startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
     }
 
     private void nextPage() {
