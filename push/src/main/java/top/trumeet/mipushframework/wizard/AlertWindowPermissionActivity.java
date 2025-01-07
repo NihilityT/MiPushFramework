@@ -1,11 +1,8 @@
 package top.trumeet.mipushframework.wizard;
 
-import android.app.AppOpsManager;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.text.Html;
 
 import androidx.annotation.Nullable;
@@ -24,6 +21,7 @@ import top.trumeet.mipushframework.utils.PermissionUtils;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class AlertWindowPermissionActivity extends PushControllerWizardActivity implements NavigationBar.NavigationBarListener {
+    private final AlertWindowPermissionOperator permissionOperator = new AlertWindowPermissionOperator(this);
     private boolean nextClicked = false;
 
     @Override
@@ -41,7 +39,7 @@ public class AlertWindowPermissionActivity extends PushControllerWizardActivity 
     public void onResume() {
         super.onResume();
 
-        if (isPermissionGranted()) {
+        if (permissionOperator.isPermissionGranted()) {
             nextPage();
             finish();
         } else if (nextClicked) {
@@ -51,15 +49,11 @@ public class AlertWindowPermissionActivity extends PushControllerWizardActivity 
         }
     }
 
-    private boolean isPermissionGranted() {
-        return Settings.canDrawOverlays(this);
-    }
-
     @Override
     public void onConnected(Bundle savedInstanceState) {
         super.onConnected(savedInstanceState);
 
-        if (isPermissionGranted()) {
+        if (permissionOperator.isPermissionGranted()) {
             nextPage();
             finish();
             return;
@@ -79,27 +73,15 @@ public class AlertWindowPermissionActivity extends PushControllerWizardActivity 
     @Override
     public void onNavigateNext() {
         nextClicked = true;
-        if (!isPermissionGranted()) {
+        if (!permissionOperator.isPermissionGranted()) {
             if (PermissionUtils.canAssignPermissionViaAppOps()) {
-                requestPermissionSilently();
+                permissionOperator.requestPermissionSilently();
             } else {
-                requestPermission();
+                permissionOperator.requestPermission();
             }
         } else {
             nextPage();
         }
-    }
-
-    private void requestPermissionSilently() {
-        PermissionUtils.lunchAppOps(this,
-                AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW,
-                getString(R.string.wizard_title_alert_window_text));
-    }
-
-    private void requestPermission() {
-        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:" + getPackageName()));
-        startActivity(intent);
     }
 
     private void nextPage() {
