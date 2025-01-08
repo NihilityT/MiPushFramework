@@ -3,6 +3,8 @@ package top.trumeet.mipushframework.wizard;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.annotation.NonNull;
+
 import java.lang.reflect.Constructor;
 
 public class PermissionInfoFactory {
@@ -29,4 +31,9 @@ public class PermissionInfoFactory {
         return create(permissionInfoClass, context);
     }
 
+    public static @NonNull Intent intentToRequestPermissionActivity(Context context, Class<? extends PermissionInfo> permissionInfoClass) {
+        return bindPermissionInfo(
+                new Intent(context, RequestPermissionActivity.class),
+                permissionInfoClass);
+    }
 }

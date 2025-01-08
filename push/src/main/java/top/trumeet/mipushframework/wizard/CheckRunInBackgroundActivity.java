@@ -1,7 +1,6 @@
 package top.trumeet.mipushframework.wizard;
 
 import android.app.AppOpsManager;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
@@ -94,8 +93,7 @@ public class CheckRunInBackgroundActivity extends PushControllerWizardActivity i
     }
 
     private void nextPage() {
-        startActivity(PermissionInfoFactory.bindPermissionInfo(
-                new Intent(this, RequestPermissionActivity.class),
+        startActivity(PermissionInfoFactory.intentToRequestPermissionActivity(this,
                 UsageStatsPermissionInfo.class));
     }
 }

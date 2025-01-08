@@ -37,9 +37,7 @@ public class UsageStatsPermissionInfo implements PermissionInfo {
     @Override
     public Intent nextPageIntent() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return PermissionInfoFactory.bindPermissionInfo(
-                    new Intent(context, RequestPermissionActivity.class),
-                    AlertWindowPermissionInfo.class);
+            return PermissionInfoFactory.intentToRequestPermissionActivity(context, AlertWindowPermissionInfo.class);
         } else {
             return new Intent(context, FinishWizardActivity.class);
         }
