@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.wizard;
+package top.trumeet.mipushframework.wizard.permission;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.xiaomi.xmsf.R;
+
+import top.trumeet.mipushframework.wizard.FinishWizardActivity;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class AlertWindowPermissionInfo implements PermissionInfo {

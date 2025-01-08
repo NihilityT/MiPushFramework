@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.wizard;
+package top.trumeet.mipushframework.wizard.permission;
 
 public interface PermissionOperator {
     boolean isPermissionGranted();

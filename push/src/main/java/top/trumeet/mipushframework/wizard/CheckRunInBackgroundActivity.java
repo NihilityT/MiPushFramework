@@ -13,6 +13,8 @@ import com.xiaomi.xmsf.R;
 import top.trumeet.common.override.AppOpsManagerOverride;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipushframework.utils.PermissionUtils;
+import top.trumeet.mipushframework.wizard.permission.PermissionInfoFactory;
+import top.trumeet.mipushframework.wizard.permission.UsageStatsPermissionInfo;
 
 /**
  * Created by Trumeet on 2017/8/25.

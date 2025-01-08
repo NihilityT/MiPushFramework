@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.wizard;
+package top.trumeet.mipushframework.wizard.permission;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +7,8 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 
 import com.xiaomi.xmsf.R;
+
+import top.trumeet.mipushframework.wizard.FinishWizardActivity;
 
 public class UsageStatsPermissionInfo implements PermissionInfo {
     Context context;

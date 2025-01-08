@@ -12,6 +12,9 @@ import com.android.setupwizardlib.view.NavigationBar;
 import com.xiaomi.xmsf.R;
 
 import top.trumeet.mipushframework.utils.PermissionUtils;
+import top.trumeet.mipushframework.wizard.permission.PermissionInfo;
+import top.trumeet.mipushframework.wizard.permission.PermissionInfoFactory;
+import top.trumeet.mipushframework.wizard.permission.PermissionOperator;
 
 public class RequestPermissionActivity extends PushControllerWizardActivity implements NavigationBar.NavigationBarListener {
     private PermissionOperator permissionOperator;

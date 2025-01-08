@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.wizard;
+package top.trumeet.mipushframework.wizard.permission;
 
 import android.content.Intent;
 
