@@ -263,6 +263,8 @@
     <string name="last_receive">最近推送：</string>
     <string name="mipush_services_not_found">找不到服务</string>
     <string name="try_to_force_register_all_applications">尝试强制注册所有应用</string>
+    <string name="wizard_title_ignore_battery_optimizations_permission">忽略电池优化</string>
+    <string name="wizard_title_ignore_battery_optimizations_text">您需要授予“忽略电池优化”权限，否则您可能将无法在后台运行mipush服务。</string>
 
 
 </resources>

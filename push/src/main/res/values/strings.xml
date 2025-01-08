@@ -129,6 +129,9 @@ Please grant the <b>Run in the background or wake up</b> permissions.
     <string name="wizard_title_alert_window_permission">Display over other apps</string>
     <string name="wizard_title_alert_window_text">You need to grant \"Display over other apps\" permission or you will not be able to auto open app by configuration.</string>
 
+    <string name="wizard_title_ignore_battery_optimizations_permission">Ignore Battery optimizations</string>
+    <string name="wizard_title_ignore_battery_optimizations_text">You need to grant \"Ignore Battery optimizations\" permission or you may will not be able to run mipush service on background.</string>
+
     <string name="wizard_descr_finish">Everything is ready. Enjoy!</string>
 
     <string name="status_ok">OK</string>

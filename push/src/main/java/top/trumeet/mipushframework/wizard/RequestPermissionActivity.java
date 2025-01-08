@@ -36,14 +36,14 @@ public class RequestPermissionActivity extends PushControllerWizardActivity impl
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        permissionInfo = PermissionInfoFactory.createFrom(getIntent(), this);
+        permissionOperator = getPermissionOperator();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             nextPage();
             finish();
             return;
         }
-        connect();
-        permissionInfo = PermissionInfoFactory.createFrom(getIntent(), this);
-        permissionOperator = getPermissionOperator();
+        onConnected(savedInstanceState);
     }
 
     @Override
