@@ -11,7 +11,7 @@ public class UsageStatsPermissionActivity extends RequestPermissionActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        permissionInfo = PermissionInfoFactory.create(UsageStatsPermissionInfo.class.getSimpleName(), this);
+        permissionInfo = PermissionInfoFactory.createFrom(getIntent(), this);
         super.onCreate(savedInstanceState);
     }
 
