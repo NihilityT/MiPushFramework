@@ -15,7 +15,7 @@ import com.xiaomi.xmsf.R;
 import top.trumeet.mipushframework.utils.PermissionUtils;
 
 public abstract class RequestPermissionActivity extends PushControllerWizardActivity implements NavigationBar.NavigationBarListener {
-    private final PermissionOperator permissionOperator = getPermissionOperator();
+    private PermissionOperator permissionOperator;
     private boolean nextClicked = false;
 
     @NonNull
@@ -30,6 +30,7 @@ public abstract class RequestPermissionActivity extends PushControllerWizardActi
             return;
         }
         connect();
+        permissionOperator = getPermissionOperator();
     }
 
     @Override
