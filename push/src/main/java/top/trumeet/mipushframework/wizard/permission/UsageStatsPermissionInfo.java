@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import com.xiaomi.xmsf.R;
 
 import top.trumeet.mipushframework.wizard.FinishWizardActivity;
+import top.trumeet.mipushframework.wizard.RequestPermissionActivity;
 
 public class UsageStatsPermissionInfo implements PermissionInfo {
     Context context;
@@ -39,7 +40,7 @@ public class UsageStatsPermissionInfo implements PermissionInfo {
     @Override
     public Intent nextPageIntent() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return PermissionInfoFactory.intentToRequestPermissionActivity(context, AlertWindowPermissionInfo.class);
+            return RequestPermissionActivity.intentFor(context, AlertWindowPermissionInfo.class);
         } else {
             return new Intent(context, FinishWizardActivity.class);
         }

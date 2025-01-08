@@ -13,7 +13,6 @@ import com.xiaomi.xmsf.R;
 import top.trumeet.common.override.AppOpsManagerOverride;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipushframework.utils.PermissionUtils;
-import top.trumeet.mipushframework.wizard.permission.PermissionInfoFactory;
 import top.trumeet.mipushframework.wizard.permission.UsageStatsPermissionInfo;
 
 /**
@@ -95,7 +94,7 @@ public class CheckRunInBackgroundActivity extends PushControllerWizardActivity i
     }
 
     private void nextPage() {
-        startActivity(PermissionInfoFactory.intentToRequestPermissionActivity(this,
+        startActivity(RequestPermissionActivity.intentFor(this,
                 UsageStatsPermissionInfo.class));
     }
 }

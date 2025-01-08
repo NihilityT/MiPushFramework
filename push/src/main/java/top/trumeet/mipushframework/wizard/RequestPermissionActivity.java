@@ -1,5 +1,6 @@
 package top.trumeet.mipushframework.wizard;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +21,12 @@ public class RequestPermissionActivity extends PushControllerWizardActivity impl
     private PermissionOperator permissionOperator;
     private boolean nextClicked = false;
     private PermissionInfo permissionInfo;
+
+    public static @NonNull Intent intentFor(Context context, Class<? extends PermissionInfo> permissionInfoClass) {
+        return PermissionInfoFactory.bindPermissionInfo(
+                new Intent(context, RequestPermissionActivity.class),
+                permissionInfoClass);
+    }
 
     @NonNull
     protected PermissionOperator getPermissionOperator() {
