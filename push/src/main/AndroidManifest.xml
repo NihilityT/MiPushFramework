@@ -77,7 +77,7 @@
             android:name="top.trumeet.mipushframework.wizard.CheckRunInBackgroundActivity"
             android:theme="@style/AppTheme.Wizard" />
         <activity
-            android:name="top.trumeet.mipushframework.wizard.UsageStatsPermissionActivity"
+            android:name="top.trumeet.mipushframework.wizard.RequestPermissionActivity"
             android:theme="@style/AppTheme.Wizard" />
         <activity
             android:name="top.trumeet.mipushframework.wizard.AlertWindowPermissionActivity"

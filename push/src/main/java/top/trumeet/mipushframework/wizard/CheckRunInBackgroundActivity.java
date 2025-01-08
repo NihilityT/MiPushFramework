@@ -95,7 +95,7 @@ public class CheckRunInBackgroundActivity extends PushControllerWizardActivity i
 
     private void nextPage() {
         startActivity(PermissionInfoFactory.bindPermissionInfo(
-                new Intent(this, UsageStatsPermissionActivity.class),
+                new Intent(this, RequestPermissionActivity.class),
                 UsageStatsPermissionInfo.class));
     }
 }

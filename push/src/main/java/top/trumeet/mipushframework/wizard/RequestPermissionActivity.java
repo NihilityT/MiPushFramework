@@ -14,12 +14,15 @@ import com.xiaomi.xmsf.R;
 
 import top.trumeet.mipushframework.utils.PermissionUtils;
 
-public abstract class RequestPermissionActivity extends PushControllerWizardActivity implements NavigationBar.NavigationBarListener {
+public class RequestPermissionActivity extends PushControllerWizardActivity implements NavigationBar.NavigationBarListener {
     private PermissionOperator permissionOperator;
     private boolean nextClicked = false;
+    private PermissionInfo permissionInfo;
 
     @NonNull
-    protected abstract PermissionOperator getPermissionOperator();
+    protected PermissionOperator getPermissionOperator() {
+        return permissionInfo.getPermissionOperator();
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -30,6 +33,7 @@ public abstract class RequestPermissionActivity extends PushControllerWizardActi
             return;
         }
         connect();
+        permissionInfo = PermissionInfoFactory.createFrom(getIntent(), this);
         permissionOperator = getPermissionOperator();
     }
 
@@ -64,10 +68,14 @@ public abstract class RequestPermissionActivity extends PushControllerWizardActi
     }
 
     @NonNull
-    protected abstract String getPermissionTitle();
+    protected String getPermissionTitle() {
+        return permissionInfo.getPermissionTitle();
+    }
 
     @NonNull
-    public abstract String getPermissionDescription();
+    public String getPermissionDescription() {
+        return permissionInfo.getPermissionDescription();
+    }
 
     @Override
     public void onNavigateBack() {
@@ -94,5 +102,7 @@ public abstract class RequestPermissionActivity extends PushControllerWizardActi
     }
 
     @NonNull
-    protected abstract Class<? extends Activity> nextPageClass();
+    protected Class<? extends Activity> nextPageClass() {
+        return permissionInfo.nextPageClass();
+    }
 }
