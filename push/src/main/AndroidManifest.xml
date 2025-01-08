@@ -80,9 +80,6 @@
             android:name="top.trumeet.mipushframework.wizard.RequestPermissionActivity"
             android:theme="@style/AppTheme.Wizard" />
         <activity
-            android:name="top.trumeet.mipushframework.wizard.AlertWindowPermissionActivity"
-            android:theme="@style/AppTheme.Wizard" />
-        <activity
             android:name="top.trumeet.mipushframework.wizard.FinishWizardActivity"
             android:theme="@style/AppTheme.Wizard" />
 

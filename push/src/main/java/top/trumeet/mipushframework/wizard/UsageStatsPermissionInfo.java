@@ -1,6 +1,5 @@
 package top.trumeet.mipushframework.wizard;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -37,15 +36,13 @@ public class UsageStatsPermissionInfo implements PermissionInfo {
     @NonNull
     @Override
     public Intent nextPageIntent() {
-        return new Intent(context, nextPageClass());
-    }
-
-    @NonNull
-    public Class<? extends Activity> nextPageClass() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return AlertWindowPermissionActivity.class;
+            return PermissionInfoFactory.bindPermissionInfo(
+                    new Intent(context, RequestPermissionActivity.class),
+                    AlertWindowPermissionInfo.class);
         } else {
-            return FinishWizardActivity.class;
+            return new Intent(context, FinishWizardActivity.class);
         }
     }
+
 }
