@@ -1,6 +1,6 @@
 package top.trumeet.mipushframework.wizard;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -19,8 +19,8 @@ public class AlertWindowPermissionActivity extends RequestPermissionActivity {
 
     @Override
     @NonNull
-    protected Class<? extends Activity> nextPageClass() {
-        return alertWindowPermissionInfo.nextPageClass();
+    protected Intent nextPageIntent() {
+        return alertWindowPermissionInfo.nextPageIntent();
     }
 
     @Override

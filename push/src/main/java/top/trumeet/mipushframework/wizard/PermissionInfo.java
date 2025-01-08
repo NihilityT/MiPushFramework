@@ -1,6 +1,6 @@
 package top.trumeet.mipushframework.wizard;
 
-import android.app.Activity;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
@@ -15,5 +15,5 @@ public interface PermissionInfo {
     String getPermissionDescription();
 
     @NonNull
-    Class<? extends Activity> nextPageClass();
+    Intent nextPageIntent();
 }

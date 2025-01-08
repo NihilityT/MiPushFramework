@@ -1,7 +1,7 @@
 package top.trumeet.mipushframework.wizard;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -25,8 +25,8 @@ public class AlertWindowPermissionInfo implements PermissionInfo {
 
     @Override
     @NonNull
-    public Class<? extends Activity> nextPageClass() {
-        return FinishWizardActivity.class;
+    public Intent nextPageIntent() {
+        return new Intent(context, FinishWizardActivity.class);
     }
 
     @Override

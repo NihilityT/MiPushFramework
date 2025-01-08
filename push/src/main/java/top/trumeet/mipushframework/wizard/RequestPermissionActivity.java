@@ -1,6 +1,5 @@
 package top.trumeet.mipushframework.wizard;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -97,12 +96,11 @@ public class RequestPermissionActivity extends PushControllerWizardActivity impl
     }
 
     private void nextPage() {
-        startActivity(new Intent(this,
-                nextPageClass()));
+        startActivity(nextPageIntent());
     }
 
     @NonNull
-    protected Class<? extends Activity> nextPageClass() {
-        return permissionInfo.nextPageClass();
+    protected Intent nextPageIntent() {
+        return permissionInfo.nextPageIntent();
     }
 }
