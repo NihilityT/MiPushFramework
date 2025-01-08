@@ -1,6 +1,5 @@
 package top.trumeet.mipushframework.wizard;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +11,7 @@ import androidx.annotation.Nullable;
 import com.android.setupwizardlib.view.NavigationBar;
 import com.xiaomi.xmsf.R;
 
+import top.trumeet.common.utils.Utils;
 import top.trumeet.mipushframework.utils.PermissionUtils;
 import top.trumeet.mipushframework.wizard.permission.PermissionInfo;
 import top.trumeet.mipushframework.wizard.permission.PermissionInfoFactory;
@@ -22,9 +22,9 @@ public class RequestPermissionActivity extends PushControllerWizardActivity impl
     private boolean nextClicked = false;
     private PermissionInfo permissionInfo;
 
-    public static @NonNull Intent intentFor(Context context, Class<? extends PermissionInfo> permissionInfoClass) {
+    public static @NonNull Intent intentFor(Class<? extends PermissionInfo> permissionInfoClass) {
         return PermissionInfoFactory.bindPermissionInfo(
-                new Intent(context, RequestPermissionActivity.class),
+                new Intent(Utils.getApplication(), RequestPermissionActivity.class),
                 permissionInfoClass);
     }
 
