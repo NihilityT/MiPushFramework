@@ -110,11 +110,13 @@ private fun allPermissionsGranted(
 
 private fun getPermissionInfos(context: Context): MutableList<PermissionInfo> {
     val pages = mutableListOf<PermissionInfo>().apply {
+        add(WelcomePhonyPermissionInfo(context))
         add(UsageStatsPermissionInfo(context))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             add(RequestIgnoreBatteryOptimizationsPermissionInfo(context))
             AlertWindowPermissionInfo(context)
         }
+        add(FinishedPhonyPermissionInfo(context))
     }
     return pages
 }
