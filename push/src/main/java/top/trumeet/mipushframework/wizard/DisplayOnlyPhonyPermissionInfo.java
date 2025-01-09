@@ -1,7 +1,6 @@
 package top.trumeet.mipushframework.wizard;
 
 import android.content.Context;
-import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
@@ -19,12 +18,6 @@ public abstract class DisplayOnlyPhonyPermissionInfo implements PermissionInfo, 
     @Override
     public PermissionOperator getPermissionOperator() {
         return this;
-    }
-
-    @NonNull
-    @Override
-    public Intent nextPageIntent() {
-        return null;
     }
 
     @Override

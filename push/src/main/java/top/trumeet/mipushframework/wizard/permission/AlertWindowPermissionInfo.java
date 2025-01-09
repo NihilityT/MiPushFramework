@@ -1,15 +1,12 @@
 package top.trumeet.mipushframework.wizard.permission;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.xiaomi.xmsf.R;
-
-import top.trumeet.mipushframework.wizard.FinishWizardActivity;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class AlertWindowPermissionInfo implements PermissionInfo {
@@ -23,12 +20,6 @@ public class AlertWindowPermissionInfo implements PermissionInfo {
     @Override
     public PermissionOperator getPermissionOperator() {
         return new AlertWindowPermissionOperator(context);
-    }
-
-    @Override
-    @NonNull
-    public Intent nextPageIntent() {
-        return new Intent(context, FinishWizardActivity.class);
     }
 
     @Override

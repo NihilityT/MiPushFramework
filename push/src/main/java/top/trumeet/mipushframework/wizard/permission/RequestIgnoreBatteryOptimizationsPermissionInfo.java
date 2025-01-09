@@ -1,15 +1,12 @@
 package top.trumeet.mipushframework.wizard.permission;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.xiaomi.xmsf.R;
-
-import top.trumeet.mipushframework.wizard.RequestPermissionActivity;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class RequestIgnoreBatteryOptimizationsPermissionInfo implements PermissionInfo {
@@ -24,12 +21,6 @@ public class RequestIgnoreBatteryOptimizationsPermissionInfo implements Permissi
     @Override
     public PermissionOperator getPermissionOperator() {
         return new RequestIgnoreBatteryOptimizationsPermissionOperator(context);
-    }
-
-    @Override
-    @NonNull
-    public Intent nextPageIntent() {
-        return RequestPermissionActivity.intentFor(UsageStatsPermissionInfo.class);
     }
 
     @Override
