@@ -1,12 +1,8 @@
 package top.trumeet.mipushframework.help
 
-import android.os.Bundle
 import android.widget.TextView
-import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
@@ -15,17 +11,16 @@ import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
 
 @Composable
-fun MarkdownView(markdownText: String, modifier: Modifier = Modifier) {
+fun MarkdownView(markdownText: String, modifier: Modifier = Modifier, textSize: Float? = null) {
     val html = toHtml(markdownText)
-    val context = LocalContext.current
-    AndroidView(modifier = modifier, factory = {
-        TextView(context).apply {
+    AndroidView(modifier = modifier, factory = { context -> TextView(context) }, update = { it ->
+        it.apply {
             text = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY)
+            textSize?.let { setTextSize(it) }
         }
     })
 }
 
-@Composable
 private fun toHtml(markdownText: String): String {
     val flavour = CommonMarkFlavourDescriptor()
     val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(markdownText)
