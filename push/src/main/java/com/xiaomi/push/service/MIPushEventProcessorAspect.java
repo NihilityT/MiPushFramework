@@ -115,12 +115,20 @@ public class MIPushEventProcessorAspect {
     }
 
 
+    /**
+     *  default behavior is
+     *  return true
+     *  unless
+     *  - metaInfo.EXTRA_PARAM_CHECK_ALIVE exists
+     *  - metaInfo.EXTRA_PARAM_AWAKE is false
+     *  - the target application is not running
+     */
     @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.shouldSendBroadcast(..)) && args(pushService, packageName, container, metaInfo)")
     public boolean shouldSendBroadcast(final ProceedingJoinPoint joinPoint,
                                        XMPushService pushService, String packageName, XmPushActionContainer container, PushMetaInfo metaInfo) throws Throwable {
         joinPoint.proceed();
         XmPushActionContainer decorated = decoratedContainer(container.packageName, container);
-        return AppInfoUtilsAspect.checkAwakeField(decorated.metaInfo);
+        return AppInfoUtilsAspect.shouldSendBroadcast(pushService, packageName, metaInfo);
     }
 
     @Before("execution(* com.xiaomi.push.service.MIPushEventProcessor.processMIPushMessage(..)) && args(pushService, decryptedContent, packetBytesLen)")

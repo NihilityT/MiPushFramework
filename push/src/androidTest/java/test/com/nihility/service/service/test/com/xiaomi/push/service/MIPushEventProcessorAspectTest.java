@@ -3,8 +3,6 @@ package test.com.nihility.service.service.test.com.xiaomi.push.service;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import android.content.Context;
-
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -33,9 +31,8 @@ public class MIPushEventProcessorAspectTest {
         }
     };
     private final XMPushService service = new XMPushService() {
-        @Override
-        public Context getApplicationContext() {
-            return ApplicationProvider.getApplicationContext();
+        {
+            JavaCalls.setField(this, "mBase", ApplicationProvider.getApplicationContext());
         }
 
         @Override
@@ -57,7 +54,7 @@ public class MIPushEventProcessorAspectTest {
     }
 
     @Test
-    public void awakeOnlyIfAwakeFieldIsTrue() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public void awakeIfAwakeFieldIsTrue() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         PushMetaInfo metaInfo = new PushMetaInfo();
         metaInfo.extra = new HashMap<>();
 
@@ -66,6 +63,17 @@ public class MIPushEventProcessorAspectTest {
 
         metaInfo.extra.put(PushConstants.EXTRA_PARAM_AWAKE, Boolean.toString(true));
         assertTrue(shouldAwake(metaInfo));
+    }
+
+
+    @Test
+    public void awakeIfAppRunning() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        assertTrue(shouldAwake(null, "android"));
+    }
+
+    @Test
+    public void awakeIfIsSystemApp() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        assertTrue(shouldAwake(null, "android"));
     }
 
     @Test
@@ -82,6 +90,10 @@ public class MIPushEventProcessorAspectTest {
 
     private boolean shouldAwake(PushMetaInfo metaInfo) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         String packageName = "test";
+        return shouldAwake(metaInfo, packageName);
+    }
+
+    private boolean shouldAwake(PushMetaInfo metaInfo, String packageName) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         container.metaInfo = metaInfo;
         return JavaCalls.callStaticMethodOrThrow(MIPushEventProcessor.class, "shouldSendBroadcast",
                 service, packageName, container, metaInfo);

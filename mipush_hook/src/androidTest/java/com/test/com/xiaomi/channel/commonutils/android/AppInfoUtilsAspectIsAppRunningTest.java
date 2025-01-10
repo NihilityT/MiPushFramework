@@ -26,12 +26,18 @@ public class AppInfoUtilsAspectIsAppRunningTest {
     }
 
     @Test
-    public void returnFalseIfMetaInfoDoNotContainsAwakeField() {
+    public void keepDefaultBehavior() {
         String packageName = context.getPackageName();
 
-        assertFalse(AppInfoUtils.isAppRunning(context, packageName));
+        assertTrue(AppInfoUtils.isAppRunning(context, packageName));
     }
 
+    @Test
+    public void returnFalseIfAppNotRunningAndMetaInfoDoNotContainsAwakeField() {
+        AppInfoUtilsAspect.setLastMetaInfo(new PushMetaInfo());
+
+        assertFalse(AppInfoUtils.isAppRunning(context, "arbitrarily"));
+    }
 
     @Test
     public void returnTrueIfAwakeFieldInMetaInfoIsTrue() {
@@ -41,5 +47,10 @@ public class AppInfoUtilsAspectIsAppRunningTest {
         AppInfoUtilsAspect.setLastMetaInfo(metaInfo);
 
         assertTrue(AppInfoUtils.isAppRunning(context, "arbitrarily"));
+    }
+
+    @Test
+    public void returnTrueIfIsSystemApp() {
+        assertTrue(AppInfoUtils.isAppRunning(context, "android"));
     }
 }
