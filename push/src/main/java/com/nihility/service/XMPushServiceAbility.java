@@ -5,7 +5,6 @@ import static android.os.Build.VERSION_CODES.P;
 import static top.trumeet.common.Constants.TAG_CONDOM;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 
 import com.oasisfeng.condom.CondomContext;
@@ -17,27 +16,14 @@ import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.push.service.XMPushServiceMessenger;
 import com.xiaomi.xmsf.push.control.XMOutbound;
 
-import org.jetbrains.annotations.TestOnly;
-
-import java.util.ArrayList;
-
-public class XMPushServiceAbility implements XMPushServiceListener {
+public class XMPushServiceAbility extends XMPushServiceListenerNotifier {
     public static XMPushService xmPushService;
-    private final ArrayList<XMPushServiceListener> listeners = new ArrayList<>();
-
-    @TestOnly
-    public XMPushServiceAbility() {
-    }
 
     public XMPushServiceAbility(XMPushService pushService) {
         xmPushService = pushService;
         RegistrationRecorder.getInstance().initContext(pushService);
         condomContext(pushService);
         initListeners(pushService);
-    }
-
-    public void addListener(XMPushServiceListener listener) {
-        listeners.add(listener);
     }
 
 
@@ -64,34 +50,6 @@ public class XMPushServiceAbility implements XMPushServiceListener {
                 }
             }
         });
-    }
-
-    @Override
-    public void created() {
-        for (XMPushServiceListener listener : listeners) {
-            listener.created();
-        }
-    }
-
-    @Override
-    public void destroy() {
-        for (XMPushServiceListener listener : listeners) {
-            listener.destroy();
-        }
-    }
-
-    @Override
-    public void start(Intent intent) {
-        for (XMPushServiceListener listener : listeners) {
-            listener.start(intent);
-        }
-    }
-
-    @Override
-    public void connectionStatusChanged(ConnectionStatus connectionStatus) {
-        for (XMPushServiceListener listener : listeners) {
-            listener.connectionStatusChanged(connectionStatus);
-        }
     }
 
     // todo: 搞清楚这里 hook 了什么，起了什么作用，要不要移到 mipush_hook 中
