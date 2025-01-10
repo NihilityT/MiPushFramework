@@ -3,6 +3,8 @@ package test.com.nihility.service.service;
 import static com.nihility.service.XMPushServiceListener.ConnectionStatus.connecting;
 import static org.mockito.Mockito.verify;
 
+import android.content.Intent;
+
 import com.nihility.service.XMPushServiceAbility;
 import com.nihility.service.XMPushServiceListener;
 
@@ -33,6 +35,13 @@ public class XMPushServiceAbilityTest {
     public void invokeListenersForDestroy() {
         ability.destroy();
         verify(listener).destroy();
+    }
+
+    @Test
+    public void invokeListenersForStart() {
+        Intent intent = new Intent();
+        ability.start(intent);
+        verify(listener).start(intent);
     }
 
     @Test

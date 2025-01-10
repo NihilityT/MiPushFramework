@@ -5,6 +5,7 @@ import static android.os.Build.VERSION_CODES.P;
 import static top.trumeet.common.Constants.TAG_CONDOM;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 
 import com.oasisfeng.condom.CondomContext;
@@ -76,6 +77,13 @@ public class XMPushServiceAbility implements XMPushServiceListener {
     public void destroy() {
         for (XMPushServiceListener listener : listeners) {
             listener.destroy();
+        }
+    }
+
+    @Override
+    public void start(Intent intent) {
+        for (XMPushServiceListener listener : listeners) {
+            listener.start(intent);
         }
     }
 
