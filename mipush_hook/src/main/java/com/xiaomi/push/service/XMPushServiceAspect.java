@@ -69,8 +69,7 @@ public class XMPushServiceAspect {
 
     @Around("execution(* com.xiaomi.push.service.XMPushService.onCreate(..)) && this(pushService)")
     public void onCreate(final ProceedingJoinPoint joinPoint, XMPushService pushService) throws Throwable {
-        listener = Dependencies.getInstance().serviceListener();
-        listener.initialize(pushService);
+        listener = Dependencies.getInstance().serviceListener(pushService);
         joinPoint.proceed();
         listener.created();
     }

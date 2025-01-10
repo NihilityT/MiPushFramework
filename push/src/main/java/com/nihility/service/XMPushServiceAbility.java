@@ -16,22 +16,29 @@ import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.push.service.XMPushServiceMessenger;
 import com.xiaomi.xmsf.push.control.XMOutbound;
 
+import org.jetbrains.annotations.TestOnly;
+
 import java.util.ArrayList;
 
 public class XMPushServiceAbility implements XMPushServiceListener {
     public static XMPushService xmPushService;
     private final ArrayList<XMPushServiceListener> listeners = new ArrayList<>();
 
-    public void addListener(XMPushServiceListener listener) {
-        listeners.add(listener);
+    @TestOnly
+    public XMPushServiceAbility() {
     }
 
-    public void initialize(XMPushService pushService) {
+    public XMPushServiceAbility(XMPushService pushService) {
         xmPushService = pushService;
         RegistrationRecorder.getInstance().initContext(pushService);
         condomContext(pushService);
         initListeners(pushService);
     }
+
+    public void addListener(XMPushServiceListener listener) {
+        listeners.add(listener);
+    }
+
 
     private void initListeners(XMPushService pushService) {
         addListener(new RegisterRecordAbility(new RegisterRecorder(pushService)));

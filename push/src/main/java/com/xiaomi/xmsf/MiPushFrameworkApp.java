@@ -25,6 +25,7 @@ import com.nihility.Configurations;
 import com.nihility.Dependencies;
 import com.nihility.notification.NotificationManagerEx;
 import com.nihility.service.XMPushServiceAbility;
+import com.nihility.service.XMPushServiceListener;
 import com.oasisfeng.condom.CondomOptions;
 import com.oasisfeng.condom.CondomProcess;
 import com.topjohnwu.superuser.Shell;
@@ -34,6 +35,7 @@ import com.xiaomi.channel.commonutils.logger.MyLog;
 import com.xiaomi.mipush.sdk.Logger;
 import com.xiaomi.network.HostManager;
 import com.xiaomi.push.service.AppRegionStorage;
+import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.smack.SmackConfiguration;
 import com.xiaomi.xmsf.push.control.PushControllerUtils;
@@ -133,7 +135,7 @@ public class MiPushFrameworkApp extends Application {
         };
         Dependencies dependencies = Dependencies.getInstance();
         dependencies.init(configurations);
-        dependencies.init(new XMPushServiceAbility());
+        dependencies.init(pushService -> new XMPushServiceAbility(pushService));
         dependencies.check();
     }
 

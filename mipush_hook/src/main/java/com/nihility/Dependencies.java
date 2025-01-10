@@ -1,19 +1,24 @@
 package com.nihility;
 
 import com.nihility.service.XMPushServiceListener;
+import com.xiaomi.push.service.XMPushService;
 
 import java.lang.reflect.Field;
 
 public class Dependencies {
     private Configurations configurations;
-    private XMPushServiceListener serviceListener;
+
+    public interface XMPushServiceListenerGetter {
+        XMPushServiceListener create(XMPushService pushService);
+    }
+    private XMPushServiceListenerGetter serviceListenerGetter;
 
     public void init(Configurations configurations) {
         this.configurations = configurations;
     }
 
-    public void init(XMPushServiceListener serviceListener) {
-        this.serviceListener = serviceListener;
+    public void init(XMPushServiceListenerGetter serviceListenerGetter) {
+        this.serviceListenerGetter = serviceListenerGetter;
     }
 
     public void check() throws NullPointerException {
@@ -35,8 +40,8 @@ public class Dependencies {
         return configurations;
     }
 
-    public XMPushServiceListener serviceListener() {
-        return serviceListener;
+    public XMPushServiceListener serviceListener(XMPushService pushService) {
+        return serviceListenerGetter.create(pushService);
     }
 
     private static class LazyHolder {
