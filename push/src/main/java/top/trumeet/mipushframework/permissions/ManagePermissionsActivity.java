@@ -61,19 +61,16 @@ import top.trumeet.mipushframework.widgets.InfoPreference;
 
 /**
  * Created by Trumeet on 2017/8/27.
+ *
  * @author Trumeet
  */
 
 public class ManagePermissionsActivity extends AppCompatActivity {
     private static final String TAG = ManagePermissionsActivity.class.getSimpleName();
 
-    public static final String EXTRA_PACKAGE_NAME =
-            ManagePermissionsActivity.class.getName()
-            + ".EXTRA_PACKAGE_NAME";
+    public static final String EXTRA_PACKAGE_NAME = ManagePermissionsActivity.class.getName() + ".EXTRA_PACKAGE_NAME";
 
-    public static final String EXTRA_IGNORE_NOT_REGISTERED =
-            ManagePermissionsActivity.class.getName()
-            + ".EXTRA_IGNORE_NOT_REGISTERED";
+    public static final String EXTRA_IGNORE_NOT_REGISTERED = ManagePermissionsActivity.class.getName() + ".EXTRA_IGNORE_NOT_REGISTERED";
 
     private CompositeDisposable composite = new CompositeDisposable();
 
@@ -81,18 +78,16 @@ public class ManagePermissionsActivity extends AppCompatActivity {
     private String mPkg;
 
     @Override
-    public void onCreate (Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState == null &&
-                getIntent().hasExtra(EXTRA_PACKAGE_NAME)) {
+        if (savedInstanceState == null && getIntent().hasExtra(EXTRA_PACKAGE_NAME)) {
             mPkg = getIntent().getStringExtra(EXTRA_PACKAGE_NAME);
             checkAndStart();
         }
-        getSupportActionBar()
-                .setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
-    private void checkAndStart () {
+    private void checkAndStart() {
         composite.add(CheckPermissionsUtils.checkAndRun(result -> {
             switch (result) {
                 case OK:
@@ -100,22 +95,17 @@ public class ManagePermissionsActivity extends AppCompatActivity {
                     mTask.execute();
                     break;
                 case PERMISSION_NEEDED:
-                    Toast.makeText(this, getString(top.trumeet.common.R.string.request_permission), Toast.LENGTH_LONG)
-                            .show();
+                    Toast.makeText(this, getString(top.trumeet.common.R.string.request_permission), Toast.LENGTH_LONG).show();
                     // Restart to request permissions again.
                     checkAndStart();
                     break;
                 case PERMISSION_NEEDED_SHOW_SETTINGS:
-                    Toast.makeText(this, getString(top.trumeet.common.R.string.request_permission), Toast.LENGTH_LONG)
-                            .show();
+                    Toast.makeText(this, getString(top.trumeet.common.R.string.request_permission), Toast.LENGTH_LONG).show();
                     Uri uri = Uri.fromParts("package", getPackageName(), null);
-                    startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                            .setData(uri)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                    startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).setData(uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                     break;
                 case REMOVE_DOZE_NEEDED:
-                    Toast.makeText(this, getString(R.string.request_battery_whitelist), Toast.LENGTH_LONG)
-                            .show();
+                    Toast.makeText(this, getString(R.string.request_battery_whitelist), Toast.LENGTH_LONG).show();
                     checkAndStart();
                     break;
             }
@@ -125,7 +115,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected (MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
             return true;
@@ -134,7 +124,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onDestroy () {
+    public void onDestroy() {
         if (mTask != null && !mTask.isCancelled()) {
             mTask.cancel(true);
             mTask = null;
@@ -147,7 +137,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onConfigurationChanged (Configuration configuration) {
+    public void onConfigurationChanged(Configuration configuration) {
         super.onConfigurationChanged(configuration);
     }
 
@@ -155,7 +145,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
         private String pkg;
         private CancellationSignal mSignal;
 
-        LoadTask (String pkg) {
+        LoadTask(String pkg) {
             this.pkg = pkg;
         }
 
@@ -173,23 +163,18 @@ public class ManagePermissionsActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute (RegisteredApplication application) {
+        protected void onPostExecute(RegisteredApplication application) {
             if (application != null) {
                 ManagePermissionsFragment fragment = new ManagePermissionsFragment();
                 fragment.setApplicationItem(application);
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(android.R.id.content,
-                                fragment)
-                        .commitAllowingStateLoss();
+                getSupportFragmentManager().beginTransaction().replace(android.R.id.content, fragment).commitAllowingStateLoss();
             }
         }
 
         @Override
-        protected void onCancelled () {
+        protected void onCancelled() {
             if (mSignal != null) {
-                if (!mSignal.isCanceled())
-                    mSignal.cancel();
+                if (!mSignal.isCanceled()) mSignal.cancel();
                 mSignal = null;
             }
         }
@@ -205,30 +190,30 @@ public class ManagePermissionsActivity extends AppCompatActivity {
 
         /**
          * Not using {@link android.os.Parcelable}, too bad
+         *
          * @param applicationItem item
          */
-        public void setApplicationItem (RegisteredApplication applicationItem) {
+        public void setApplicationItem(RegisteredApplication applicationItem) {
             this.mApplicationItem = applicationItem;
         }
 
         @Override
-        public void onCreate (Bundle savedInstanceState) {
+        public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setHasOptionsMenu(true);
         }
 
         @Override
-        public void onCreateOptionsMenu (Menu menu, MenuInflater inflater) {
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             menuOk = menu.add(0, 0, 0, R.string.apply);
-            Drawable iconOk = ContextCompat.getDrawable(getActivity(),
-                    R.drawable.ic_check_black_24dp);
+            Drawable iconOk = ContextCompat.getDrawable(getActivity(), R.drawable.ic_check_black_24dp);
             DrawableCompat.setTint(iconOk, Utils.getColorAttr(getContext(), R.attr.colorAccent));
             menuOk.setIcon(iconOk);
             menuOk.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
 
         @Override
-        public boolean onOptionsItemSelected (MenuItem item) {
+        public boolean onOptionsItemSelected(MenuItem item) {
             if (item.getItemId() == 0) {
                 if (mSaveTask != null && !mSaveTask.isCancelled()) {
                     return true;
@@ -241,7 +226,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onDetach () {
+        public void onDetach() {
             if (mSaveTask != null && !mSaveTask.isCancelled()) {
                 mSaveTask.cancel(true);
                 mSaveTask = null;
@@ -249,7 +234,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
             super.onDetach();
         }
 
-        private boolean suggestEnableFake (String pkg) {
+        private boolean suggestEnableFake(String pkg) {
             List<String> pkgsEqual = Arrays.asList(getResources().getStringArray(R.array.fake_blacklist_equals));
             if (pkgsEqual.contains(pkg)) return false;
             List<String> pkgsContains = Arrays.asList(getResources().getStringArray(R.array.fake_blacklist_contains));
@@ -261,39 +246,24 @@ public class ManagePermissionsActivity extends AppCompatActivity {
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-            PreferenceScreen screen = getPreferenceManager()
-                    .createPreferenceScreen(getActivity());
+            PreferenceScreen screen = getPreferenceManager().createPreferenceScreen(getActivity());
 
-            Preference appPreferenceOreo = EntityHeaderController.newInstance((AppCompatActivity) getActivity(),
-                            this, null)
-                    .setRecyclerView(getListView())
-                    .setIcon(mApplicationItem.getIcon(getContext()))
-                    .setLabel(mApplicationItem.getLabel(getContext()))
-                    .setSummary(mApplicationItem.getPackageName())
-                    .setPackageName(mApplicationItem.getPackageName())
-                    .setButtonActions(EntityHeaderController.ActionType.ACTION_APP_INFO
-                            , EntityHeaderController.ActionType.ACTION_NONE)
-                    .done((AppCompatActivity) getActivity(), getContext());
+            Preference appPreferenceOreo = EntityHeaderController.newInstance((AppCompatActivity) getActivity(), this, null).setRecyclerView(getListView()).setIcon(mApplicationItem.getIcon(getContext())).setLabel(mApplicationItem.getLabel(getContext())).setSummary(mApplicationItem.getPackageName()).setPackageName(mApplicationItem.getPackageName()).setButtonActions(EntityHeaderController.ActionType.ACTION_APP_INFO, EntityHeaderController.ActionType.ACTION_NONE).done((AppCompatActivity) getActivity(), getContext());
             screen.addPreference(appPreferenceOreo);
 
             boolean suggestFake = suggestEnableFake(mApplicationItem.getPackageName());
 
             if (mApplicationItem.getRegisteredType() == 0) {
-                InfoPreference preferenceStatus = new InfoPreference(getActivity(), null, moe.shizuku.preference.R.attr.preferenceStyle,
-                        R.style.Preference_Material);
+                InfoPreference preferenceStatus = new InfoPreference(getActivity(), null, moe.shizuku.preference.R.attr.preferenceStyle, R.style.Preference_Material);
                 preferenceStatus.setTitle(getString(R.string.status_app_not_registered_title));
-                preferenceStatus.setSummary(Html.fromHtml(getString(
-                        suggestFake ? R.string.status_app_not_registered_detail_with_fake_suggest :
-                                R.string.status_app_not_registered_detail_without_fake_suggest
-                )));
+                preferenceStatus.setSummary(Html.fromHtml(getString(suggestFake ? R.string.status_app_not_registered_detail_with_fake_suggest : R.string.status_app_not_registered_detail_without_fake_suggest)));
                 Drawable iconError = ContextCompat.getDrawable(getActivity(), R.drawable.ic_error_outline_black_24dp);
                 DrawableCompat.setTint(iconError, Color.parseColor("#D50000"));
                 preferenceStatus.setIcon(iconError);
                 screen.addPreference(preferenceStatus);
             }
             if (mApplicationItem.getRegisteredType() == RegisteredApplication.RegisteredType.Unregistered) {
-                InfoPreference preferenceStatus = new InfoPreference(getActivity(), null, moe.shizuku.preference.R.attr.preferenceStyle,
-                        R.style.Preference_Material);
+                InfoPreference preferenceStatus = new InfoPreference(getActivity(), null, moe.shizuku.preference.R.attr.preferenceStyle, R.style.Preference_Material);
                 preferenceStatus.setTitle(getString(R.string.status_app_registered_error_title));
                 preferenceStatus.setSummary(Html.fromHtml(getString(R.string.status_app_registered_error_desc)));
                 Drawable iconError = ContextCompat.getDrawable(getActivity(), R.drawable.ic_error_outline_black_24dp);
@@ -305,28 +275,21 @@ public class ManagePermissionsActivity extends AppCompatActivity {
             Preference viewRecentActivityPreference = new Preference(getActivity());
             viewRecentActivityPreference.setTitle(R.string.recent_activity_view);
             viewRecentActivityPreference.setOnPreferenceClickListener(preference -> {
-                startActivity(new Intent(getActivity(),
-                        RecentActivityActivity.class)
-                        .setData(Uri.parse(mApplicationItem.getPackageName())));
+                startActivity(new Intent(getActivity(), RecentActivityActivity.class).setData(Uri.parse(mApplicationItem.getPackageName())));
                 return true;
             });
 
             screen.addPreference(viewRecentActivityPreference);
 
-            addItem(mApplicationItem.isNotificationOnRegister(),
-                    (preference, newValue) -> {
-                        mApplicationItem.setNotificationOnRegister(((Boolean) newValue));
-                        return true;
-                    },
-                    getString(R.string.permission_notification_on_register),
-                    getString(R.string.permission_summary_notification_on_register),
-                    screen);
+            addItem(mApplicationItem.isNotificationOnRegister(), (preference, newValue) -> {
+                mApplicationItem.setNotificationOnRegister(((Boolean) newValue));
+                return true;
+            }, getString(R.string.permission_notification_on_register), getString(R.string.permission_summary_notification_on_register), screen);
 
             if (Build.VERSION.SDK_INT >= O) {
                 String mipushGroup = NotificationUtils.getGroupIdByPkg(mApplicationItem.getPackageName());
 
-                List<NotificationChannelGroup> groups = NotificationManagerEx.INSTANCE
-                        .getNotificationChannelGroups(mApplicationItem.getPackageName());
+                List<NotificationChannelGroup> groups = NotificationManagerEx.INSTANCE.getNotificationChannelGroups(mApplicationItem.getPackageName());
                 if (NotificationManagerEx.isHooked) {
                     groups.sort((lhs, rhs) -> {
                         if (TextUtils.equals(lhs.getId(), mipushGroup) || rhs.getId() == null) {
@@ -343,15 +306,11 @@ public class ManagePermissionsActivity extends AppCompatActivity {
                 }
                 groups.forEach(group -> {
                     String suffix = group.getId() == null ? "" : String.format(": %s (%s)", group.getName(), group.getId());
-                    addNotificationCategory(screen,
-                            getString(R.string.notification_channels) + suffix,
-                            notificationChannel -> TextUtils.equals(notificationChannel.getGroup(), group.getId()));
+                    addNotificationCategory(screen, getString(R.string.notification_channels) + suffix, notificationChannel -> TextUtils.equals(notificationChannel.getGroup(), group.getId()));
                 });
 
             } else {
-                PreferenceCategory notificationChannelsCategory = new PreferenceCategory(
-                        getActivity(), null, moe.shizuku.preference.R.attr.preferenceCategoryStyle,
-                        R.style.Preference_Category_Material);
+                PreferenceCategory notificationChannelsCategory = new PreferenceCategory(getActivity(), null, moe.shizuku.preference.R.attr.preferenceCategoryStyle, R.style.Preference_Category_Material);
                 notificationChannelsCategory.setTitle(R.string.notification_channels);
                 screen.addPreference(notificationChannelsCategory);
 
@@ -359,8 +318,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
                 manageNotificationPreference.setTitle(R.string.settings_manage_app_notifications);
                 manageNotificationPreference.setSummary(R.string.settings_manage_app_notifications_summary);
                 manageNotificationPreference.setOnPreferenceClickListener(preference -> {
-                    startActivity(new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-                            .putExtra(EXTRA_APP_PACKAGE, Constants.SERVICE_APP_NAME));
+                    startActivity(new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(EXTRA_APP_PACKAGE, Constants.SERVICE_APP_NAME));
                     return true;
                 });
                 if (mApplicationItem.getRegisteredType() == 0) {
@@ -374,17 +332,12 @@ public class ManagePermissionsActivity extends AppCompatActivity {
 
         @RequiresApi(api = Build.VERSION_CODES.O)
         private void addNotificationCategory(PreferenceScreen screen, String categoryName, Predicate<NotificationChannel> predicate) {
-            PreferenceCategory notificationChannelsCategory = new PreferenceCategory(
-                    getActivity(), null, moe.shizuku.preference.R.attr.preferenceCategoryStyle,
-                    R.style.Preference_Category_Material);
+            PreferenceCategory notificationChannelsCategory = new PreferenceCategory(getActivity(), null, moe.shizuku.preference.R.attr.preferenceCategoryStyle, R.style.Preference_Category_Material);
             notificationChannelsCategory.setTitle(categoryName);
             screen.addPreference(notificationChannelsCategory);
 
-            String configApp = NotificationManagerEx.isHooked ?
-                    mApplicationItem.getPackageName() :
-                    Constants.SERVICE_APP_NAME;
-            List<NotificationChannel> notificationChannels =
-                    NotificationManagerEx.INSTANCE.getNotificationChannels(mApplicationItem.getPackageName());
+            String configApp = NotificationManagerEx.isHooked ? mApplicationItem.getPackageName() : Constants.SERVICE_APP_NAME;
+            List<NotificationChannel> notificationChannels = NotificationManagerEx.INSTANCE.getNotificationChannels(mApplicationItem.getPackageName());
             notificationChannels.stream().filter(predicate).forEach(channel -> {
                 Preference item = new Preference(getActivity());
 
@@ -402,25 +355,15 @@ public class ManagePermissionsActivity extends AppCompatActivity {
                 item.setSummary(summary);
 
                 item.setOnPreferenceClickListener(preference -> {
-                    AlertDialog.Builder build = new AlertDialog.Builder(getContext())
-                            .setTitle(channel.getName())
-                            .setNegativeButton(R.string.notification_channels_delete, (dialogInterface, i) -> {
-                                NotificationManagerEx.INSTANCE.deleteNotificationChannel(
-                                        mApplicationItem.getPackageName(),
-                                        channel.getId()
-                                );
-                                notificationChannelsCategory.removePreference(item);
-                            })
-                            .setNeutralButton(R.string.notification_channels_copy_id, (dialogInterface, i) -> {
-                                ClipboardManager clipboardManager = (ClipboardManager)
-                                        getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                                clipboardManager.setText(channel.getId());
-                            })
-                            .setPositiveButton(R.string.notification_channels_setting, (dialogInterface, i) -> {
-                                startActivity(new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
-                                        .putExtra(EXTRA_APP_PACKAGE, configApp)
-                                        .putExtra(EXTRA_CHANNEL_ID, channel.getId()));
-                            });
+                    AlertDialog.Builder build = new AlertDialog.Builder(getContext()).setTitle(channel.getName()).setNegativeButton(R.string.notification_channels_delete, (dialogInterface, i) -> {
+                        NotificationManagerEx.INSTANCE.deleteNotificationChannel(mApplicationItem.getPackageName(), channel.getId());
+                        notificationChannelsCategory.removePreference(item);
+                    }).setNeutralButton(R.string.notification_channels_copy_id, (dialogInterface, i) -> {
+                        ClipboardManager clipboardManager = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        clipboardManager.setText(channel.getId());
+                    }).setPositiveButton(R.string.notification_channels_setting, (dialogInterface, i) -> {
+                        startActivity(new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).putExtra(EXTRA_APP_PACKAGE, configApp).putExtra(EXTRA_CHANNEL_ID, channel.getId()));
+                    });
                     build.create().show();
                     return true;
                 });
@@ -428,8 +371,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
             });
         }
 
-        private void updateRegisterType (@RegisteredApplication.Type int type,
-                                         SimpleMenuPreference preference) {
+        private void updateRegisterType(@RegisteredApplication.Type int type, SimpleMenuPreference preference) {
             int index = 0;
             switch (type) {
                 case RegisteredApplication.Type.ALLOW:
@@ -443,12 +385,10 @@ public class ManagePermissionsActivity extends AppCompatActivity {
                     break;
             }
             preference.setValueIndex(index);
-            preference.setSummary(getResources().getStringArray(R.array.register_types)
-            [index]);
+            preference.setSummary(getResources().getStringArray(R.array.register_types)[index]);
         }
 
-        private SwitchPreferenceCompat addItem (boolean value, Preference.OnPreferenceChangeListener listener,
-                              CharSequence title, CharSequence summary, PreferenceGroup parent) {
+        private SwitchPreferenceCompat addItem(boolean value, Preference.OnPreferenceChangeListener listener, CharSequence title, CharSequence summary, PreferenceGroup parent) {
             SwitchPreferenceCompat preference = createPreference(value, listener, title, summary);
             parent.addPreference(preference);
 
@@ -457,9 +397,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
 
         @NonNull
         private SwitchPreferenceCompat createPreference(boolean value, Preference.OnPreferenceChangeListener listener, CharSequence title, CharSequence summary) {
-            SwitchPreferenceCompat preference = new SwitchPreferenceCompat(getActivity(),
-                    null, moe.shizuku.preference.R.attr.switchPreferenceStyle,
-                    R.style.Preference_SwitchPreferenceCompat);
+            SwitchPreferenceCompat preference = new SwitchPreferenceCompat(getActivity(), null, moe.shizuku.preference.R.attr.switchPreferenceStyle, R.style.Preference_SwitchPreferenceCompat);
             preference.setOnPreferenceChangeListener(listener);
             preference.setTitle(title);
             preference.setSummary(summary);
@@ -471,8 +409,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
          * @deprecated Use {@link #addItem(boolean, Preference.OnPreferenceChangeListener, CharSequence, CharSequence, PreferenceGroup)} instead.
          */
         @Deprecated
-        private void addItem (boolean value, Preference.OnPreferenceChangeListener listener
-                , CharSequence title, PreferenceGroup parent) {
+        private void addItem(boolean value, Preference.OnPreferenceChangeListener listener, CharSequence title, PreferenceGroup parent) {
             addItem(value, listener, title, null, parent);
         }
 
@@ -481,14 +418,13 @@ public class ManagePermissionsActivity extends AppCompatActivity {
             @Override
             protected Void doInBackground(Void... voids) {
                 if (mApplicationItem != null && mApplicationItem.getRegisteredType() != 0) {
-                    RegisteredApplicationDb.update(mApplicationItem
-                    );
+                    RegisteredApplicationDb.update(mApplicationItem);
                 }
                 return null;
             }
 
             @Override
-            protected void onPostExecute (Void result) {
+            protected void onPostExecute(Void result) {
                 getActivity().finish();
             }
         }
