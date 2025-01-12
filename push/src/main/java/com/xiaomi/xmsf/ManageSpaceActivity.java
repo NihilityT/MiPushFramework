@@ -1,5 +1,6 @@
 package com.xiaomi.xmsf;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -28,6 +29,7 @@ import top.trumeet.mipush.provider.db.EventDb;
 
 public class ManageSpaceActivity extends PreferenceActivity {
 
+    private static final int requestIceBoxCode = 0x233;
     private MyPreferenceFragment preferenceFragment;
 
     @Override
@@ -41,11 +43,9 @@ public class ManageSpaceActivity extends PreferenceActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 0x233) {
+        if (requestCode == requestIceBoxCode) {
             boolean granted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-            SwitchPreference iceboxSupported = (SwitchPreference) preferenceFragment
-                    .getPreferenceScreen().findPreference("IceboxSupported");
-            iceboxSupported.setChecked(granted);
+            setChecked("IceboxSupported", granted);
             Toast.makeText(getApplicationContext(),
                     getString(granted ?
                             R.string.icebox_permission_granted :
@@ -54,8 +54,13 @@ public class ManageSpaceActivity extends PreferenceActivity {
         }
     }
 
+    private void setChecked(String key, boolean granted) {
+        SwitchPreference iceboxSupported = (SwitchPreference) preferenceFragment
+                .getPreferenceScreen().findPreference(key);
+        iceboxSupported.setChecked(granted);
+    }
+
     public static class MyPreferenceFragment extends PreferenceFragment {
-        AtomicBoolean mClearingHistory = new AtomicBoolean(false);
 
         public MyPreferenceFragment() {
         }
@@ -71,46 +76,33 @@ public class ManageSpaceActivity extends PreferenceActivity {
 
             //TODO: Three messages seem to be too much, and need separate strings for toast.
             getPreferenceScreen().findPreference("clear_history").setOnPreferenceClickListener(preference -> {
-                if (mClearingHistory.compareAndSet(false, true)) {
-                    new Thread(() -> {
-                        Utils.makeText(context, getString(R.string.settings_clear_history) + " " + getString(R.string.start), Toast.LENGTH_SHORT);
-                        EventDb.deleteHistory();
-                        Utils.makeText(context, getString(R.string.settings_clear_history) + " " + getString(R.string.end), Toast.LENGTH_SHORT);
-                        mClearingHistory.set(false);
-                    }).start();
-                }
+                clearHistory(context);
                 return true;
             });
 
             getPreferenceScreen().findPreference("clear_log").setOnPreferenceClickListener(preference -> {
-                Toast.makeText(context, getString(R.string.settings_clear_log) + " " + getString(R.string.start), Toast.LENGTH_SHORT).show();
-                LogUtils.clearLog(context);
-                Toast.makeText(context, getString(R.string.settings_clear_log) + " " + getString(R.string.end), Toast.LENGTH_SHORT).show();
+                clearLog(context);
                 return true;
             });
 
 
             getPreferenceScreen().findPreference("mock_notification").setOnPreferenceClickListener(preference -> {
-                String packageName = BuildConfig.APPLICATION_ID;
-                Date date = new Date();
-                String title = context.getString(R.string.debug_test_title);
-                String description = context.getString(R.string.debug_test_content) + date.toString();
-                NotificationController.test(context, packageName, title, description);
+                notifyMockNotification(context);
                 return true;
             });
 
             SwitchPreference iceboxSupported = (SwitchPreference) getPreferenceScreen().findPreference("IceboxSupported");
-            if (!Utils.isAppInstalled(IceBox.PACKAGE_NAME)) {
+            if (!isIceBoxInstalled()) {
                 iceboxSupported.setEnabled(false);
                 iceboxSupported.setTitle(R.string.settings_icebox_not_installed);
             } else {
-                if (!iceBoxPermissionGranted()) {
+                if (!iceBoxPermissionGranted(getActivity())) {
                     iceboxSupported.setChecked(false);
                 }
                 iceboxSupported.setOnPreferenceChangeListener((preference, newValue) -> {
                     Boolean value = (Boolean) newValue;
-                    if (value && !iceBoxPermissionGranted()) {
-                        requestIceBoxPermission();
+                    if (value && !iceBoxPermissionGranted(getActivity())) {
+                        requestIceBoxPermission(getActivity());
                     }
                     return true;
                 });
@@ -118,20 +110,53 @@ public class ManageSpaceActivity extends PreferenceActivity {
 
             SwitchPreference startForegroundService = (SwitchPreference) getPreferenceScreen().findPreference("StartForegroundService");
             startForegroundService.setOnPreferenceChangeListener((preference, newValue) -> {
-                LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(getContext());
-                localBroadcast.sendBroadcast(new Intent(XMPushServiceMessenger.IntentStartForeground));
+                startMiPushServiceAsForegroundService(getContext());
                 return true;
             });
         }
+    }
 
-        private void requestIceBoxPermission() {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{IceBox.SDK_PERMISSION}, 0x233);
-        }
+    private static boolean isIceBoxInstalled() {
+        return Utils.isAppInstalled(IceBox.PACKAGE_NAME);
+    }
 
-        private boolean iceBoxPermissionGranted() {
-            return ContextCompat.checkSelfPermission(getActivity(), IceBox.SDK_PERMISSION) == PackageManager.PERMISSION_GRANTED;
+    private static void requestIceBoxPermission(Activity activity) {
+        ActivityCompat.requestPermissions(activity, new String[]{IceBox.SDK_PERMISSION}, requestIceBoxCode);
+    }
+
+    private static boolean iceBoxPermissionGranted(Context context) {
+        return ContextCompat.checkSelfPermission(context, IceBox.SDK_PERMISSION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private static void clearLog(Context context) {
+        Toast.makeText(context, context.getString(R.string.settings_clear_log) + " " + context.getString(R.string.start), Toast.LENGTH_SHORT).show();
+        LogUtils.clearLog(context);
+        Toast.makeText(context, context.getString(R.string.settings_clear_log) + " " + context.getString(R.string.end), Toast.LENGTH_SHORT).show();
+    }
+
+    static AtomicBoolean mClearingHistory = new AtomicBoolean(false);
+    private static void clearHistory(Context context) {
+        if (mClearingHistory.compareAndSet(false, true)) {
+            new Thread(() -> {
+                Utils.makeText(context, context.getString(R.string.settings_clear_history) + " " + context.getString(R.string.start), Toast.LENGTH_SHORT);
+                EventDb.deleteHistory();
+                Utils.makeText(context, context.getString(R.string.settings_clear_history) + " " + context.getString(R.string.end), Toast.LENGTH_SHORT);
+                mClearingHistory.set(false);
+            }).start();
         }
     }
 
+    private static void startMiPushServiceAsForegroundService(Context context) {
+        LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(context);
+        localBroadcast.sendBroadcast(new Intent(XMPushServiceMessenger.IntentStartForeground));
+    }
+
+    private static void notifyMockNotification(Context context) {
+        String packageName = BuildConfig.APPLICATION_ID;
+        Date date = new Date();
+        String title = context.getString(R.string.debug_test_title);
+        String description = context.getString(R.string.debug_test_content) + date.toString();
+        NotificationController.test(context, packageName, title, description);
+    }
 
 }
