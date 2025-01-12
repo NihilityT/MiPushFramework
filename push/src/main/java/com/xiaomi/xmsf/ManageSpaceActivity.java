@@ -10,10 +10,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.catchingnow.icebox.sdk_client.IceBox;
-
-import top.trumeet.common.utils.Utils;
-
 
 public class ManageSpaceActivity extends PreferenceActivity {
 
@@ -79,7 +75,7 @@ public class ManageSpaceActivity extends PreferenceActivity {
             });
 
             SwitchPreference iceboxSupported = (SwitchPreference) getPreferenceScreen().findPreference("IceboxSupported");
-            if (!isIceBoxInstalled()) {
+            if (!SettingUtils.isIceBoxInstalled()) {
                 iceboxSupported.setEnabled(false);
                 iceboxSupported.setTitle(R.string.settings_icebox_not_installed);
             } else {

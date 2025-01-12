@@ -62,4 +62,8 @@ public class SettingUtils {
         String description = context.getString(R.string.debug_test_content) + date.toString();
         NotificationController.test(context, packageName, title, description);
     }
+
+    static boolean isIceBoxInstalled() {
+        return Utils.isAppInstalled(IceBox.PACKAGE_NAME);
+    }
 }
