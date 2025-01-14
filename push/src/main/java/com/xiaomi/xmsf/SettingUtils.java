@@ -8,9 +8,9 @@ import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.catchingnow.icebox.sdk_client.IceBox;
+import com.nihility.InternalMessenger;
 import com.xiaomi.push.service.XMPushServiceMessenger;
 import com.xiaomi.xmsf.push.notification.NotificationController;
 import com.xiaomi.xmsf.utils.LogUtils;
@@ -51,8 +51,7 @@ public class SettingUtils {
     }
 
     static void startMiPushServiceAsForegroundService(Context context) {
-        LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(context);
-        localBroadcast.sendBroadcast(new Intent(XMPushServiceMessenger.IntentStartForeground));
+        new InternalMessenger(context).send(new Intent(XMPushServiceMessenger.IntentStartForeground));
     }
 
     static void notifyMockNotification(Context context) {

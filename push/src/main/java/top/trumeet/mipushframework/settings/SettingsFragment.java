@@ -2,9 +2,7 @@ package top.trumeet.mipushframework.settings;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
@@ -17,11 +15,11 @@ import android.util.Log;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.android.settings.widget.EntityHeaderController;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.InternalMessenger;
 import com.xiaomi.push.service.PushConstants;
 import com.xiaomi.push.service.PushServiceConstants;
 import com.xiaomi.push.service.XMPushServiceMessenger;
@@ -51,9 +49,9 @@ public class SettingsFragment extends PreferenceFragment {
     private static final String TAG = SettingsFragment.class.getSimpleName();
     private static final Logger logger = XLog.tag(TAG).build();
 
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
+    private final InternalMessenger messenger = new InternalMessenger(getContext()) {{
+        register(new IntentFilter(XMPushServiceMessenger.IntentSetConnectionStatus));
+        addListener(intent -> {
             String host = intent.getStringExtra("host");
             if (TextUtils.isEmpty(host)) {
                 return;
@@ -62,16 +60,14 @@ public class SettingsFragment extends PreferenceFragment {
             String summary = preference.getSummary().toString();
             preference.setSummary(summary.replaceFirst(
                     "(?m)$[\\s\\S]*", String.format("\nCurrent: [%s]", host)));
-        }
-    };
+        });
+    }};
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(getContext());
-        localBroadcast.registerReceiver(mMessageReceiver, new IntentFilter(XMPushServiceMessenger.IntentSetConnectionStatus));
-        localBroadcast.sendBroadcast(new Intent(XMPushServiceMessenger.IntentGetConnectionStatus));
+        messenger.send(new Intent(XMPushServiceMessenger.IntentGetConnectionStatus));
     }
 
     @Override
@@ -118,7 +114,7 @@ public class SettingsFragment extends PreferenceFragment {
                             } else {
                                 preference.setSummary(newHost);
                             }
-                            LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(
+                            new InternalMessenger(getContext()).send(
                                     new Intent(PushConstants.ACTION_RESET_CONNECTION));
                         });
                 build.create().show();
