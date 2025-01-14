@@ -1,25 +1,36 @@
 package com.xiaomi.xmsf;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.android.settings.widget.EntityHeaderController;
 import com.catchingnow.icebox.sdk_client.IceBox;
 import com.nihility.InternalMessenger;
+import com.xiaomi.push.service.PushConstants;
+import com.xiaomi.push.service.PushServiceConstants;
 import com.xiaomi.push.service.XMPushServiceMessenger;
+import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.xmsf.push.notification.NotificationController;
+import com.xiaomi.xmsf.utils.ConfigCenter;
 import com.xiaomi.xmsf.utils.LogUtils;
 
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import top.trumeet.common.Constants;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.db.EventDb;
+import top.trumeet.mipush.provider.register.RegisteredApplication;
+import top.trumeet.mipushframework.register.RegisteredApplicationFragment;
 
 public class SettingUtils {
     static final int requestIceBoxCode = 0x233;
@@ -64,5 +75,51 @@ public class SettingUtils {
 
     static boolean isIceBoxInstalled() {
         return Utils.isAppInstalled(IceBox.PACKAGE_NAME);
+    }
+
+    public static void tryForceRegisterAllApplications() {
+        RegisteredApplicationFragment.MiPushApplications miPushApplications =
+                RegisteredApplicationFragment.getMiPushApplications();
+        for (RegisteredApplication registeredApplication : miPushApplications.res) {
+            EntityHeaderController.tryForceRegister(registeredApplication.getPackageName());
+        }
+    }
+
+    public static void sendXMPPReconnectRequest(Context context) {
+        new InternalMessenger(context).send(
+                new Intent(PushConstants.ACTION_RESET_CONNECTION));
+    }
+
+    public static void setXMPPServer(Context context, String newHost) {
+        ConfigCenter.getInstance().setXMPPServer(context, newHost);
+    }
+
+    public static @NonNull String getXMPPServerHint() {
+        return ConnectionConfiguration.getXmppServerHost() + ":" + PushServiceConstants.XMPP_SERVER_PORT;
+    }
+
+    public static String getXMPPServer(Context context) {
+        return ConfigCenter.getInstance().getXMPPServer(context);
+    }
+
+    public static Uri getConfigurationDirectory(Context context) {
+        return ConfigCenter.getInstance().getConfigurationDirectory(context);
+    }
+
+    public static void shareLogs(Context context) {
+        context.startActivity(new Intent()
+                .setComponent(new ComponentName(Constants.SERVICE_APP_NAME,
+                        Constants.SHARE_LOG_COMPONENT_NAME)));
+    }
+
+    public static @NonNull Uri saveConfigurationUri(Context context, Intent data) {
+        Uri uri = data.getData();
+        final int takeFlags = data.getFlags()
+                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        context.getContentResolver().takePersistableUriPermission(uri, takeFlags);
+        ConfigCenter.getInstance().setConfigurationDirectory(context, uri);
+        ConfigCenter.getInstance().loadConfigurations(context);
+        return uri;
     }
 }
