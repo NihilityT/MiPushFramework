@@ -40,8 +40,8 @@
     <string name="settings_clear">Clean up</string>
 
     <string name="title_activity_advance_setting">Advanced</string>
-    <string name="settings_clear_history_summary">Cleanup logs for more than 7 days.</string>
-    <string name="settings_clear_history">Cleanup logs</string>
+    <string name="settings_clear_history_summary">Cleanup event records older than 7 days.</string>
+    <string name="settings_clear_history">Cleanup event records</string>
 
     <string name="settings_clear_log">Clear logs</string>
     <string name="settings_clear_log_summary">Delete logs file.</string>
