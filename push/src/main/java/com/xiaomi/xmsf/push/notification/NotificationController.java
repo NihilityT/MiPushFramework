@@ -30,7 +30,7 @@ import com.nihility.notification.NotificationManagerEx;
 import com.xiaomi.push.service.MyNotificationIconHelper;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
-import com.xiaomi.xmsf.ManageSpaceActivity;
+import com.xiaomi.xmsf.AdvancedSettingsActivity;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.push.utils.IconConfigurations;
@@ -345,7 +345,7 @@ public class NotificationController {
         localBuilder.setWhen(System.currentTimeMillis());
         localBuilder.setShowWhen(true);
 
-        Intent notifyIntent = new Intent(context, ManageSpaceActivity.class);
+        Intent notifyIntent = new Intent(context, AdvancedSettingsActivity.class);
         // Set the Activity to start in a new, empty task
         notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
