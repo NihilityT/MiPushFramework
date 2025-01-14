@@ -37,7 +37,7 @@ public class ConfigCenter {
     }
 
     //using MODE_MULTI_PROCESS emmm.....
-    private SharedPreferences getSharedPreferences(Context context) {
+    public static SharedPreferences getSharedPreferences(Context context) {
         return context.getSharedPreferences(BuildConfig.APPLICATION_ID + "_preferences", Context.MODE_MULTI_PROCESS);
     }
 

@@ -60,6 +60,10 @@
                 android:exported="true"
                 android:label="@string/title_activity_advance_setting" />
 
+        <activity
+                android:name=".AdvancedSettingsActivity"
+                android:exported="true" />
+
         <!--
         We use custom push service instead
         <service android:name="com.xiaomi.push.service.XMPushService"

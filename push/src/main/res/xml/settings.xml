@@ -8,7 +8,7 @@
             android:summary="@string/settings_summary_service_advance_setting"
             android:title="@string/settings_service_advance_setting">
             <intent
-                android:targetClass="com.xiaomi.xmsf.ManageSpaceActivity"
+                android:targetClass="com.xiaomi.xmsf.AdvancedSettingsActivity"
                 android:targetPackage="com.xiaomi.xmsf" />
         </Preference>
 
