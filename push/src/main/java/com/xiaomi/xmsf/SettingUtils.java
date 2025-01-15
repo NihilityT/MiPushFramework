@@ -114,12 +114,16 @@ public class SettingUtils {
 
     public static @NonNull Uri saveConfigurationUri(Context context, Intent data) {
         Uri uri = data.getData();
-        final int takeFlags = data.getFlags()
-                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        context.getContentResolver().takePersistableUriPermission(uri, takeFlags);
-        ConfigCenter.getInstance().setConfigurationDirectory(context, uri);
-        ConfigCenter.getInstance().loadConfigurations(context);
+        setConfigurationDirectory(context, uri);
         return uri;
     }
+
+    public static void setConfigurationDirectory(Context context, Uri uri) {
+        context.getContentResolver().takePersistableUriPermission(uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        ConfigCenter.getInstance().setConfigurationDirectory(context, uri);
+        ConfigCenter.getInstance().loadConfigurations(context);
+    }
+
 }

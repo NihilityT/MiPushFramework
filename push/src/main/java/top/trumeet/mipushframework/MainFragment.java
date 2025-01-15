@@ -20,6 +20,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -31,7 +32,7 @@ import top.trumeet.mipushframework.control.OnConnectStatusChangedListener;
 import top.trumeet.mipushframework.event.EventFragment;
 import top.trumeet.mipushframework.help.HelpActivity;
 import top.trumeet.mipushframework.register.RegisteredApplicationFragment;
-import top.trumeet.mipushframework.settings.SettingsFragment;
+import top.trumeet.mipushframework.settings.SettingsPage;
 
 /**
  * @author Trumeet
@@ -132,6 +133,17 @@ public class MainFragment extends Fragment implements OnConnectStatusChangedList
 
             }
         });
+        viewPager.setAdapter(new PagerAdapter() {
+            @Override
+            public int getCount() {
+                return 3;
+            }
+
+            @Override
+            public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
+                return false;
+            }
+        });
         viewPager.setAdapter(new FragmentPagerAdapter(getChildFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
@@ -154,7 +166,7 @@ public class MainFragment extends Fragment implements OnConnectStatusChangedList
                         if (mBroadcaster.hasFragment(FRAGMENT_SETTINGS)) {
                             return mBroadcaster.getFragment(FRAGMENT_SETTINGS);
                         }
-                        SettingsFragment settingsFragment = new SettingsFragment();
+                        SettingsPage settingsFragment = new SettingsPage();
                         mBroadcaster.registerFragment(FRAGMENT_SETTINGS, settingsFragment);
                         return settingsFragment;
                     default:
