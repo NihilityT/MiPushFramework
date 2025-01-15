@@ -246,7 +246,7 @@ public class RegisteredApplication implements Parcelable {
         this.showPassThrough = showPassThrough;
     }
 
-    public int getRegisteredType() {
+    public @RegisteredType int getRegisteredType() {
         return this.registeredType;
     }
 
