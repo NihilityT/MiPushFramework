@@ -17,6 +17,7 @@ import com.xiaomi.xmsf.R;
 import io.reactivex.disposables.CompositeDisposable;
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
 import top.trumeet.mipush.provider.register.RegisteredApplication;
+import top.trumeet.mipush.provider.register.RegisteredApplication.RegisteredType;
 import top.trumeet.mipushframework.control.CheckPermissionsUtils;
 
 /**
@@ -34,7 +35,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
 
     private CompositeDisposable composite = new CompositeDisposable();
 
-    private LoadTask mTask;
+    private LoadApplicationInfoTask mTask;
     private String mPkg;
 
     @Override
@@ -51,7 +52,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
         composite.add(CheckPermissionsUtils.checkAndRun(result -> {
             switch (result) {
                 case OK:
-                    mTask = new LoadTask(mPkg);
+                    mTask = new LoadApplicationInfoTask(mPkg);
                     mTask.execute();
                     break;
                 case PERMISSION_NEEDED:
@@ -96,11 +97,11 @@ public class ManagePermissionsActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private class LoadTask extends AsyncTask<Void, Void, RegisteredApplication> {
+    private class LoadApplicationInfoTask extends AsyncTask<Void, Void, RegisteredApplication> {
         private String pkg;
         private CancellationSignal mSignal;
 
-        LoadTask(String pkg) {
+        LoadApplicationInfoTask(String pkg) {
             this.pkg = pkg;
         }
 
@@ -112,7 +113,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
             if (application == null && getIntent().getBooleanExtra(EXTRA_IGNORE_NOT_REGISTERED, false)) {
                 application = new RegisteredApplication();
                 application.setPackageName(pkg);
-                application.setRegisteredType(0);
+                application.setRegisteredType(RegisteredType.NotRegistered);
             }
             return application;
         }

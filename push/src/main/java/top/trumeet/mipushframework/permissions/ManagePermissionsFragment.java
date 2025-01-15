@@ -54,7 +54,7 @@ import top.trumeet.mipushframework.widgets.InfoPreference;
 
 public class ManagePermissionsFragment extends PreferenceFragment {
     private RegisteredApplication mApplicationItem;
-    private SaveTask mSaveTask;
+    private SaveApplicationInfoTask mSaveApplicationInfoTask;
     private MenuItem menuOk;
     // Will be used in SaveTask, null = not changed
     // Isn't a good idea
@@ -82,11 +82,11 @@ public class ManagePermissionsFragment extends PreferenceFragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == 0) {
-            if (mSaveTask != null && !mSaveTask.isCancelled()) {
+            if (mSaveApplicationInfoTask != null && !mSaveApplicationInfoTask.isCancelled()) {
                 return true;
             }
-            mSaveTask = new SaveTask();
-            mSaveTask.execute();
+            mSaveApplicationInfoTask = new SaveApplicationInfoTask();
+            mSaveApplicationInfoTask.execute();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -94,9 +94,9 @@ public class ManagePermissionsFragment extends PreferenceFragment {
 
     @Override
     public void onDetach() {
-        if (mSaveTask != null && !mSaveTask.isCancelled()) {
-            mSaveTask.cancel(true);
-            mSaveTask = null;
+        if (mSaveApplicationInfoTask != null && !mSaveApplicationInfoTask.isCancelled()) {
+            mSaveApplicationInfoTask.cancel(true);
+            mSaveApplicationInfoTask = null;
         }
         super.onDetach();
     }
@@ -263,7 +263,7 @@ public class ManagePermissionsFragment extends PreferenceFragment {
         addItem(value, listener, title, null, parent);
     }
 
-    private class SaveTask extends AsyncTask<Void, Void, Void> {
+    private class SaveApplicationInfoTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... voids) {

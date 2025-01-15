@@ -250,7 +250,7 @@ public class RegisteredApplication implements Parcelable {
         return this.registeredType;
     }
 
-    public void setRegisteredType(int registeredType) {
+    public void setRegisteredType(@RegisteredType int registeredType) {
         this.registeredType = registeredType;
     }
 
