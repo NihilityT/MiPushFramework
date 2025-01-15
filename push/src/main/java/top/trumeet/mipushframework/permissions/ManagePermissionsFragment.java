@@ -60,13 +60,8 @@ public class ManagePermissionsFragment extends PreferenceFragment {
     // Isn't a good idea
     private Boolean changeFakeSettings = null;
 
-    /**
-     * Not using {@link android.os.Parcelable}, too bad
-     *
-     * @param applicationItem item
-     */
-    public void setApplicationItem(RegisteredApplication applicationItem) {
-        this.mApplicationItem = applicationItem;
+    public ManagePermissionsFragment(RegisteredApplication application) {
+        this.mApplicationItem = application;
     }
 
     @Override

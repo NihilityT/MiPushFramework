@@ -120,8 +120,7 @@ public class ManagePermissionsActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(RegisteredApplication application) {
             if (application != null) {
-                ManagePermissionsFragment fragment = new ManagePermissionsFragment();
-                fragment.setApplicationItem(application);
+                ManagePermissionsFragment fragment = new ManagePermissionsFragment(application);
                 getSupportFragmentManager().beginTransaction().replace(android.R.id.content, fragment).commitAllowingStateLoss();
             }
         }
