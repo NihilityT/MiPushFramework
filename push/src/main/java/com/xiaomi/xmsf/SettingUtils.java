@@ -33,24 +33,24 @@ import top.trumeet.mipush.provider.register.RegisteredApplication;
 import top.trumeet.mipushframework.register.RegisteredApplicationFragment;
 
 public class SettingUtils {
-    static final int requestIceBoxCode = 0x233;
-    static AtomicBoolean mClearingHistory = new AtomicBoolean(false);
+    public static final int requestIceBoxCode = 0x233;
+    public static AtomicBoolean mClearingHistory = new AtomicBoolean(false);
 
-    static void requestIceBoxPermission(Activity activity) {
+    public static void requestIceBoxPermission(Activity activity) {
         ActivityCompat.requestPermissions(activity, new String[]{IceBox.SDK_PERMISSION}, requestIceBoxCode);
     }
 
-    static boolean iceBoxPermissionGranted(Context context) {
+    public static boolean iceBoxPermissionGranted(Context context) {
         return ContextCompat.checkSelfPermission(context, IceBox.SDK_PERMISSION) == PackageManager.PERMISSION_GRANTED;
     }
 
-    static void clearLog(Context context) {
+    public static void clearLog(Context context) {
         Toast.makeText(context, context.getString(R.string.settings_clear_log) + " " + context.getString(R.string.start), Toast.LENGTH_SHORT).show();
         LogUtils.clearLog(context);
         Toast.makeText(context, context.getString(R.string.settings_clear_log) + " " + context.getString(R.string.end), Toast.LENGTH_SHORT).show();
     }
 
-    static void clearHistory(Context context) {
+    public static void clearHistory(Context context) {
         if (mClearingHistory.compareAndSet(false, true)) {
             new Thread(() -> {
                 Utils.makeText(context, context.getString(R.string.settings_clear_history) + " " + context.getString(R.string.start), Toast.LENGTH_SHORT);
@@ -61,11 +61,11 @@ public class SettingUtils {
         }
     }
 
-    static void startMiPushServiceAsForegroundService(Context context) {
+    public static void startMiPushServiceAsForegroundService(Context context) {
         new InternalMessenger(context).send(new Intent(XMPushServiceMessenger.IntentStartForeground));
     }
 
-    static void notifyMockNotification(Context context) {
+    public static void notifyMockNotification(Context context) {
         String packageName = BuildConfig.APPLICATION_ID;
         Date date = new Date();
         String title = context.getString(R.string.debug_test_title);
@@ -73,7 +73,7 @@ public class SettingUtils {
         NotificationController.test(context, packageName, title, description);
     }
 
-    static boolean isIceBoxInstalled() {
+    public static boolean isIceBoxInstalled() {
         return Utils.isAppInstalled(IceBox.PACKAGE_NAME);
     }
 
