@@ -255,14 +255,6 @@ public class ManagePermissionsFragment extends PreferenceFragment {
         return preference;
     }
 
-    /**
-     * @deprecated Use {@link #addItem(boolean, Preference.OnPreferenceChangeListener, CharSequence, CharSequence, PreferenceGroup)} instead.
-     */
-    @Deprecated
-    private void addItem(boolean value, Preference.OnPreferenceChangeListener listener, CharSequence title, PreferenceGroup parent) {
-        addItem(value, listener, title, null, parent);
-    }
-
     private class SaveApplicationInfoTask extends AsyncTask<Void, Void, Void> {
 
         @Override
