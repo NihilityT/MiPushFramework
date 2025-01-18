@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.android.settings.widget.EntityHeaderController;
+import com.android.settings.widget.RegistrationHelper;
 import com.catchingnow.icebox.sdk_client.IceBox;
 import com.nihility.InternalMessenger;
 import com.xiaomi.push.service.PushConstants;
@@ -81,7 +81,7 @@ public class SettingUtils {
         RegisteredApplicationFragment.MiPushApplications miPushApplications =
                 RegisteredApplicationFragment.getMiPushApplications();
         for (RegisteredApplication registeredApplication : miPushApplications.res) {
-            EntityHeaderController.tryForceRegister(registeredApplication.getPackageName());
+            RegistrationHelper.tryForceRegister(registeredApplication.getPackageName());
         }
     }
 

@@ -34,7 +34,6 @@ import android.widget.TextView;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,15 +41,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.settings.applications.LayoutPreference;
-import com.topjohnwu.superuser.Shell;
-import com.xiaomi.push.sdk.MyPushMessageHandler;
-import com.xiaomi.push.service.PushConstants;
-import com.xiaomi.push.service.XmPushActionOperator;
-import com.xiaomi.xmpush.thrift.NotificationType;
-import com.xiaomi.xmpush.thrift.PushMetaInfo;
-import com.xiaomi.xmpush.thrift.XmPushActionContainer;
-import com.xiaomi.xmpush.thrift.XmPushActionNotification;
-import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
 import com.xiaomi.xmsf.R;
 
 import java.lang.annotation.Retention;
@@ -60,6 +50,8 @@ import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.register.RegisteredApplication;
 
 public class EntityHeaderController {
+
+    private RegistrationHelper registrationHelper;
 
     @IntDef({ActionType.ACTION_NONE,
             ActionType.ACTION_APP_INFO,
@@ -175,6 +167,7 @@ public class EntityHeaderController {
     }
 
     public EntityHeaderController setPackageName(String packageName) {
+        registrationHelper = new RegistrationHelper(mAppContext, packageName);
         mPackageName = packageName;
         return this;
     }
@@ -205,9 +198,7 @@ public class EntityHeaderController {
             iconView.setImageDrawable(mIcon);
             iconView.setContentDescription(mIconContentDescription);
             iconView.setOnClickListener(v -> {
-                removeMiPushXml();
-                MyPushMessageHandler.launchApp(mAppContext, createForceRegisterMessage(mPackageName));
-                tryForceRegister(mPackageName);
+                registrationHelper.deleteRegistrationInfoAndRetryForceRegister();
             });
         }
         setText(R.id.entity_header_title, mLabel);
@@ -218,41 +209,6 @@ public class EntityHeaderController {
         }
 
         return mHeader;
-    }
-
-    public static void tryForceRegister(String packageName) {
-        byte[] msgBytes = XmPushThriftSerializeUtils.convertThriftObjectToBytes(
-                createForceRegisterMessage(packageName));
-        Intent intent = new Intent(PushConstants.MIPUSH_ACTION_NEW_MESSAGE);
-        intent.setPackage(packageName);
-        intent.putExtra(PushConstants.MIPUSH_EXTRA_PAYLOAD, msgBytes);
-        intent.putExtra(PushConstants.MESSAGE_RECEIVE_TIME, System.currentTimeMillis());
-
-        Utils.getApplication().sendBroadcast(intent, null);
-    }
-
-    @NonNull
-    private static XmPushActionContainer createForceRegisterMessage(String packageName) {
-        String id = "fake_expired_" + packageName + "_" + System.currentTimeMillis();
-        XmPushActionNotification regIdExpiredNotification = new XmPushActionNotification();
-        regIdExpiredNotification.setType(NotificationType.RegIdExpired.value);
-        regIdExpiredNotification.setId(id);
-        PushMetaInfo metaInfo = new PushMetaInfo();
-        metaInfo.setId(id);
-        XmPushActionContainer regIdExpiredContainer = XmPushActionOperator.packToContainer(regIdExpiredNotification, packageName);
-        regIdExpiredContainer.setMetaInfo(metaInfo);
-        return regIdExpiredContainer;
-    }
-
-    private boolean removeMiPushXml() {
-        Shell.Result result = Shell.cmd(String.format(
-                "rm $(ls -1" +
-                        " /data/user/0/%s/shared_prefs/mipush*.xml" +
-                        " /data_mirror/data_ce/null/0/%s/shared_prefs/mipush*.xml" +
-                        " 2> /dev/null)",
-                mPackageName, mPackageName)
-                ).exec();
-        return result.isSuccess();
     }
 
     /**
