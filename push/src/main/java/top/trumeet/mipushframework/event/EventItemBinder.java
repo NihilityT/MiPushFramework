@@ -48,7 +48,6 @@ import top.trumeet.mipush.provider.event.Event;
 import top.trumeet.mipush.provider.event.EventType;
 import top.trumeet.mipush.provider.event.type.TypeFactory;
 import top.trumeet.mipushframework.permissions.ApplicationInfoPage;
-import top.trumeet.mipushframework.permissions.ManagePermissionsActivity;
 import top.trumeet.mipushframework.utils.BaseAppsBinder;
 
 /**
@@ -213,9 +212,9 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
     public static void startManagePermissions(Context context, String packageName, boolean IGNORE_NOT_REGISTERED) {
         // Issue: This currently allows overlapping opens.
         Intent intent = new Intent(context, ApplicationInfoPage.class)
-                .putExtra(ManagePermissionsActivity.EXTRA_PACKAGE_NAME, packageName);
+                .putExtra(ApplicationInfoPage.EXTRA_PACKAGE_NAME, packageName);
         if (IGNORE_NOT_REGISTERED) {
-            intent.putExtra(ManagePermissionsActivity.EXTRA_IGNORE_NOT_REGISTERED, true);
+            intent.putExtra(ApplicationInfoPage.EXTRA_IGNORE_NOT_REGISTERED, true);
         }
         context.startActivity(intent);
     }

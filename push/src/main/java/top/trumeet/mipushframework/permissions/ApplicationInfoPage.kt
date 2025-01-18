@@ -57,6 +57,11 @@ import top.trumeet.mipushframework.help.MarkdownView
 import top.trumeet.ui.theme.Theme
 
 class ApplicationInfoPage : ComponentActivity() {
+    companion object {
+        const val EXTRA_PACKAGE_NAME: String = "EXTRA_PACKAGE_NAME"
+        const val EXTRA_IGNORE_NOT_REGISTERED: String = "EXTRA_IGNORE_NOT_REGISTERED"
+    }
+
     private lateinit var applicationInfo: RegisteredApplication
     private lateinit var appConfigurationUtils: AppConfigurationUtils
 
@@ -73,12 +78,12 @@ class ApplicationInfoPage : ComponentActivity() {
     }
 
     private fun getRegisteredApplication(): RegisteredApplication? {
-        if (intent.hasExtra(ManagePermissionsActivity.EXTRA_PACKAGE_NAME)) {
-            val pkg = intent.getStringExtra(ManagePermissionsActivity.EXTRA_PACKAGE_NAME)
+        if (intent.hasExtra(EXTRA_PACKAGE_NAME)) {
+            val pkg = intent.getStringExtra(EXTRA_PACKAGE_NAME)
             var application = RegisteredApplicationDb.getRegisteredApplication(pkg)
 
             if (application == null &&
-                intent.getBooleanExtra(ManagePermissionsActivity.EXTRA_IGNORE_NOT_REGISTERED, false)
+                intent.getBooleanExtra(EXTRA_IGNORE_NOT_REGISTERED, false)
             ) {
                 application = RegisteredApplication()
                 application.packageName = pkg
