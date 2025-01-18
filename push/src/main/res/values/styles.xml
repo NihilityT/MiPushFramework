@@ -7,11 +7,6 @@
     <style name="AppTheme" parent="BaseTheme">
     </style>
 
-    <style name="AppTheme.Wizard" parent="@style/SuwThemeMaterial.Light">
-        <item name="colorPrimaryDark">@color/suw_color_accent_light</item>
-        <item name="android:statusBarColor">@color/suw_color_accent_light</item>
-    </style>
-
     <style name="Widget.Design.BottomNavigationView" parent="">
         <item name="itemBackground">?attr/selectableItemBackgroundBorderless</item>
     </style>

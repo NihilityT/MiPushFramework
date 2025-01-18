@@ -65,8 +65,7 @@
         -->
         <activity
                 android:name="top.trumeet.mipushframework.wizard.WelcomeActivity"
-                android:icon="@mipmap/ic_launcher"
-                android:theme="@style/AppTheme.Wizard">
+                android:icon="@mipmap/ic_launcher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
