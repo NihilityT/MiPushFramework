@@ -114,7 +114,7 @@ private fun getPermissionInfos(context: Context): MutableList<PermissionInfo> {
         add(UsageStatsPermissionInfo(context))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             add(RequestIgnoreBatteryOptimizationsPermissionInfo(context))
-            AlertWindowPermissionInfo(context)
+            add(AlertWindowPermissionInfo(context))
         }
         add(FinishedPhonyPermissionInfo(context))
     }
