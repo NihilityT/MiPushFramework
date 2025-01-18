@@ -1,0 +1,74 @@
+name: Test CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: set up JDK 11
+      uses: actions/setup-java@v4
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Write key
+      run: |
+        if [ ! -z "${{ secrets.SIGNING_KEY }}" ]; then
+          echo KEYSTORE_PASSWORD='${{ secrets.KEYSTORE_PASSWORD }}' >> local.properties
+          echo KEYSTORE_ALIAS='${{ secrets.KEYSTORE_ALIAS }}' >> local.properties
+          echo KEY_PASSWORD='${{ secrets.KEY_PASSWORD }}' >> local.properties
+          echo KEY_LOCATE='../release.keystore' >> local.properties
+          echo ${{ secrets.SIGNING_KEY }} | base64 --decode > release.keystore
+        fi
+
+    - name: Git describe
+      id: ghd
+      uses: proudust/gh-describe@v2.1.0
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Build with Gradle
+      run: ./gradlew build -P versionName=${{ steps.ghd.outputs.describe }}
+
+
+
+    - name: Collect artifact name
+      run: |
+        for variant in vc105 normal; do
+          for build_type in debug release; do
+            artifact_name=$(basename -s .apk push/build/outputs/apk/$variant/$build_type/*.apk)
+            echo "${variant}_${build_type}_artifact=$artifact_name" >> $GITHUB_ENV
+          done
+        done
+
+    - name: Upload Release For Normal
+      uses: actions/upload-artifact@v4.6.0
+      with:
+        name: ${{ env.normal_release_artifact }}
+        path: push/build/outputs/apk/normal/release/*.apk
+
+    - name: Upload Release For VC105
+      uses: actions/upload-artifact@v4.6.0
+      with:
+        name: ${{ env.vc105_release_artifact }}
+        path: push/build/outputs/apk/vc105/release/*.apk
+
+    - name: Upload Debug For Normal
+      uses: actions/upload-artifact@v4.6.0
+      with:
+        name: ${{ env.normal_debug_artifact }}
+        path: push/build/outputs/apk/normal/debug/*.apk
+
+    - name: Upload Debug For VC105
+      uses: actions/upload-artifact@v4.6.0
+      with:
+        name: ${{ env.vc105_debug_artifact }}
+        path: push/build/outputs/apk/vc105/debug/*.apk
