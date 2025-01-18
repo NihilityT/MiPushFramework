@@ -1,21 +1,18 @@
 package top.trumeet.mipushframework.register;
 
+import static top.trumeet.mipushframework.event.EventItemBinder.startManagePermissions;
+
 import android.content.Context;
-import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 
 import com.xiaomi.xmsf.R;
 
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.register.RegisteredApplication;
-import top.trumeet.mipushframework.permissions.ManagePermissionsActivity;
 import top.trumeet.mipushframework.utils.BaseAppsBinder;
 import top.trumeet.mipushframework.utils.ParseUtils;
 
@@ -76,11 +73,7 @@ public class RegisteredApplicationBinder extends BaseAppsBinder<RegisteredApplic
             holder.status.setTextColor(ErrorColor);
             holder.status.setText(context.getText(R.string.mipush_services_not_found) + " - " + holder.status.getText());
         }
-        holder.itemView.setOnClickListener(view -> context
-                .startActivity(new Intent(context,
-                        ManagePermissionsActivity.class)
-                .putExtra(ManagePermissionsActivity.EXTRA_PACKAGE_NAME,
-                        item.getPackageName())
-                .putExtra(ManagePermissionsActivity.EXTRA_IGNORE_NOT_REGISTERED, true)));
+        holder.itemView.setOnClickListener(view ->
+                startManagePermissions(context, item.getPackageName(), true));
     }
 }

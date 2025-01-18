@@ -114,7 +114,7 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
                 if (dialog != null) {
                     dialog.show();
                 } else {
-                    startManagePermissions(type.getPkg(), holder.itemView.getContext());
+                    startManagePermissions(holder.itemView.getContext(), type.getPkg());
                 }
             }
         });
@@ -167,7 +167,7 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
                     clipboardManager.setText(info);
                 })
                 .setNegativeButton(R.string.action_edit_permission, (dialogInterface, i) ->
-                        startManagePermissions(event.getPkg(), context));
+                        startManagePermissions(context, event.getPkg()));
 
         AlertDialog dialog;
         if (event.getPayload() != null) {
@@ -206,11 +206,17 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
                 .create();
         return gson.toJson(ConvertUtils.toJson(container, regSec));
     }
-
-    private static void startManagePermissions(String packageName, Context context) {
+    public static void startManagePermissions(Context context, String packageName) {
+        startManagePermissions(context, packageName, false);
+    }
+    public static void startManagePermissions(Context context, String packageName, boolean IGNORE_NOT_REGISTERED) {
         // Issue: This currently allows overlapping opens.
-        context.startActivity(new Intent(context, ManagePermissionsActivity.class)
-                .putExtra(ManagePermissionsActivity.EXTRA_PACKAGE_NAME, packageName));
+        Intent intent = new Intent(context, ManagePermissionsActivity.class)
+                .putExtra(ManagePermissionsActivity.EXTRA_PACKAGE_NAME, packageName);
+        if (IGNORE_NOT_REGISTERED) {
+            intent.putExtra(ManagePermissionsActivity.EXTRA_IGNORE_NOT_REGISTERED, true);
+        }
+        context.startActivity(intent);
     }
 
     private static class ConfigurationWorkerTask extends AsyncTask<String, Void, String> {
@@ -257,7 +263,7 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
                 if (data instanceof XmPushActionNotification) {
                     viewHolder.summary.setText(viewHolder.summary.getText() + ": "
                             + ((XmPushActionNotification) data).getType());
-                } else if (data instanceof XmPushActionCommandResult){
+                } else if (data instanceof XmPushActionCommandResult) {
                     viewHolder.summary.setText(viewHolder.summary.getText() + ": "
                             + ((XmPushActionCommandResult) data).getCmdName());
                 }
