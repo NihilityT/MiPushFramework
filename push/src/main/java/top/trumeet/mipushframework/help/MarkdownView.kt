@@ -15,8 +15,9 @@ fun MarkdownView(markdownText: String, modifier: Modifier = Modifier, textSize: 
     val html = toHtml(markdownText)
     AndroidView(modifier = modifier, factory = { context -> TextView(context) }, update = { it ->
         it.apply {
-            text = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY)
+            text = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY).trimEnd()
             textSize?.let { setTextSize(it) }
+            minHeight = 0
         }
     })
 }
