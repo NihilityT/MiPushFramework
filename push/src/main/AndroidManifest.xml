@@ -84,6 +84,10 @@
                 android:label="@string/action_edit_permission_title" />
 
         <activity
+                android:name="top.trumeet.mipushframework.permissions.ApplicationInfoPage"
+                android:configChanges="screenLayout|screenSize|orientation"/>
+
+        <activity
                 android:name="top.trumeet.mipushframework.event.RecentActivityActivity"
                 android:label="@string/recent_activity_title" />
         <activity
