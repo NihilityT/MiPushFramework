@@ -192,10 +192,6 @@ dependencies {
     implementation('com.github.drakeet:MultiType:v3.3.0', {
         exclude group: 'com.android.support'
     })
-    // Preference
-    implementation 'moe.shizuku.preference:preference:2.2.3'
-    implementation 'moe.shizuku.preference:preference-switchcompat:2.2.3'
-    implementation 'moe.shizuku.preference:preference-simplemenu:2.2.3'
     // RxActivityResult
     implementation('com.github.VictorAlbertos:RxActivityResult:0.4.5-2.x', {
         exclude group: 'com.android.support'
