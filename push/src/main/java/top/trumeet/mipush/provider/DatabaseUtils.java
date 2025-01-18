@@ -3,8 +3,6 @@ package top.trumeet.mipush.provider;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.github.yuweiguocn.library.greendao.MigrationHelper;
-
 import org.greenrobot.greendao.database.Database;
 
 import top.trumeet.mipush.provider.gen.db.DaoMaster;
@@ -22,7 +20,7 @@ public class DatabaseUtils {
         if (daoSession != null) {
             return;
         }
-        MigrationHelper.DEBUG = true;
+        MyMigrationHelper.DEBUG = true;
         MySQLiteOpenHelper helper = new MySQLiteOpenHelper(context
                 , "db",
                 null);
@@ -37,7 +35,7 @@ public class DatabaseUtils {
         }
         @Override
         public void onUpgrade(Database db, int oldVersion, int newVersion) {
-            MyMigrationHelper.migrate(db, new MigrationHelper.ReCreateAllTableListener() {
+            MyMigrationHelper.migrate(db, new MyMigrationHelper.ReCreateAllTableListener() {
 
                 @Override
                 public void onCreateAllTables(Database db, boolean ifNotExists) {

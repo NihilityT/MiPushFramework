@@ -150,7 +150,6 @@ dependencies {
 
     // GreenDao
     implementation 'org.greenrobot:greendao:3.3.0'
-    implementation 'com.github.yuweiguocn:GreenDaoUpgradeHelper:v2.0.0'
 // }
 
 // Test {
