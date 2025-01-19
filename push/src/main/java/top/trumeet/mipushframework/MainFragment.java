@@ -1,9 +1,5 @@
 package top.trumeet.mipushframework;
 
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -12,15 +8,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -29,7 +21,6 @@ import com.xiaomi.xmsf.R;
 
 import top.trumeet.mipushframework.control.FragmentBroadcast;
 import top.trumeet.mipushframework.event.EventFragment;
-import top.trumeet.mipushframework.help.HelpActivity;
 import top.trumeet.mipushframework.register.RegisteredApplicationFragment;
 import top.trumeet.mipushframework.settings.SettingsPage;
 
@@ -40,6 +31,7 @@ import top.trumeet.mipushframework.settings.SettingsPage;
 
 public class MainFragment extends Fragment {
 
+    private MainPageOperation mainPageOperation;
     private FragmentBroadcast mBroadcaster;
 
     private static final String FRAGMENT_EVENT = "event";
@@ -52,35 +44,19 @@ public class MainFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         mBroadcaster = new FragmentBroadcast();
+        mainPageOperation = new MainPageOperation(getContext());
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_about) {
-            String versionInfo = String.format("name: %s\ncode: %d\nflavor: %s\ntype: %s",
-                    BuildConfig.VERSION_NAME,
-                    BuildConfig.VERSION_CODE,
-                    BuildConfig.FLAVOR,
-                    BuildConfig.BUILD_TYPE);
-            AlertDialog.Builder build = new AlertDialog.Builder(getContext())
-                    .setView(R.layout.dialog_about)
-                    .setPositiveButton("Copy", (dialogInterface, i) -> {
-                        ClipboardManager clipboardManager = (ClipboardManager)
-                                getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                        clipboardManager.setText(versionInfo);
-                    });
-            TextView content = build.show().findViewById(R.id.text_version);
-            content.setText(versionInfo);
+            mainPageOperation.showAboutDialog();
             return true;
         } else if (item.getItemId() == R.id.action_update) {
-            startActivity(new Intent(Intent.ACTION_VIEW)
-                    .setData(Uri.parse("https://github.com/NihilityT/MiPushFramework/releases")));
+            mainPageOperation.gotoGitHubReleasePage();
             Toast.makeText(getActivity(), R.string.update_toast, Toast.LENGTH_LONG).show();
         } else if (item.getItemId() == R.id.action_help) {
-            Intent intent = new Intent();
-            intent.setClass(this.getContext(), HelpActivity.class);
-            startActivity(intent);
-
+            mainPageOperation.gotoHelpActivity();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -98,21 +74,30 @@ public class MainFragment extends Fragment {
         View view = inflater.inflate(R.layout.activity_main, parent, false);
 
         final BottomNavigationView bottomNavigationView = view.findViewById(R.id.bottom_nav);
-        {
-            MenuItem menu = bottomNavigationView.getMenu().getItem(0);
-            menu.setTitle(menu.getTitle() + "(" + BuildConfig.VERSION_CODE + ")");
-        }
-        {
-            MenuItem menu = bottomNavigationView.getMenu().getItem(1);
-            menu.setTitle(menu.getTitle() + "(" + BuildConfig.VERSION_NAME + ")");
-        }
-        {
-            MenuItem menu = bottomNavigationView.getMenu().getItem(2);
-            menu.setTitle(menu.getTitle() + "(" + BuildConfig.FLAVOR + "-" + BuildConfig.BUILD_TYPE + ")");
-        }
-
+        addBuildInfoToNavigation(bottomNavigationView);
 
         final ViewPager viewPager = view.findViewById(R.id.viewPager);
+        updateCheckedStateWhenPageChanged(viewPager, bottomNavigationView);
+
+        initPage(viewPager);
+        hideSearchBarWhenPageChanged(bottomNavigationView, viewPager);
+
+        ViewCompat.setElevation(bottomNavigationView, 8f);
+        viewPager.setCurrentItem(1);
+        return view;
+    }
+
+    private void hideSearchBarWhenPageChanged(BottomNavigationView bottomNavigationView, ViewPager viewPager) {
+        bottomNavigationView.setOnNavigationItemSelectedListener(
+                item -> {
+                    SearchView searchView = (SearchView) mSearchItem.getActionView();
+                    searchView.setIconified(true);
+                    viewPager.setCurrentItem(item.getOrder());
+                    return true;
+                });
+    }
+
+    private static void updateCheckedStateWhenPageChanged(ViewPager viewPager, BottomNavigationView bottomNavigationView) {
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -132,17 +117,24 @@ public class MainFragment extends Fragment {
 
             }
         });
-        viewPager.setAdapter(new PagerAdapter() {
-            @Override
-            public int getCount() {
-                return 3;
-            }
+    }
 
-            @Override
-            public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
-                return false;
-            }
-        });
+    private static void addBuildInfoToNavigation(BottomNavigationView bottomNavigationView) {
+        {
+            MenuItem menu = bottomNavigationView.getMenu().getItem(0);
+            menu.setTitle(menu.getTitle() + "(" + BuildConfig.VERSION_CODE + ")");
+        }
+        {
+            MenuItem menu = bottomNavigationView.getMenu().getItem(1);
+            menu.setTitle(menu.getTitle() + "(" + BuildConfig.VERSION_NAME + ")");
+        }
+        {
+            MenuItem menu = bottomNavigationView.getMenu().getItem(2);
+            menu.setTitle(menu.getTitle() + "(" + BuildConfig.FLAVOR + "-" + BuildConfig.BUILD_TYPE + ")");
+        }
+    }
+
+    private void initPage(ViewPager viewPager) {
         viewPager.setAdapter(new FragmentPagerAdapter(getChildFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
@@ -178,17 +170,6 @@ public class MainFragment extends Fragment {
                 return 3;
             }
         });
-        bottomNavigationView.setOnNavigationItemSelectedListener(
-                item -> {
-                    SearchView searchView = (SearchView) mSearchItem.getActionView();
-                    searchView.setIconified(true);
-                    searchView.setIconified(true);
-                    viewPager.setCurrentItem(item.getOrder());
-                    return true;
-                });
-        ViewCompat.setElevation(bottomNavigationView, 8f);
-        viewPager.setCurrentItem(1);
-        return view;
     }
 
     @Override
