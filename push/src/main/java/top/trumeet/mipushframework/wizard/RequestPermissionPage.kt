@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -50,10 +50,9 @@ import top.trumeet.mipushframework.wizard.permission.RequestIgnoreBatteryOptimiz
 import top.trumeet.mipushframework.wizard.permission.UsageStatsPermissionInfo
 import top.trumeet.ui.theme.Theme
 
-class RequestPermissionPage : AppCompatActivity() {
+class RequestPermissionPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportActionBar?.hide()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val windowInsetsController = WindowInsetsControllerCompat(window, window.decorView)
         setContent {
@@ -81,7 +80,7 @@ fun MainPage(
     val currentItem = remember { mutableStateOf(0) }
     if (allPermissionsGranted(currentItem, permissionInfos)) {
         JumpToMainActivity()
-        WizardSPUtils.finishWizard(context as AppCompatActivity)
+        WizardSPUtils.finishWizard(context as ComponentActivity)
         return
     }
 
