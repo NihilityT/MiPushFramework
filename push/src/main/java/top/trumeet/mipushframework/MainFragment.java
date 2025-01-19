@@ -28,7 +28,6 @@ import com.xiaomi.xmsf.BuildConfig;
 import com.xiaomi.xmsf.R;
 
 import top.trumeet.mipushframework.control.FragmentBroadcast;
-import top.trumeet.mipushframework.control.OnConnectStatusChangedListener;
 import top.trumeet.mipushframework.event.EventFragment;
 import top.trumeet.mipushframework.help.HelpActivity;
 import top.trumeet.mipushframework.register.RegisteredApplicationFragment;
@@ -39,7 +38,7 @@ import top.trumeet.mipushframework.settings.SettingsPage;
  * @date 2017/12/30
  */
 
-public class MainFragment extends Fragment implements OnConnectStatusChangedListener {
+public class MainFragment extends Fragment {
 
     private FragmentBroadcast mBroadcaster;
 
@@ -180,25 +179,16 @@ public class MainFragment extends Fragment implements OnConnectStatusChangedList
             }
         });
         bottomNavigationView.setOnNavigationItemSelectedListener(
-                new BottomNavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        SearchView searchView = (SearchView) mSearchItem.getActionView();
-                        searchView.setIconified(true);
-                        searchView.setIconified(true);
-                        viewPager.setCurrentItem(item.getOrder());
-                        return true;
-                    }
+                item -> {
+                    SearchView searchView = (SearchView) mSearchItem.getActionView();
+                    searchView.setIconified(true);
+                    searchView.setIconified(true);
+                    viewPager.setCurrentItem(item.getOrder());
+                    return true;
                 });
         ViewCompat.setElevation(bottomNavigationView, 8f);
         viewPager.setCurrentItem(1);
         return view;
-    }
-
-    @Override
-    public void onChange(@Status int newStatus) {
-        // Broadcast
-        mBroadcaster.broadcast(newStatus);
     }
 
     @Override

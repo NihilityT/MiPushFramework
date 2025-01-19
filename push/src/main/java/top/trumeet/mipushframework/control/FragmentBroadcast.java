@@ -40,17 +40,6 @@ public class FragmentBroadcast {
         return mChildFragments.get(tag);
     }
 
-    public void broadcast(@OnConnectStatusChangedListener.Status int status) {
-        if (mChildFragments != null) {
-            for (Fragment fragment : mChildFragments.values()) {
-                if (fragment instanceof OnConnectStatusChangedListener) {
-                    ((OnConnectStatusChangedListener) fragment)
-                            .onChange(status);
-                }
-            }
-        }
-    }
-
     public void unregisterAll() {
         if (mChildFragments != null) {
             mChildFragments = null;
