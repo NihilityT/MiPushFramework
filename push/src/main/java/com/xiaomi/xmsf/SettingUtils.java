@@ -30,7 +30,7 @@ import top.trumeet.common.Constants;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.register.RegisteredApplication;
-import top.trumeet.mipushframework.register.RegisteredApplicationFragment;
+import top.trumeet.mipushframework.register.ApplicationPageOperation;
 
 public class SettingUtils {
     public static final int requestIceBoxCode = 0x233;
@@ -78,8 +78,8 @@ public class SettingUtils {
     }
 
     public static void tryForceRegisterAllApplications() {
-        RegisteredApplicationFragment.MiPushApplications miPushApplications =
-                RegisteredApplicationFragment.getMiPushApplications();
+        ApplicationPageOperation.MiPushApplications miPushApplications =
+                ApplicationPageOperation.getMiPushApplications();
         for (RegisteredApplication registeredApplication : miPushApplications.res) {
             RegistrationHelper.tryForceRegister(registeredApplication.getPackageName());
         }
