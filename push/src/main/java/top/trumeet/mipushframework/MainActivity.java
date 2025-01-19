@@ -38,17 +38,19 @@ public abstract class MainActivity extends AppCompatActivity {
     private ViewPropertyAnimator mProgressFadeOutAnimate;
     private MainFragment mFragment;
     private CompositeDisposable composite = new CompositeDisposable();
-    private final InternalMessenger messenger = new InternalMessenger(this) {{
-        register(new IntentFilter(XMPushServiceMessenger.IntentSetConnectionStatus));
-        addListener(intent -> {
-            String status = intent.getStringExtra("status");
-            setTitle(getString(R.string.preference_title) + " (" + status + ")");
-        });
-    }};
+    private InternalMessenger messenger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        messenger = new InternalMessenger(this) {{
+            register(new IntentFilter(XMPushServiceMessenger.IntentSetConnectionStatus));
+            addListener(intent -> {
+                String status = intent.getStringExtra("status");
+                setTitle(getString(R.string.preference_title) + " (" + status + ")");
+            });
+        }};
 
         hookTest();
         checkAndConnect();
