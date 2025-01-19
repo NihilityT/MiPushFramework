@@ -67,28 +67,38 @@ def getVersionCode = { ->
 }
 
 def getVersionName = { ->
+    String versionName  = project.findProperty('versionName') ?: getVersionNameFromGit() ?: "VersionNameError"
+    versionName = increaseVersionForPreRelease(versionName)
+    return versionName.replaceFirst("^v", "")
+}
+
+private static String increaseVersionForPreRelease(String versionName) {
+    if (isPreReleaseVersion(versionName)) {
+        return versionName.replaceFirst("(\\d+\\.\\d+\\.)(\\d+)", {
+            return it[1] + (it[2].toInteger() + 1)
+        })
+    }
+    return versionName
+}
+
+private static boolean isPreReleaseVersion(String versionName) {
+    versionName.contains('-')
+}
+
+private String getVersionNameFromGit() {
     try {
         def stdout = new ByteArrayOutputStream()
         exec {
+            // v0.3.10-187-gef4be8c9-dirty
             commandLine 'git', 'describe', '--tags', '--dirty'
             standardOutput = stdout
         }
-
-        def versionName = stdout.toString().trim()
-        if (versionName.contains('-')) {
-            versionName = versionName.replaceFirst("(\\d+\\.\\d+\\.)(\\d+)", {
-                return it[1] + (it[2].toInteger() + 1)
-            })
-        }
-        if (versionName.startsWith("v")) {
-            return versionName.substring(1)
-        } else {
-            return versionName
-        }
+        return stdout.toString().trim()
     } catch (ignored) {
-        return null;
+        return null
     }
 }
+
 ext {
     minSdkVersion = 21
     compileSdkVersion = 33
