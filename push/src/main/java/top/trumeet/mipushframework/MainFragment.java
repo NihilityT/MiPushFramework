@@ -21,7 +21,7 @@ import com.xiaomi.xmsf.R;
 
 import top.trumeet.mipushframework.control.FragmentBroadcast;
 import top.trumeet.mipushframework.event.EventFragment;
-import top.trumeet.mipushframework.register.RegisteredApplicationFragment;
+import top.trumeet.mipushframework.register.ApplicationListPage;
 import top.trumeet.mipushframework.settings.SettingsPage;
 
 /**
@@ -150,7 +150,7 @@ public class MainFragment extends Fragment {
                         if (mBroadcaster.hasFragment(FRAGMENT_APPLICATIONS)) {
                             return mBroadcaster.getFragment(FRAGMENT_APPLICATIONS);
                         }
-                        RegisteredApplicationFragment registeredApplicationFragment = new RegisteredApplicationFragment();
+                        ApplicationListPage registeredApplicationFragment = new ApplicationListPage();
                         mBroadcaster.registerFragment(FRAGMENT_APPLICATIONS, registeredApplicationFragment);
                         return registeredApplicationFragment;
                     case 2:

@@ -176,6 +176,7 @@ dependencies {
     implementation "androidx.activity:activity-compose:1.7.0"
     implementation 'androidx.navigation:navigation-compose:2.6.0'
     implementation "org.jetbrains:markdown:0.7.3"
+    implementation "com.google.accompanist:accompanist-swiperefresh:0.30.1"
 
 
 
