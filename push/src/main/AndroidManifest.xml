@@ -74,7 +74,7 @@
         <activity android:name="top.trumeet.mipushframework.wizard.RequestPermissionPage" />
 
         <activity
-                android:name="top.trumeet.mipushframework.settings.MainActivity"
+                android:name="top.trumeet.mipushframework.MainActivity"
                 android:configChanges="screenLayout|screenSize|orientation"
                 android:label="@string/preference_title" />
 

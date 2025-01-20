@@ -31,7 +31,7 @@ import top.trumeet.mipushframework.control.CheckPermissionsUtils;
  *
  * @author Trumeet
  */
-public abstract class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private View mConnectProgress;
