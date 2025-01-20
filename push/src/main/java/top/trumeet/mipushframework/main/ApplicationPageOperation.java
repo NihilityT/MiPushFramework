@@ -1,5 +1,7 @@
 package top.trumeet.mipushframework.main;
 
+import static top.trumeet.mipush.provider.db.RegisteredApplicationDb.registerApplication;
+
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -100,10 +102,7 @@ public class ApplicationPageOperation {
         if (registeredPkgs.containsKey(currentAppPkgName)) {
             application = registeredPkgs.get(currentAppPkgName);
         } else {
-            // checkReceivers will use Class#forName, but we can't change our classloader to target app's.
-            application = new RegisteredApplication();
-            application.setPackageName(currentAppPkgName);
-            application.setRegisteredType(RegisteredApplication.RegisteredType.NotRegistered);
+            application = registerApplication(currentAppPkgName);
         }
         application.existServices = hasMiPushServices(checker, info);
         return application;
