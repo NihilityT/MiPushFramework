@@ -8,5 +8,10 @@
     <codeStyleSettings language="JAVA">
       <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
     </codeStyleSettings>
+    <codeStyleSettings language="kotlin">
+      <indentOptions>
+        <option name="CONTINUATION_INDENT_SIZE" value="4" />
+      </indentOptions>
+    </codeStyleSettings>
   </code_scheme>
 </component>
