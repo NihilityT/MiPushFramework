@@ -144,6 +144,8 @@ private fun openUrl(context: Context, url: String) {
     context.startActivity(intent)
 }
 
+class Article(val titleRes: Int, val markdownRes: Int)
+
 private fun getArticles(context: Context): List<Article> {
     val articlesArray = context.resources.getStringArray(R.array.help_articles)
 
