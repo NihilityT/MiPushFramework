@@ -30,7 +30,7 @@ import com.nihility.notification.NotificationManagerEx;
 import com.xiaomi.push.service.MyNotificationIconHelper;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
-import com.xiaomi.xmsf.AdvancedSettingsActivity;
+import top.trumeet.mipushframework.main.AdvancedSettingsActivity;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.push.utils.IconConfigurations;

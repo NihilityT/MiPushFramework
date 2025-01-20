@@ -30,7 +30,7 @@ import top.trumeet.common.Constants;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.register.RegisteredApplication;
-import top.trumeet.mipushframework.register.ApplicationPageOperation;
+import top.trumeet.mipushframework.main.ApplicationPageOperation;
 
 public class SettingUtils {
     public static final int requestIceBoxCode = 0x233;

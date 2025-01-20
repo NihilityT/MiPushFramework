@@ -11,7 +11,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.xiaomi.xmsf.BuildConfig;
 import com.xiaomi.xmsf.R;
 
-import top.trumeet.mipushframework.help.HelpActivity;
+import top.trumeet.mipushframework.main.HelpActivity;
 
 public class MainPageOperation {
     private final Context context;

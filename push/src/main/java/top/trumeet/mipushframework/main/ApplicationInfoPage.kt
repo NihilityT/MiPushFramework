@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.permissions
+package top.trumeet.mipushframework.main
 
 import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
@@ -47,13 +47,13 @@ import androidx.core.graphics.drawable.toBitmap
 import com.android.settings.widget.RegistrationHelper
 import com.xiaomi.xmsf.BuildConfig
 import com.xiaomi.xmsf.R
-import com.xiaomi.xmsf.SettingsGroup
-import com.xiaomi.xmsf.SettingsItem
+import top.trumeet.mipushframework.component.SettingsGroup
+import top.trumeet.mipushframework.component.SettingsItem
 import top.trumeet.common.utils.Utils
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb
 import top.trumeet.mipush.provider.register.RegisteredApplication
 import top.trumeet.mipush.provider.register.RegisteredApplication.RegisteredType
-import top.trumeet.mipushframework.help.MarkdownView
+import top.trumeet.mipushframework.component.MarkdownView
 import top.trumeet.ui.theme.Theme
 
 class ApplicationInfoPage : ComponentActivity() {
@@ -97,7 +97,11 @@ class ApplicationInfoPage : ComponentActivity() {
     @Composable
     fun SettingsApp() {
         if (!::appConfigurationUtils.isInitialized) {
-            appConfigurationUtils = AppConfigurationUtils(LocalContext.current, applicationInfo)
+            appConfigurationUtils =
+                AppConfigurationUtils(
+                    LocalContext.current,
+                    applicationInfo
+                )
         }
 
         Theme {
@@ -254,8 +258,12 @@ class ApplicationInfoPage : ComponentActivity() {
         SettingsGroup(categoryName) {
             channels.forEach { channel ->
                 SettingsItem(
-                    title = AppConfigurationUtils.getNotificationTitle(channel).toString(),
-                    summary = AppConfigurationUtils.getNotificationSummary(channel),
+                    title = AppConfigurationUtils.getNotificationTitle(
+                        channel
+                    ).toString(),
+                    summary = AppConfigurationUtils.getNotificationSummary(
+                        channel
+                    ),
                     confirmButton = {},
                 ) {
                     NotificationChannel(channel, appConfigurationUtils)
@@ -338,13 +346,16 @@ fun NotificationChannelPreview() {
     val channel = NotificationChannel("123", "456", NotificationManager.IMPORTANCE_MIN)
     NotificationChannel(
         channel,
-        AppConfigurationUtils(LocalContext.current, RegisteredApplication())
+        AppConfigurationUtils(
+            LocalContext.current,
+            RegisteredApplication()
+        )
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun SettingsPreview() {
+private fun SettingsPreview() {
     val context = LocalContext.current
     Utils.context = context
 

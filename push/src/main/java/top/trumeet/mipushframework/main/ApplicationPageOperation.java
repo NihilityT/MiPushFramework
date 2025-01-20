@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.register;
+package top.trumeet.mipushframework.main;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;

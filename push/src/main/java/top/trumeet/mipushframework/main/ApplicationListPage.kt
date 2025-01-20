@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.register
+package top.trumeet.mipushframework.main
 
 import android.app.SearchManager
 import android.content.Context
@@ -195,7 +195,10 @@ private fun Footer(notUseMiPushCount: Int) {
             modifier = Modifier.padding(10.dp)
         )
         Text(
-            ApplicationPageOperation.getNotSupportHint(context, notUseMiPushCount)
+            ApplicationPageOperation.getNotSupportHint(
+                context,
+                notUseMiPushCount
+            )
         )
     }
 }

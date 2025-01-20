@@ -42,8 +42,8 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import top.trumeet.mipushframework.help.MarkdownView
-import top.trumeet.mipushframework.settings.MainActivity
+import top.trumeet.mipushframework.MainActivity
+import top.trumeet.mipushframework.component.MarkdownView
 import top.trumeet.mipushframework.wizard.permission.AlertWindowPermissionInfo
 import top.trumeet.mipushframework.wizard.permission.PermissionInfo
 import top.trumeet.mipushframework.wizard.permission.RequestIgnoreBatteryOptimizationsPermissionInfo

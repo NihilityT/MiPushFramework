@@ -6,7 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import top.trumeet.mipushframework.settings.MainActivity;
+import top.trumeet.mipushframework.MainActivity;
 
 /**
  * Created by Trumeet on 2017/8/24.

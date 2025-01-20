@@ -21,8 +21,8 @@ import com.xiaomi.xmsf.R;
 
 import top.trumeet.mipushframework.control.FragmentBroadcast;
 import top.trumeet.mipushframework.event.EventFragment;
-import top.trumeet.mipushframework.register.ApplicationListPage;
-import top.trumeet.mipushframework.settings.SettingsPage;
+import top.trumeet.mipushframework.main.ApplicationListPage;
+import top.trumeet.mipushframework.main.SettingsPage;
 
 /**
  * @author Trumeet

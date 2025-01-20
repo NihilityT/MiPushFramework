@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.permissions;
+package top.trumeet.mipushframework.main;
 
 import android.app.NotificationChannel;
 import android.app.NotificationChannelGroup;

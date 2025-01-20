@@ -1,4 +1,4 @@
-package com.xiaomi.xmsf
+package top.trumeet.mipushframework.main
 
 import android.content.Context
 import android.os.Bundle
@@ -23,8 +23,12 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.catchingnow.icebox.sdk_client.IceBox
+import com.xiaomi.xmsf.R
+import com.xiaomi.xmsf.SettingUtils
 import com.xiaomi.xmsf.utils.ConfigCenter
 import top.trumeet.common.utils.Utils
+import top.trumeet.mipushframework.component.SettingsGroup
+import top.trumeet.mipushframework.component.SettingsItem
 import top.trumeet.ui.theme.Theme
 
 
@@ -38,7 +42,7 @@ class AdvancedSettingsActivity : ComponentActivity() {
 }
 
 @Composable
-fun SettingsApp() {
+private fun SettingsApp() {
     Theme {
         Surface(
             modifier = Modifier
@@ -53,7 +57,7 @@ fun SettingsApp() {
 
 
 @Composable
-fun SettingsScreen() {
+private fun SettingsScreen() {
     Column {
         CleanUpBlock()
         ExperimentalBlock()
@@ -170,7 +174,7 @@ private fun CleanUpBlock() {
 
 @Preview(showBackground = true)
 @Composable
-fun SettingsPreview() {
+private fun SettingsPreview() {
     Utils.context = LocalContext.current
     SettingsApp()
 }

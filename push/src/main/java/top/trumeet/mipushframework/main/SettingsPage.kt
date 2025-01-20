@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.settings
+package top.trumeet.mipushframework.main
 
 import android.content.Context
 import android.content.Intent
@@ -32,13 +32,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.fragment.app.Fragment
 import com.nihility.InternalMessenger
 import com.xiaomi.push.service.XMPushServiceMessenger
-import com.xiaomi.xmsf.AdvancedSettingsActivity
 import com.xiaomi.xmsf.R
 import com.xiaomi.xmsf.SettingUtils
-import com.xiaomi.xmsf.SettingsGroup
-import com.xiaomi.xmsf.SettingsItem
+import top.trumeet.mipushframework.component.SettingsGroup
+import top.trumeet.mipushframework.component.SettingsItem
 import top.trumeet.common.utils.Utils
-import top.trumeet.mipushframework.help.HelpActivity
 import top.trumeet.ui.theme.Theme
 
 class SettingsPage : Fragment() {
@@ -55,7 +53,7 @@ class SettingsPage : Fragment() {
 }
 
 @Composable
-fun SettingsApp() {
+private fun SettingsApp() {
     Theme {
         Surface(
             modifier = Modifier
@@ -70,7 +68,7 @@ fun SettingsApp() {
 
 
 @Composable
-fun SettingsScreen() {
+private fun SettingsScreen() {
     Column {
         ServiceConfigurationBlock()
         DebugBlock()
@@ -194,7 +192,7 @@ private fun DebugBlock() {
 
 @Preview(showBackground = true)
 @Composable
-fun SettingsPreview() {
+private fun SettingsPreview() {
     Utils.context = LocalContext.current
     SettingsApp()
 }

@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.help
+package top.trumeet.mipushframework.component
 
 import android.widget.TextView
 import androidx.compose.runtime.Composable

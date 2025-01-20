@@ -37,7 +37,7 @@
             android:allowBackup="false"
             android:icon="@mipmap/ic_app"
             android:label="@string/app_name"
-            android:manageSpaceActivity=".AdvancedSettingsActivity"
+            android:manageSpaceActivity="top.trumeet.mipushframework.main.AdvancedSettingsActivity"
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             android:resizeableActivity="true"
@@ -55,7 +55,7 @@
                 android:exported="true" />
 
         <activity
-                android:name=".AdvancedSettingsActivity"
+                android:name="top.trumeet.mipushframework.main.AdvancedSettingsActivity"
                 android:exported="true" />
 
         <!--
@@ -79,14 +79,14 @@
                 android:label="@string/preference_title" />
 
         <activity
-                android:name="top.trumeet.mipushframework.permissions.ApplicationInfoPage"
+                android:name="top.trumeet.mipushframework.main.ApplicationInfoPage"
                 android:configChanges="screenLayout|screenSize|orientation"/>
 
         <activity
                 android:name="top.trumeet.mipushframework.event.RecentActivityActivity"
                 android:label="@string/recent_activity_title" />
         <activity
-                android:name="top.trumeet.mipushframework.help.HelpActivity"
+                android:name="top.trumeet.mipushframework.main.HelpActivity"
                 android:label="@string/helplib_title"
                 android:theme="@style/AppTheme" />
 
