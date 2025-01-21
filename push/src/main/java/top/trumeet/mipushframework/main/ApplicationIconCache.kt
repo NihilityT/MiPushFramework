@@ -1,0 +1,41 @@
+package top.trumeet.mipushframework.main
+
+import android.content.Context
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.imageResource
+import androidx.core.graphics.drawable.toBitmap
+import top.trumeet.mipush.provider.register.RegisteredApplication
+
+class ApplicationIconCache(val context: Context) {
+    val defaultAppIcon by lazy {
+        BitmapPainter(
+            ImageBitmap.imageResource(
+                context.resources,
+                android.R.mipmap.sym_def_app_icon
+            )
+        )
+    }
+    private val iconCache = HashMap<String, Painter>()
+
+    fun get(
+        item: RegisteredApplication
+    ): Painter? {
+        return iconCache[item.packageName]
+    }
+
+    fun cache(item: RegisteredApplication): Painter? {
+        if (!iconCache.containsKey(item.packageName)) {
+            val icon = getAppIcon(item)
+            iconCache[item.packageName] = icon
+            return icon
+        }
+        return null
+    }
+
+    private fun getAppIcon(item: RegisteredApplication) =
+        BitmapPainter(item.getIcon(context).toBitmap().asImageBitmap())
+
+}

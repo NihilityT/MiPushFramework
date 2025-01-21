@@ -38,20 +38,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import com.elvishew.xlog.XLog
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -68,8 +62,8 @@ import top.trumeet.ui.theme.Theme
 import java.util.Locale
 
 class ApplicationListPage : Fragment() {
-    private lateinit var defaultAppIcon: BitmapPainter
     private var query by mutableStateOf("")
+    private lateinit var iconCache: ApplicationIconCache
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -123,12 +117,15 @@ class ApplicationListPage : Fragment() {
         })
     }
 
-    val ErrorColor = Color(0xFFF41804)
-    val GreenColor = Color(0xff4caf50)
-    val YellowColor = Color(0xffff9800)
+
+    companion object {
+        val ErrorColor = Color(0xFFF41804)
+        val GreenColor = Color(0xff4caf50)
+        val YellowColor = Color(0xffff9800)
+    }
 
     @Composable
-    fun getRegistrationState(app: RegisteredApplication): Pair<String, Color> {
+    private fun getRegistrationState(app: RegisteredApplication): Pair<String, Color> {
         val prefix =
             if (!app.existServices) stringResource(R.string.mipush_services_not_found) + " - "
             else ""
@@ -149,8 +146,8 @@ class ApplicationListPage : Fragment() {
         }
     }
 
-    fun getRegistrationStateColor(app: RegisteredApplication): Color {
-        return if (!app.existServices) ErrorColor
+    private fun getRegistrationStateColor(app: RegisteredApplication): Color {
+        return if (!app.existServices) Companion.ErrorColor
         else when (app.registeredType) {
             RegisteredApplication.RegisteredType.Registered -> {
                 GreenColor
@@ -170,6 +167,9 @@ class ApplicationListPage : Fragment() {
     @Composable
     fun ApplicationList(getMiPushApplications: () -> ApplicationPageOperation.MiPushApplications) {
         val context = LocalContext.current
+        if (!::iconCache.isInitialized) {
+            iconCache = ApplicationIconCache(context)
+        }
         val isPreview = LocalInspectionMode.current
         var items by remember {
             mutableStateOf(
@@ -186,7 +186,7 @@ class ApplicationListPage : Fragment() {
             refreshScope.launch {
                 items = getMiPushApplications()
                 isRefreshing = false
-                items.res.forEach { cacheIcon(context, it) }
+                items.res.forEach { iconCache.cache(it) }
             }
         }
         LaunchedEffect(query) { onRefresh() }
@@ -233,12 +233,17 @@ class ApplicationListPage : Fragment() {
     private fun ApplicationItem(item: RegisteredApplication) {
         val context = LocalContext.current
         val isPreview = LocalInspectionMode.current
-        var icon by remember { mutableStateOf(getIconFromCache(context, isPreview, item)) }
+        var icon by remember {
+            mutableStateOf(
+                if (isPreview) iconCache.defaultAppIcon
+                else iconCache.get(item) ?: iconCache.defaultAppIcon
+            )
+        }
         val registrationState = getRegistrationState(item)
 
         LaunchedEffect(Unit) {
             withContext(Dispatchers.IO) {
-                cacheIcon(context, item)?.let { icon = it }
+                iconCache.cache(item)?.let { icon = it }
             }
         }
 
@@ -263,14 +268,6 @@ class ApplicationListPage : Fragment() {
         }
     }
 
-    private fun cacheIcon(context: Context, item: RegisteredApplication): BitmapPainter? {
-        if (!iconCache.containsKey(item.packageName)) {
-            val icon = getAppIcon(context, item)
-            iconCache[item.packageName] = icon
-            return icon
-        }
-        return null
-    }
 
     @Composable
     private fun LastReceive(item: RegisteredApplication) {
@@ -305,27 +302,6 @@ class ApplicationListPage : Fragment() {
         }
     }
 
-    private val iconCache = HashMap<String, Painter>()
-    private fun getIconFromCache(
-        context: Context,
-        isPreview: Boolean,
-        item: RegisteredApplication
-    ): Painter {
-        return if (isPreview || !iconCache.containsKey(item.packageName))
-            getDefaultAppIcon(context)
-        else iconCache[item.packageName]!!
-    }
-
-    private fun getAppIcon(context: Context, item: RegisteredApplication) =
-        BitmapPainter(item.getIcon(context).toBitmap().asImageBitmap())
-
-    private fun getDefaultAppIcon(context: Context): BitmapPainter {
-        if (!::defaultAppIcon.isInitialized) {
-            defaultAppIcon = BitmapPainter(
-                ImageBitmap.imageResource(context.resources, android.R.mipmap.sym_def_app_icon))
-        }
-        return defaultAppIcon
-    }
 
     @Preview(
         showBackground = true,
