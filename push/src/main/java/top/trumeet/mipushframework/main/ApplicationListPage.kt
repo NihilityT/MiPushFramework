@@ -185,7 +185,7 @@ class ApplicationListPage : Fragment() {
                 items.res.forEach { cacheIcon(context, it) }
             }
         }
-        LaunchedEffect(Unit) { onRefresh() }
+        LaunchedEffect(query) { onRefresh() }
 
         Theme {
             Surface {
