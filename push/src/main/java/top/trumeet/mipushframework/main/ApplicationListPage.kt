@@ -80,8 +80,12 @@ class ApplicationListPage : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 ApplicationList {
-                    val miPushApplications = ApplicationPageOperation.getMiPushApplicationsThatQueryMatched(query)
-                    ApplicationPageOperation.updateRegisteredApplicationDb(context, miPushApplications.res)
+                    val miPushApplications =
+                        ApplicationPageOperation.getMiPushApplicationsThatQueryMatched(query)
+                    ApplicationPageOperation.updateRegisteredApplicationDb(
+                        context,
+                        miPushApplications.res
+                    )
                     miPushApplications
                 }
             }
@@ -240,7 +244,13 @@ class ApplicationListPage : Fragment() {
 
         Row(
             Modifier
-                .clickable { EventItemBinder.startManagePermissions(context, item.packageName, true) }
+                .clickable {
+                    EventItemBinder.startManagePermissions(
+                        context,
+                        item.packageName,
+                        true
+                    )
+                }
                 .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
