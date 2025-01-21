@@ -118,52 +118,6 @@ class ApplicationListPage : Fragment() {
     }
 
 
-    companion object {
-        val ErrorColor = Color(0xFFF41804)
-        val GreenColor = Color(0xff4caf50)
-        val YellowColor = Color(0xffff9800)
-    }
-
-    @Composable
-    private fun getRegistrationState(app: RegisteredApplication): Pair<String, Color> {
-        val prefix =
-            if (!app.existServices) stringResource(R.string.mipush_services_not_found) + " - "
-            else ""
-        val color = getRegistrationStateColor(app)
-        return when (app.registeredType) {
-            RegisteredApplication.RegisteredType.Registered -> {
-                Pair(prefix + stringResource(R.string.app_registered), color)
-            }
-
-            RegisteredApplication.RegisteredType.Unregistered -> {
-                Pair(prefix + stringResource(R.string.app_registered_error), color)
-            }
-
-//      RegisteredApplication.RegisteredType.NotRegistered
-            else -> {
-                Pair(prefix + stringResource(R.string.status_app_not_registered), color)
-            }
-        }
-    }
-
-    private fun getRegistrationStateColor(app: RegisteredApplication): Color {
-        return if (!app.existServices) Companion.ErrorColor
-        else when (app.registeredType) {
-            RegisteredApplication.RegisteredType.Registered -> {
-                GreenColor
-            }
-
-            RegisteredApplication.RegisteredType.Unregistered -> {
-                YellowColor
-            }
-
-//      RegisteredApplication.RegisteredType.NotRegistered
-            else -> {
-                Color.Unspecified
-            }
-        }
-    }
-
     @Composable
     fun ApplicationList(getMiPushApplications: () -> ApplicationPageOperation.MiPushApplications) {
         val context = LocalContext.current
@@ -239,7 +193,7 @@ class ApplicationListPage : Fragment() {
                 else iconCache.get(item) ?: iconCache.defaultAppIcon
             )
         }
-        val registrationState = getRegistrationState(item)
+        val registrationState = RegistrationStateStyle.contentOf(item)
 
         LaunchedEffect(Unit) {
             withContext(Dispatchers.IO) {
