@@ -8,7 +8,7 @@ import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 
 import top.trumeet.mipush.provider.event.Event;
 
-public class Utils {
+public class RegSecUtils {
     public static final String RegSecField = "__reg_sec__";
 
     public static String getRegSec(final XmPushActionContainer container) {
@@ -24,7 +24,7 @@ public class Utils {
         return top.trumeet.common.utils.Utils.getRegSec(container.packageName);
     }
 
-    public static XmPushActionContainer getCustomContainer(final Event event) {
+    public static XmPushActionContainer getContainerWithRegSec(final Event event) {
         if (event == null || event.getPayload() == null) {
             return null;
         }

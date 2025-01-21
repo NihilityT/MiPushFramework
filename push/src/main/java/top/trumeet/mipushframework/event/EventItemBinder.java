@@ -19,7 +19,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmsf.R;
-import com.xiaomi.xmsf.push.utils.Utils;
+import com.xiaomi.xmsf.push.utils.RegSecUtils;
 
 import top.trumeet.mipush.provider.event.Event;
 import top.trumeet.mipush.provider.event.EventType;
@@ -77,7 +77,7 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
     }
 
     private void fillWithEventContent(@NonNull ViewHolder holder, @NonNull Event item) {
-        new ConfigurationWorkerTask(holder, Utils.getCustomContainer(item)).execute();
+        new ConfigurationWorkerTask(holder, RegSecUtils.getContainerWithRegSec(item)).execute();
     }
 
     @Nullable
@@ -109,7 +109,7 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
 
         AlertDialog dialog;
         if (event.getPayload() != null) {
-            XmPushActionContainer containerWithRegSec = Utils.getCustomContainer(event);
+            XmPushActionContainer containerWithRegSec = RegSecUtils.getContainerWithRegSec(event);
 
             build.setPositiveButton(R.string.action_notify, (dialogInterface, i) ->
                     EventListPageUtils.mockMessage(containerWithRegSec));

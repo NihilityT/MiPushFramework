@@ -18,7 +18,7 @@ import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.notification.NotificationChannelManager;
 import com.xiaomi.xmsf.push.notification.NotificationController;
 import com.xiaomi.xmsf.push.utils.Configurations;
-import com.xiaomi.xmsf.push.utils.Utils;
+import com.xiaomi.xmsf.push.utils.RegSecUtils;
 import com.xiaomi.xmsf.utils.ConfigCenter;
 import com.xiaomi.xmsf.utils.ConvertUtils;
 
@@ -148,7 +148,7 @@ public class EventListPageUtils {
     @Nullable
     public static TBase getContainer(XmPushActionContainer container) {
         try {
-            return ConvertUtils.getResponseMessageBodyFromContainer(container, Utils.getRegSec(container));
+            return ConvertUtils.getResponseMessageBodyFromContainer(container, RegSecUtils.getRegSec(container));
         } catch (Exception ignored) {
             return null;
         }
@@ -171,7 +171,7 @@ public class EventListPageUtils {
     @NonNull
     private String getStatusDescriptionByEvent(@NonNull Event item) {
         do {
-            XmPushActionContainer container = Utils.getCustomContainer(item);
+            XmPushActionContainer container = RegSecUtils.getContainerWithRegSec(item);
             if (container == null) {
                 break;
             }

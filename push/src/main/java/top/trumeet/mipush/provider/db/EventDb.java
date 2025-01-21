@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import com.xiaomi.push.service.MIPushEventProcessor;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmpush.thrift.XmPushActionRegistrationResult;
+import com.xiaomi.xmsf.push.utils.RegSecUtils;
 import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import org.greenrobot.greendao.query.QueryBuilder;
@@ -116,7 +117,7 @@ public class EventDb {
             try {
                 data = (XmPushActionRegistrationResult)
                         ConvertUtils.getResponseMessageBodyFromContainer(container,
-                                com.xiaomi.xmsf.push.utils.Utils.getRegSec(container));
+                                RegSecUtils.getRegSec(container));
             } catch (Exception ignored) {
             }
             if (event.getType() == Event.Type.RegistrationResult && (data == null || data.errorCode == 0)) {

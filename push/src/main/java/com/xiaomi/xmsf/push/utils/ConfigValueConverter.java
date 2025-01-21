@@ -21,7 +21,7 @@ public class ConfigValueConverter {
             try {
                 XmPushActionContainer container = (XmPushActionContainer) root;
                 return ConvertUtils.getResponseMessageBodyFromContainer(container,
-                        Utils.getRegSec(container));
+                        RegSecUtils.getRegSec(container));
             } catch (Throwable e) {
                 logger.e("parse pushAction failed", e);
                 return null;

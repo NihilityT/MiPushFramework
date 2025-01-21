@@ -18,7 +18,7 @@ import com.xiaomi.mipush.sdk.PushContainerHelper;
 import com.xiaomi.push.service.MIPushEventProcessor;
 import com.xiaomi.push.service.PushConstants;
 import com.xiaomi.xmpush.thrift.*;
-import com.xiaomi.xmsf.push.utils.Utils;
+import com.xiaomi.xmsf.push.utils.RegSecUtils;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -33,7 +33,7 @@ public class ConvertUtils {
     private static final Logger logger = XLog.tag(TAG).build();
 
     public static JsonElement toJson(XmPushActionContainer container) {
-        return toJson(container, Utils.getRegSec(container));
+        return toJson(container, RegSecUtils.getRegSec(container));
     }
 
     public static JsonElement toJson(XmPushActionContainer container, String regSec) {
