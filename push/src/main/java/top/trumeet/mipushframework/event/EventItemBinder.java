@@ -4,13 +4,10 @@ import static com.xiaomi.push.service.MIPushEventProcessor.buildContainer;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ScrollView;
@@ -20,34 +17,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
-import com.elvishew.xlog.Logger;
-import com.elvishew.xlog.XLog;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.nihility.service.XMPushServiceAbility;
-import com.xiaomi.push.service.MIPushEventProcessorAspect;
-import com.xiaomi.xmpush.thrift.XmPushActionCommandResult;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
-import com.xiaomi.xmpush.thrift.XmPushActionNotification;
 import com.xiaomi.xmsf.R;
-import com.xiaomi.xmsf.push.notification.NotificationChannelManager;
-import com.xiaomi.xmsf.push.notification.NotificationController;
-import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.push.utils.Utils;
-import com.xiaomi.xmsf.utils.ConvertUtils;
-
-import org.apache.thrift.TBase;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Set;
 
 import top.trumeet.mipush.provider.event.Event;
 import top.trumeet.mipush.provider.event.EventType;
 import top.trumeet.mipush.provider.event.type.TypeFactory;
-import top.trumeet.mipushframework.main.ApplicationInfoPage;
 import top.trumeet.mipushframework.utils.BaseAppsBinder;
 
 /**
@@ -59,7 +35,7 @@ import top.trumeet.mipushframework.utils.BaseAppsBinder;
  */
 
 public class EventItemBinder extends BaseAppsBinder<Event> {
-    private static Logger logger = XLog.tag(EventItemBinder.class.getSimpleName()).build();
+    private EventListPageUtils utils = null;
 
     EventItemBinder() {
         super();
@@ -73,78 +49,42 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
 
     @Override
     protected void onBindViewHolder(final @NonNull ViewHolder holder, final @NonNull Event item) {
-        fillData(item.getPkg(), false, holder);
-        final EventType type = TypeFactory.create(item, item.getPkg());
-        holder.title.setText(type.getTitle(holder.itemView.getContext()));
-        holder.summary.setText(type.getSummary(holder.itemView.getContext()));
-
-        String status = "";
-        switch (item.getResult()) {
-            case Event.ResultType.OK:
-                status = fillEventData(holder, item);
-                break;
-            case Event.ResultType.DENY_DISABLED:
-                status = holder.itemView.getContext()
-                        .getString(R.string.status_deny_disable);
-                break;
-            case Event.ResultType.DENY_USER:
-                status = holder.itemView.getContext()
-                        .getString(R.string.status_deny_user);
-                break;
-            default:
-                break;
+        Context context = holder.itemView.getContext();
+        if (utils == null) {
+            utils = new EventListPageUtils(context);
         }
 
-        Calendar calendarServer = Calendar.getInstance();
-        calendarServer.setTime(new Date(item.getDate()));
-        int zoneOffset = calendarServer.get(java.util.Calendar.ZONE_OFFSET);
-        int dstOffset = calendarServer.get(java.util.Calendar.DST_OFFSET);
-        calendarServer.add(java.util.Calendar.MILLISECOND, (zoneOffset + dstOffset));
-        DateFormat formatter = SimpleDateFormat.getDateTimeInstance();
+        fillData(item.getPkg(), false, holder);
+        final EventType type = TypeFactory.create(item, item.getPkg());
+        holder.title.setText(type.getTitle(context));
+        holder.summary.setText(type.getSummary(context));
 
-        holder.text2.setText(holder.itemView.getContext().getString(R.string.date_format_long,
-                formatter.format(calendarServer.getTime())));
+        String status = utils.getStatusDescription(item);
+        String receiveDate = utils.getReceiveDate(item);
+
+        holder.text2.setText(receiveDate);
         holder.status.setText(status);
+        fillWithEventContent(holder, item);
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Dialog dialog = createInfoDialog(item,
-                        holder.itemView.getContext()); // "Developer info" dialog for event messages
-                if (dialog != null) {
-                    dialog.show();
-                } else {
-                    startManagePermissions(holder.itemView.getContext(), type.getPkg());
-                }
+        holder.itemView.setOnClickListener(view -> {
+            Dialog dialog = createInfoDialog(item, context); // "Developer info" dialog for event messages
+            if (dialog != null) {
+                dialog.show();
+            } else {
+                EventListPageUtils.startManagePermissions(context, type.getPkg());
             }
         });
     }
 
-    @Nullable
-    private String fillEventData(@NonNull ViewHolder holder, @NonNull Event item) {
-        do {
-            XmPushActionContainer container = Utils.getCustomContainer(item);
-            if (container == null) {
-                break;
-            }
-            if (container.metaInfo.passThrough == 1) {
-                return holder.itemView.getContext()
-                        .getString(R.string.message_type_pass_through);
-            }
-            if (container.metaInfo.passThrough == 0) {
-                new ConfigurationWorkerTask(holder, container).execute();
-                return holder.itemView.getContext()
-                        .getString(R.string.message_type_notification);
-            }
-        } while (false);
-        return "";
+    private void fillWithEventContent(@NonNull ViewHolder holder, @NonNull Event item) {
+        new ConfigurationWorkerTask(holder, Utils.getCustomContainer(item)).execute();
     }
 
     @Nullable
     private Dialog createInfoDialog(final Event event, final Context context) {
         XmPushActionContainer container = event.getPayload() == null ?
                 null : buildContainer(event.getPayload());
-        final CharSequence info = containerToJson(container, event.getRegSec());
+        final CharSequence info = EventListPageUtils.containerToJson(container, event.getRegSec());
         if (info == null) {
             return null;
         }
@@ -162,20 +102,17 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
                 .setView(scrollView)
                 .setTitle("Developer Info")
                 .setNeutralButton(android.R.string.copy, (dialogInterface, i) -> {
-                    ClipboardManager clipboardManager = (ClipboardManager)
-                            context.getSystemService(Context.CLIPBOARD_SERVICE);
-                    clipboardManager.setText(info);
+                    EventListPageUtils.copyToClipboard(context, info);
                 })
                 .setNegativeButton(R.string.action_edit_permission, (dialogInterface, i) ->
-                        startManagePermissions(context, event.getPkg()));
+                        EventListPageUtils.startManagePermissions(context, event.getPkg()));
 
         AlertDialog dialog;
         if (event.getPayload() != null) {
             XmPushActionContainer containerWithRegSec = Utils.getCustomContainer(event);
 
             build.setPositiveButton(R.string.action_notify, (dialogInterface, i) ->
-                    MIPushEventProcessorAspect.mockProcessMIPushMessage(
-                            XMPushServiceAbility.xmPushService, containerWithRegSec.deepCopy()));
+                    EventListPageUtils.mockMessage(containerWithRegSec));
             build.setNeutralButton(R.string.action_configurate, null);
 
             dialog = build.create();
@@ -183,14 +120,7 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
 
                 Button button = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
                 button.setOnClickListener(view -> {
-                    try {
-                        XmPushActionContainer newContainer = containerWithRegSec.deepCopy();
-                        Configurations.getInstance().handle(container.packageName, newContainer);
-                        showText.setText(containerToJson(newContainer, event.getRegSec()));
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                        showText.setText(e.toString());
-                    }
+                    showText.setText(EventListPageUtils.getContent(event, containerWithRegSec));
                 });
             });
         } else {
@@ -199,75 +129,37 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
         return dialog;
     }
 
-    private CharSequence containerToJson(XmPushActionContainer container, String regSec) {
-        Gson gson = new GsonBuilder()
-                .disableHtmlEscaping()
-                .setPrettyPrinting()
-                .create();
-        return gson.toJson(ConvertUtils.toJson(container, regSec));
-    }
-    public static void startManagePermissions(Context context, String packageName) {
-        startManagePermissions(context, packageName, false);
-    }
-    public static void startManagePermissions(Context context, String packageName, boolean IGNORE_NOT_REGISTERED) {
-        // Issue: This currently allows overlapping opens.
-        Intent intent = new Intent(context, ApplicationInfoPage.class)
-                .putExtra(ApplicationInfoPage.EXTRA_PACKAGE_NAME, packageName);
-        if (IGNORE_NOT_REGISTERED) {
-            intent.putExtra(ApplicationInfoPage.EXTRA_IGNORE_NOT_REGISTERED, true);
-        }
-        context.startActivity(intent);
-    }
-
-    private static class ConfigurationWorkerTask extends AsyncTask<String, Void, String> {
+    private class ConfigurationWorkerTask extends AsyncTask<String, Void, String> {
         private final ViewHolder viewHolder;
         private final XmPushActionContainer container;
+        private boolean stop = false;
 
         ConfigurationWorkerTask(ViewHolder viewHolder, XmPushActionContainer container) {
             this.viewHolder = viewHolder;
             this.container = container;
+            if (container.metaInfo.passThrough == 0) {
+                stop = true;
+            }
         }
 
         @Override
         protected String doInBackground(String... params) {
-            try {
-                Set<String> ops = Configurations.getInstance().handle(container.getPackageName(), container);
-                String status = container.getMetaInfo().getExtra().get("channel_name");
-                if (!NotificationChannelManager.isNotificationChannelEnabled(
-                        container.getPackageName(),
-                        NotificationController.getExistsChannelId(viewHolder.itemView.getContext(),
-                                container.metaInfo, container.packageName))) {
-                    ops.add("disable");
-                }
-                if (!ops.isEmpty()) {
-                    status = ops + " " + status;
-                }
-                return status;
-            } catch (Throwable ignored) {
-            }
-            return null;
+            if (stop) return null;
+
+            return utils.getDecoratedStatus(container);
         }
 
         @SuppressLint("SetTextI18n")
         @Override
         protected void onPostExecute(String status) {
+            if (stop) return;
+
             if (status != null) {
                 viewHolder.status.setText(status);
             }
-            if (container.isSetPushAction()) {
-                TBase data = null;
-                try {
-                    data = ConvertUtils.getResponseMessageBodyFromContainer(container, Utils.getRegSec(container));
-                } catch (Exception ignored) {
-                }
-                if (data instanceof XmPushActionNotification) {
-                    viewHolder.summary.setText(viewHolder.summary.getText() + ": "
-                            + ((XmPushActionNotification) data).getType());
-                } else if (data instanceof XmPushActionCommandResult) {
-                    viewHolder.summary.setText(viewHolder.summary.getText() + ": "
-                            + ((XmPushActionCommandResult) data).getCmdName());
-                }
-            }
+            viewHolder.summary.setText(
+                    EventListPageUtils.getDecoratedSummary(
+                            viewHolder.summary.getText().toString(), container));
         }
     }
 }

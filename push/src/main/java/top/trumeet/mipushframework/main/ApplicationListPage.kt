@@ -56,7 +56,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.trumeet.common.utils.Utils
 import top.trumeet.mipush.provider.register.RegisteredApplication
-import top.trumeet.mipushframework.event.EventItemBinder
+import top.trumeet.mipushframework.event.EventListPageUtils
 import top.trumeet.mipushframework.utils.ParseUtils
 import top.trumeet.ui.theme.Theme
 import java.util.Locale
@@ -206,7 +206,7 @@ class ApplicationListPage : Fragment() {
         Row(
             Modifier
                 .clickable {
-                    EventItemBinder.startManagePermissions(
+                    EventListPageUtils.startManagePermissions(
                         context,
                         item.packageName,
                         true
