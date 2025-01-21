@@ -16,22 +16,17 @@ import android.widget.SearchView;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.xiaomi.xmsf.R;
-import com.xiaomi.xmsf.utils.ConfigCenter;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import me.drakeet.multitype.Items;
 import me.drakeet.multitype.MultiTypeAdapter;
 import top.trumeet.common.Constants;
-import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.event.Event;
 import top.trumeet.mipushframework.utils.OnLoadMoreListener;
 
@@ -209,16 +204,7 @@ public class EventFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         @Override
         protected List<Event> doInBackground(Integer... integers) {
             mSignal = new CancellationSignal();
-            Set<Integer> types = null;
-            if (!ConfigCenter.getInstance().isShowAllEvents()) {
-                types = new HashSet<>();
-                types.add(Event.Type.SendMessage);
-                types.add(Event.Type.Registration);
-                types.add(Event.Type.RegistrationResult);
-                types.add(Event.Type.UnRegistration);
-            }
-            return EventDb.query(Constants.PAGE_SIZE * (mTargetPage - 1), Constants.PAGE_SIZE,
-                    types, mPacketName, mQuery);
+            return EventListPageUtils.getEvents(mTargetPage, Constants.PAGE_SIZE, mPacketName, mQuery);
         }
 
         @Override
@@ -256,4 +242,6 @@ public class EventFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             }
         }
     }
+
+
 }

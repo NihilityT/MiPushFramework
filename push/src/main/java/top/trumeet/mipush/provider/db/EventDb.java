@@ -66,11 +66,17 @@ public class EventDb {
         )));
     }
 
-    public static List<Event> query(@Nullable Integer skip,
-                                    @Nullable Integer limit,
-                                    @Nullable Set<Integer> types,
-                                    @Nullable String pkg,
-                                    @Nullable String text) {
+    public static List<Event> queryByPage(
+            int pageIndex, int pageSize,
+            @Nullable Set<Integer> types,
+            @Nullable String pkg, @Nullable String text) {
+        return query((pageIndex - 1) * pageSize, pageSize, types, pkg, text);
+    }
+
+    public static List<Event> query(
+            int skip, int limit,
+            @Nullable Set<Integer> types,
+            @Nullable String pkg, @Nullable String text) {
         QueryBuilder<Event> query = daoSession.queryBuilder(Event.class)
                 .orderDesc(EventDao.Properties.Date)
                 .limit(limit)
