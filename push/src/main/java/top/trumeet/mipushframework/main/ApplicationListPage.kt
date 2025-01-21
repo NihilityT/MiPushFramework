@@ -195,9 +195,11 @@ class ApplicationListPage : Fragment() {
         }
         val registrationState = RegistrationStateStyle.contentOf(item)
 
-        LaunchedEffect(Unit) {
-            withContext(Dispatchers.IO) {
-                iconCache.cache(item)?.let { icon = it }
+        if (icon == iconCache.defaultAppIcon) {
+            LaunchedEffect(Unit) {
+                withContext(Dispatchers.IO) {
+                    icon = iconCache.cache(item)
+                }
             }
         }
 

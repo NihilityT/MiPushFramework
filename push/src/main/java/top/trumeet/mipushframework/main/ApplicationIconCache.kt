@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.imageResource
 import androidx.core.graphics.drawable.toBitmap
 import top.trumeet.mipush.provider.register.RegisteredApplication
+import java.util.concurrent.ConcurrentHashMap
 
 class ApplicationIconCache(val context: Context) {
     val defaultAppIcon by lazy {
@@ -18,21 +19,16 @@ class ApplicationIconCache(val context: Context) {
             )
         )
     }
-    private val iconCache = HashMap<String, Painter>()
+    private val iconCache = ConcurrentHashMap<String, Painter>()
 
-    fun get(
-        item: RegisteredApplication
-    ): Painter? {
+    fun get(item: RegisteredApplication): Painter? {
         return iconCache[item.packageName]
     }
 
-    fun cache(item: RegisteredApplication): Painter? {
-        if (!iconCache.containsKey(item.packageName)) {
-            val icon = getAppIcon(item)
-            iconCache[item.packageName] = icon
-            return icon
-        }
-        return null
+    fun cache(item: RegisteredApplication): Painter {
+        val icon = getAppIcon(item)
+        iconCache[item.packageName] = icon
+        return icon
     }
 
     private fun getAppIcon(item: RegisteredApplication) =
