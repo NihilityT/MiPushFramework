@@ -1,5 +1,6 @@
 package top.trumeet.mipushframework.main
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -10,7 +11,9 @@ import androidx.core.graphics.drawable.toBitmap
 import top.trumeet.mipush.provider.register.RegisteredApplication
 import java.util.concurrent.ConcurrentHashMap
 
-class ApplicationIconCache(val context: Context) {
+class ApplicationIconCache(context: Context) {
+    val context: Context = context.applicationContext
+
     val defaultAppIcon by lazy {
         BitmapPainter(
             ImageBitmap.imageResource(

@@ -10,7 +10,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SearchView
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -53,9 +52,11 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.xiaomi.xmsf.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import top.trumeet.common.utils.Utils
 import top.trumeet.mipush.provider.register.RegisteredApplication
+import top.trumeet.mipushframework.component.AppIcon
+import top.trumeet.mipushframework.component.iconCache
+import top.trumeet.mipushframework.component.initIconCache
 import top.trumeet.mipushframework.event.EventListPageUtils
 import top.trumeet.mipushframework.utils.ParseUtils
 import top.trumeet.ui.theme.Theme
@@ -63,7 +64,6 @@ import java.util.Locale
 
 class ApplicationListPage : Fragment() {
     private var query by mutableStateOf("")
-    private lateinit var iconCache: ApplicationIconCache
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -120,10 +120,7 @@ class ApplicationListPage : Fragment() {
 
     @Composable
     fun ApplicationList(getMiPushApplications: () -> ApplicationPageOperation.MiPushApplications) {
-        val context = LocalContext.current
-        if (!::iconCache.isInitialized) {
-            iconCache = ApplicationIconCache(context)
-        }
+        initIconCache(LocalContext.current)
         val isPreview = LocalInspectionMode.current
         var items by remember {
             mutableStateOf(
@@ -186,22 +183,7 @@ class ApplicationListPage : Fragment() {
     @Composable
     private fun ApplicationItem(item: RegisteredApplication) {
         val context = LocalContext.current
-        val isPreview = LocalInspectionMode.current
-        var icon by remember {
-            mutableStateOf(
-                if (isPreview) iconCache.defaultAppIcon
-                else iconCache.get(item) ?: iconCache.defaultAppIcon
-            )
-        }
         val registrationState = RegistrationStateStyle.contentOf(item)
-
-        if (icon == iconCache.defaultAppIcon) {
-            LaunchedEffect(Unit) {
-                withContext(Dispatchers.IO) {
-                    icon = iconCache.cache(item)
-                }
-            }
-        }
 
         Row(
             Modifier
@@ -215,7 +197,7 @@ class ApplicationListPage : Fragment() {
                 .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(icon, item.appName, modifier = Modifier.size(48.dp))
+            AppIcon(item, Modifier.size(48.dp))
             Spacer(Modifier.width(20.dp))
             Column {
                 AppInfo(item, registrationState)
@@ -223,7 +205,6 @@ class ApplicationListPage : Fragment() {
             }
         }
     }
-
 
     @Composable
     private fun LastReceive(item: RegisteredApplication) {
