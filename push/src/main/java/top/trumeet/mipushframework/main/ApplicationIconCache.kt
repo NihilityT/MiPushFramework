@@ -1,6 +1,7 @@
 package top.trumeet.mipushframework.main
 
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -32,8 +33,12 @@ class ApplicationIconCache(context: Context) {
     }
 
     private fun getAppIcon(packageName: String): BitmapPainter {
-        val applicationIcon = context.packageManager.getApplicationIcon(packageName)
-        return BitmapPainter(applicationIcon.toBitmap().asImageBitmap())
+        try {
+            val applicationIcon = context.packageManager.getApplicationIcon(packageName)
+            return BitmapPainter(applicationIcon.toBitmap().asImageBitmap())
+        } catch (_: PackageManager.NameNotFoundException) {
+            return defaultAppIcon
+        }
     }
 
 }

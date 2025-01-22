@@ -5,6 +5,7 @@ import static top.trumeet.mipush.provider.DatabaseUtils.daoSession;
 import android.content.Context;
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.xiaomi.push.service.MIPushEventProcessor;
@@ -54,7 +55,11 @@ public class EventDb {
 
     public static long insertEvent(@Event.ResultType int result,
                                    EventType type) {
-        return insertEvent(type.fillEvent(new Event(null
+        return insertEvent(createEvent(result, type));
+    }
+
+    public static @NonNull Event createEvent(@Event.ResultType int result, EventType type) {
+        return type.fillEvent(new Event(null
                 , type.getPkg()
                 , type.getType()
                 , Utils.getUTC().getTime()
@@ -64,7 +69,29 @@ public class EventDb {
                 , null
                 , type.getPayload()
                 , Utils.getRegSec(type.getPkg())
-        )));
+        ));
+    }
+
+    public static List<Event> queryById(
+            @Nullable Long lastId, int size,
+            @Nullable Set<Integer> types,
+            @Nullable String pkg, @Nullable String text) {
+        QueryBuilder<Event> query = daoSession.queryBuilder(Event.class)
+                .orderDesc(EventDao.Properties.Id)
+                .limit(size);
+        if (lastId != null) {
+            query.where(EventDao.Properties.Id.lt(lastId));
+        }
+        if (pkg != null && !pkg.trim().isEmpty()) {
+            query.where(EventDao.Properties.Pkg.eq(pkg));
+        }
+        if (types != null && !types.isEmpty()) {
+            query.where(EventDao.Properties.Type.in(types));
+        }
+        if (text != null && !text.trim().isEmpty()) {
+            query.where(EventDao.Properties.Info.like("%" + text + "%"));
+        }
+        return query.list();
     }
 
     public static List<Event> queryByPage(

@@ -27,7 +27,7 @@ public abstract class EventType {
 
     private final byte[] payload;
 
-    public EventType(int mType, String mInfo, String pkg, byte[] payload) {
+    public EventType(@Event.Type int mType, String mInfo, String pkg, byte[] payload) {
         this.mType = mType;
         this.mInfo = mInfo;
         this.pkg = pkg;

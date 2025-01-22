@@ -1,7 +1,5 @@
 package top.trumeet.mipushframework.event;
 
-import static com.xiaomi.push.service.MIPushEventProcessor.buildContainer;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -60,7 +58,7 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
         holder.summary.setText(type.getSummary(context));
 
         String status = utils.getStatusDescription(item);
-        String receiveDate = utils.getReceiveDate(item);
+        String receiveDate = utils.getReceiveDateString(item);
 
         holder.text2.setText(receiveDate);
         holder.status.setText(status);
@@ -82,12 +80,8 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
 
     @Nullable
     private Dialog createInfoDialog(final Event event, final Context context) {
-        XmPushActionContainer container = event.getPayload() == null ?
-                null : buildContainer(event.getPayload());
-        final CharSequence info = EventListPageUtils.containerToJson(container, event.getRegSec());
-        if (info == null) {
-            return null;
-        }
+        final CharSequence info = EventListPageUtils.getJson(event);
+        if (info == null) return null;
 
         TextView showText = new TextView(context);
         showText.setText(info);

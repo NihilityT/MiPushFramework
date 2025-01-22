@@ -20,7 +20,7 @@ import com.xiaomi.xmsf.BuildConfig;
 import com.xiaomi.xmsf.R;
 
 import top.trumeet.mipushframework.control.FragmentBroadcast;
-import top.trumeet.mipushframework.event.EventFragment;
+import top.trumeet.mipushframework.event.EventListPage;
 import top.trumeet.mipushframework.main.ApplicationListPage;
 import top.trumeet.mipushframework.main.SettingsPage;
 
@@ -143,7 +143,7 @@ public class MainFragment extends Fragment {
                         if (mBroadcaster.hasFragment(FRAGMENT_EVENT)) {
                             return mBroadcaster.getFragment(FRAGMENT_EVENT);
                         }
-                        EventFragment eventFragment = new EventFragment();
+                        EventListPage eventFragment = new EventListPage();
                         mBroadcaster.registerFragment(FRAGMENT_EVENT, eventFragment);
                         return eventFragment;
                     case 1:

@@ -42,6 +42,18 @@ public class EventListPageUtils {
         this.context = context;
     }
 
+    static List<Event> getEventsById(@Nullable Long lastId, int size, String packetName, String query) {
+        Set<Integer> types = null;
+        if (!ConfigCenter.getInstance().isShowAllEvents()) {
+            types = Set.of(
+                    Event.Type.SendMessage,
+                    Event.Type.Registration,
+                    Event.Type.RegistrationResult,
+                    Event.Type.UnRegistration);
+        }
+        return EventDb.queryById(lastId, size, types, packetName, query);
+    }
+
     static List<Event> getEvents(int pageIndex, int pageSize, String packetName, String query) {
         Set<Integer> types = null;
         if (!ConfigCenter.getInstance().isShowAllEvents()) {
@@ -77,33 +89,54 @@ public class EventListPageUtils {
         }
     }
 
-    public @NonNull String getReceiveDate(@NonNull Event item) {
+    static @Nullable CharSequence getJson(Event event) {
+        XmPushActionContainer container = event.getContainer();
+        final CharSequence info = containerToJson(container, event.getRegSec());
+        if (info == null) {
+            return null;
+        }
+        return info;
+    }
+
+    public @NonNull String getReceiveDateString(@NonNull Event item) {
+        DateFormat formatter = SimpleDateFormat.getDateTimeInstance();
+        return context.getString(R.string.date_format_long, formatter.format(getReceiveDate(item)));
+    }
+
+    static @NonNull Date getReceiveDate(@NonNull Event item) {
         Calendar calendarServer = Calendar.getInstance();
         calendarServer.setTime(new Date(item.getDate()));
         int zoneOffset = calendarServer.get(Calendar.ZONE_OFFSET);
         int dstOffset = calendarServer.get(Calendar.DST_OFFSET);
         calendarServer.add(Calendar.MILLISECOND, (zoneOffset + dstOffset));
-        DateFormat formatter = SimpleDateFormat.getDateTimeInstance();
-
-        return context.getString(R.string.date_format_long, formatter.format(calendarServer.getTime()));
+        return calendarServer.getTime();
     }
 
 
     @Nullable
     public String getDecoratedStatus(XmPushActionContainer container) {
         try {
-            Set<String> ops = Configurations.getInstance().handle(container.getPackageName(), container);
+            Set<String> ops = getStatus(container);
             String status = container.getMetaInfo().getExtra().get("channel_name");
+            if (!ops.isEmpty()) {
+                status = ops + " " + status;
+            }
+            return status;
+        } catch (Throwable ignored) {
+        }
+        return null;
+    }
+
+    public Set<String> getStatus(XmPushActionContainer container) {
+        try {
+            Set<String> ops = Configurations.getInstance().handle(container.getPackageName(), container);
             if (!NotificationChannelManager.isNotificationChannelEnabled(
                     container.getPackageName(),
                     NotificationController.getExistsChannelId(context,
                             container.metaInfo, container.packageName))) {
                 ops.add("disable");
             }
-            if (!ops.isEmpty()) {
-                status = ops + " " + status;
-            }
-            return status;
+            return ops;
         } catch (Throwable ignored) {
         }
         return null;
