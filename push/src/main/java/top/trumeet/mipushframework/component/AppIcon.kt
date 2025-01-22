@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import top.trumeet.mipush.provider.register.RegisteredApplication
 import top.trumeet.mipushframework.main.ApplicationIconCache
 
 @SuppressLint("StaticFieldLeak")
@@ -26,20 +25,20 @@ fun initIconCache(context: Context) {
 }
 
 @Composable
-fun AppIcon(item: RegisteredApplication, modifier: Modifier) {
+fun AppIcon(packageName: String, appName: String?, modifier: Modifier = Modifier) {
     val isPreview = LocalInspectionMode.current
     var icon by remember {
         mutableStateOf(
             if (isPreview) iconCache.defaultAppIcon
-            else iconCache.get(item) ?: iconCache.defaultAppIcon
+            else iconCache.get(packageName) ?: iconCache.defaultAppIcon
         )
     }
     if (icon == iconCache.defaultAppIcon) {
         LaunchedEffect(Unit) {
             withContext(Dispatchers.IO) {
-                icon = iconCache.cache(item)
+                icon = iconCache.cache(packageName)
             }
         }
     }
-    Image(icon, item.appName, modifier = modifier)
+    Image(icon, appName, modifier = modifier)
 }

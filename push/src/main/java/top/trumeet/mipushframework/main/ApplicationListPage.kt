@@ -137,7 +137,7 @@ class ApplicationListPage : Fragment() {
             refreshScope.launch {
                 items = getMiPushApplications()
                 isRefreshing = false
-                items.res.forEach { iconCache.cache(it) }
+                items.res.forEach { iconCache.cache(it.packageName) }
             }
         }
         LaunchedEffect(query) { onRefresh() }
@@ -197,7 +197,7 @@ class ApplicationListPage : Fragment() {
                 .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AppIcon(item, Modifier.size(48.dp))
+            AppIcon(item.packageName, item.appName, Modifier.size(48.dp))
             Spacer(Modifier.width(20.dp))
             Column {
                 AppInfo(item, registrationState)
