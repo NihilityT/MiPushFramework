@@ -183,7 +183,6 @@ class ApplicationListPage : Fragment() {
     @Composable
     private fun ApplicationItem(item: RegisteredApplication) {
         val context = LocalContext.current
-        val registrationState = RegistrationStateStyle.contentOf(item)
 
         Row(
             Modifier
@@ -200,7 +199,7 @@ class ApplicationListPage : Fragment() {
             AppIcon(item.packageName, item.appName, Modifier.size(48.dp))
             Spacer(Modifier.width(20.dp))
             Column {
-                AppInfo(item, registrationState)
+                AppInfo(item)
                 LastReceive(item)
             }
         }
@@ -221,10 +220,8 @@ class ApplicationListPage : Fragment() {
     }
 
     @Composable
-    private fun AppInfo(
-        item: RegisteredApplication,
-        registrationState: Pair<String, Color>
-    ) {
+    private fun AppInfo(item: RegisteredApplication) {
+        val registrationState = RegistrationStateStyle.contentOf(item)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
                 item.appName,
