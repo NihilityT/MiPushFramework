@@ -144,7 +144,8 @@ private fun ItemLists(
                             .apply()
                         onDismiss()
                     }
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(top = 10.dp, bottom = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 RadioButton(index == selected, onClick = null)
