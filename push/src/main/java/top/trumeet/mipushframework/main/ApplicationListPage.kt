@@ -5,18 +5,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,14 +31,13 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.elvishew.xlog.XLog
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.xiaomi.xmsf.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import top.trumeet.common.utils.Utils
 import top.trumeet.mipush.provider.register.RegisteredApplication
 import top.trumeet.mipushframework.component.AppIcon
+import top.trumeet.mipushframework.component.RefreshableLazyColumn
 import top.trumeet.mipushframework.component.iconCache
 import top.trumeet.mipushframework.utils.ParseUtils
 
@@ -70,32 +66,24 @@ class ApplicationListPage : BaseListPage() {
                 else ApplicationPageOperation.MiPushApplications()
             )
         }
-        val notUseMiPushCount by remember { derivedStateOf { items.totalPkg - items.res.size } }
-        var isRefreshing by remember { mutableStateOf(false) }
 
         val refreshScope = rememberCoroutineScope { Dispatchers.IO }
-        val onRefresh: () -> Unit = {
-            isRefreshing = true
+        val onRefresh: (onRefreshed: () -> Unit) -> Unit = { onRefreshed ->
             refreshScope.launch {
                 items = getMiPushApplications()
-                isRefreshing = false
+                onRefreshed()
                 items.res.forEach { iconCache.cache(it.packageName) }
             }
         }
-        LaunchedEffect(query) { onRefresh() }
 
         Page {
-            SwipeRefresh(
-                state = rememberSwipeRefreshState(isRefreshing),
-                onRefresh = onRefresh
-            ) {
-                LazyColumn(Modifier.fillMaxSize()) {
-                    items(items.res, { it.packageName }) {
-                        ApplicationItem(it)
-                    }
-                    item {
-                        Footer(notUseMiPushCount)
-                    }
+            RefreshableLazyColumn(onRefresh, { items.res.isEmpty() }, onRefresh) {
+                items(items.res, { it.packageName }) {
+                    ApplicationItem(it)
+                }
+                item {
+                    val notUseMiPushCount by remember { derivedStateOf { items.totalPkg - items.res.size } }
+                    Footer(notUseMiPushCount)
                 }
             }
         }
