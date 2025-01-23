@@ -1,15 +1,8 @@
 package top.trumeet.mipushframework.main
 
-import android.app.SearchManager
 import android.content.Context
-import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import android.widget.SearchView
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,14 +26,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.fragment.app.Fragment
 import com.elvishew.xlog.XLog
 import com.xiaomi.xmsf.R
 import com.xiaomi.xmsf.push.utils.RegSecUtils
@@ -54,13 +44,10 @@ import top.trumeet.mipush.provider.event.type.TypeFactory
 import top.trumeet.mipushframework.component.AppIcon
 import top.trumeet.mipushframework.component.RefreshableLazyColumn
 import top.trumeet.mipushframework.component.TextView
-import top.trumeet.mipushframework.component.initIconCache
-import top.trumeet.ui.theme.Theme
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
-class EventListPage() : Fragment() {
+class EventListPage() : BaseListPage() {
     constructor(packageName: String) : this() {
         packetName = packageName
     }
@@ -70,35 +57,39 @@ class EventListPage() : Fragment() {
     }
 
     private var packetName: String = ""
-    private var query by mutableStateOf("")
     private lateinit var utils: EventListPageUtils
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        super.onCreateView(inflater, container, savedInstanceState)
-        setHasOptionsMenu(true)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        if (packetName.isNotEmpty()) {
+            inflater.inflate(R.menu.menu_main, menu)
+        }
+        super.onCreateOptionsMenu(menu, inflater)
+    }
 
-        return ComposeView(requireContext()).apply {
-            var lastId: Long? = null
-            setContent {
-                Page {
-                    val context = LocalContext.current
-                    var clickedEvent by remember { mutableStateOf<EventInfoForDisplay?>(null) }
+    override fun initOnPage(context: Context) {
+        if (!::utils.isInitialized) {
+            utils = EventListPageUtils(context)
+        }
+    }
 
-                    clickedEvent?.let {
-                        EventDetailsDialog(clickedEvent!!) { clickedEvent = null }
-                    }
+    @Composable
+    override fun ViewContent() {
+        var lastId: Long? = null
+        Page {
+            val context = LocalContext.current
+            var clickedEvent by remember { mutableStateOf<EventInfoForDisplay?>(null) }
 
-                    EventList(onClick = { clickedEvent = it }) { isRefresh ->
-                        if (isRefresh) lastId = null
-                        val events = EventListPageUtils.getEventsById(
-                            lastId, Constants.PAGE_SIZE, packetName, query
-                        )
-                        events.lastOrNull()?.let { lastId = it.id }
-                        events.map { toEventInfoForDisplay(it, context) }
-                    }
-                }
+            clickedEvent?.let {
+                EventDetailsDialog(clickedEvent!!) { clickedEvent = null }
+            }
+
+            EventList(onClick = { clickedEvent = it }) { isRefresh ->
+                if (isRefresh) lastId = null
+                val events = EventListPageUtils.getEventsById(
+                    lastId, Constants.PAGE_SIZE, packetName, query
+                )
+                events.lastOrNull()?.let { lastId = it.id }
+                events.map { toEventInfoForDisplay(it, context) }
             }
         }
     }
@@ -171,53 +162,6 @@ class EventListPage() : Fragment() {
                 TextView(json)
             }
         )
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        if (packetName.isNotEmpty()) {
-            inflater.inflate(R.menu.menu_main, menu)
-        }
-        menu.findItem(R.id.action_enable).setVisible(false)
-        menu.findItem(R.id.action_help).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
-
-        val searchItem = menu.findItem(R.id.action_search)
-        searchItem.setVisible(true)
-
-        initSearchBar(searchItem)
-    }
-
-
-    private fun initSearchBar(searchItem: MenuItem) {
-        val searchManager =
-            requireActivity().getSystemService(Context.SEARCH_SERVICE) as SearchManager
-        val searchView = searchItem.actionView as SearchView
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().componentName))
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextChange(newText: String): Boolean {
-                if (newText != query) {
-                    query = newText.lowercase(Locale.getDefault())
-                }
-                return true
-            }
-
-            override fun onQueryTextSubmit(newText: String): Boolean {
-                return true
-            }
-        })
-    }
-
-    @Composable
-    fun Page(content: @Composable () -> Unit) {
-        val context = LocalContext.current
-        initIconCache(context)
-        if (!::utils.isInitialized) {
-            utils = EventListPageUtils(context)
-        }
-
-        Theme {
-            Surface(content = content)
-        }
     }
 
     @Composable
@@ -389,7 +333,7 @@ class EventListPage() : Fragment() {
 
 }
 
-class EventInfoForDisplay(
+private class EventInfoForDisplay(
     val id: Long,
     val packageName: String,
     val configOptions: Set<String>,
