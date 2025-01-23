@@ -68,7 +68,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class EventListPage : Fragment() {
+class EventListPage() : Fragment() {
+    constructor(packageName: String) : this() {
+        packetName = packageName
+    }
+
     companion object {
         private val receiveDateFormat: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
     }
@@ -179,6 +183,9 @@ class EventListPage : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
+        if (packetName.isNotEmpty()) {
+            inflater.inflate(R.menu.menu_main, menu)
+        }
         menu.findItem(R.id.action_enable).setVisible(false)
         menu.findItem(R.id.action_help).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
 

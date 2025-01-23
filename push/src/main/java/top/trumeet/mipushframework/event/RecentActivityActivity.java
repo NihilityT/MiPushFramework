@@ -1,8 +1,9 @@
 package top.trumeet.mipushframework.event;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.elevation.SurfaceColors;
 
@@ -19,7 +20,7 @@ public class RecentActivityActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(android.R.id.content, EventFragment.newInstance(getIntent().getDataString()))
+                    .add(android.R.id.content, new EventListPage(getIntent().getDataString()))
                     .commitAllowingStateLoss();
         }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
