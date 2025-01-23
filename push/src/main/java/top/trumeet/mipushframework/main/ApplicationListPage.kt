@@ -1,15 +1,5 @@
 package top.trumeet.mipushframework.main
 
-import android.app.SearchManager
-import android.content.Context
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import android.widget.SearchView
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
@@ -45,7 +33,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.fragment.app.Fragment
 import com.elvishew.xlog.XLog
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -56,70 +43,26 @@ import top.trumeet.common.utils.Utils
 import top.trumeet.mipush.provider.register.RegisteredApplication
 import top.trumeet.mipushframework.component.AppIcon
 import top.trumeet.mipushframework.component.iconCache
-import top.trumeet.mipushframework.component.initIconCache
 import top.trumeet.mipushframework.utils.ParseUtils
-import top.trumeet.ui.theme.Theme
-import java.util.Locale
 
-class ApplicationListPage : Fragment() {
-    private var query by mutableStateOf("")
+class ApplicationListPage : BaseListPage() {
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        super.onCreateView(inflater, container, savedInstanceState)
-        setHasOptionsMenu(true)
-
-        return ComposeView(requireContext()).apply {
-            setContent {
-                ApplicationList {
-                    val miPushApplications =
-                        ApplicationPageOperation.getMiPushApplicationsThatQueryMatched(query)
-                    ApplicationPageOperation.updateRegisteredApplicationDb(
-                        context,
-                        miPushApplications.res
-                    )
-                    miPushApplications
-                }
-            }
+    @Composable
+    override fun ViewContent() {
+        ApplicationList {
+            val miPushApplications =
+                ApplicationPageOperation.getMiPushApplicationsThatQueryMatched(query)
+            ApplicationPageOperation.updateRegisteredApplicationDb(
+                context,
+                miPushApplications.res
+            )
+            miPushApplications
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        menu.findItem(R.id.action_enable).setVisible(false)
-        menu.findItem(R.id.action_help).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
-
-        val searchItem = menu.findItem(R.id.action_search)
-        searchItem.setVisible(true)
-
-        initSearchBar(searchItem)
-    }
-
-
-    private fun initSearchBar(searchItem: MenuItem) {
-        val searchManager =
-            requireActivity().getSystemService(Context.SEARCH_SERVICE) as SearchManager
-        val searchView = searchItem.actionView as SearchView
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().componentName))
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextChange(newText: String): Boolean {
-                if (newText != query) {
-                    query = newText.lowercase(Locale.getDefault())
-                }
-                return true
-            }
-
-            override fun onQueryTextSubmit(newText: String): Boolean {
-                return true
-            }
-        })
     }
 
 
     @Composable
     fun ApplicationList(getMiPushApplications: () -> ApplicationPageOperation.MiPushApplications) {
-        initIconCache(LocalContext.current)
         val isPreview = LocalInspectionMode.current
         var items by remember {
             mutableStateOf(
@@ -141,19 +84,17 @@ class ApplicationListPage : Fragment() {
         }
         LaunchedEffect(query) { onRefresh() }
 
-        Theme {
-            Surface {
-                SwipeRefresh(
-                    state = rememberSwipeRefreshState(isRefreshing),
-                    onRefresh = onRefresh
-                ) {
-                    LazyColumn(Modifier.fillMaxSize()) {
-                        items(items.res, { it.packageName }) {
-                            ApplicationItem(it)
-                        }
-                        item {
-                            Footer(notUseMiPushCount)
-                        }
+        Page {
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(isRefreshing),
+                onRefresh = onRefresh
+            ) {
+                LazyColumn(Modifier.fillMaxSize()) {
+                    items(items.res, { it.packageName }) {
+                        ApplicationItem(it)
+                    }
+                    item {
+                        Footer(notUseMiPushCount)
                     }
                 }
             }
