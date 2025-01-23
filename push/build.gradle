@@ -182,14 +182,9 @@ dependencies {
 
 
     // Support
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.appcompat:appcompat:1.5.0'
 
 
-    // Recycler
-    implementation('com.github.drakeet:MultiType:v3.3.0', {
-        exclude group: 'com.android.support'
-    })
     // RxActivityResult
     implementation('com.github.VictorAlbertos:RxActivityResult:0.4.5-2.x', {
         exclude group: 'com.android.support'
