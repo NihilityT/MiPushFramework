@@ -1,5 +1,7 @@
 package top.trumeet.mipushframework.component
 
+import android.text.method.LinkMovementMethod
+import android.text.util.Linkify
 import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,11 +15,15 @@ import org.intellij.markdown.parser.MarkdownParser
 @Composable
 fun MarkdownView(markdownText: String, modifier: Modifier = Modifier, textSize: Float? = null) {
     val html = toHtml(markdownText)
-    AndroidView(modifier = modifier, factory = { context -> TextView(context) }, update = { it ->
+    AndroidView(modifier = modifier, factory = { context -> TextView(context).apply {
+        minHeight = 0
+        setTextIsSelectable(true) // must before movementMethod
+        isFocusable = true
+        movementMethod = LinkMovementMethod.getInstance()
+    } }, update = { it ->
         it.apply {
             text = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY).trimEnd()
             textSize?.let { setTextSize(it) }
-            minHeight = 0
         }
     })
 }
