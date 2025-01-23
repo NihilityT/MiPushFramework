@@ -209,9 +209,9 @@ fun SettingsItem(
 @Composable
 fun ItemInfo(title: String, summary: String?, modifier: Modifier = Modifier) {
     Column(modifier.padding(start = 10.dp, end = 10.dp)) {
-        Text(title, style = MaterialTheme.typography.bodyMedium)
+        Text(title, style = MaterialTheme.typography.bodyLarge)
         summary?.let {
-            Text(it, style = MaterialTheme.typography.bodySmall)
+            Text(it, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
