@@ -1,8 +1,6 @@
 package top.trumeet.mipushframework;
 
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -15,13 +13,7 @@ import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.elevation.SurfaceColors;
-import com.nihility.InternalMessenger;
-import com.xiaomi.channel.commonutils.android.DeviceInfo;
-import com.xiaomi.channel.commonutils.android.MIUIUtils;
-import com.xiaomi.push.service.XMPushServiceMessenger;
-import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.xmsf.R;
-import com.xiaomi.xmsf.utils.ConfigCenter;
 
 import io.reactivex.disposables.CompositeDisposable;
 import top.trumeet.mipushframework.control.CheckPermissionsUtils;
@@ -33,50 +25,32 @@ import top.trumeet.mipushframework.control.CheckPermissionsUtils;
  */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
+    private final MainPageUtils mainPageUtils = new MainPageUtils();
 
     private View mConnectProgress;
     private ViewPropertyAnimator mProgressFadeOutAnimate;
     private MainFragment mFragment;
     private CompositeDisposable composite = new CompositeDisposable();
-    private InternalMessenger messenger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        messenger = new InternalMessenger(this) {{
-            register(new IntentFilter(XMPushServiceMessenger.IntentSetConnectionStatus));
-            addListener(intent -> {
-                String status = intent.getStringExtra("status");
-                setTitle(getString(R.string.preference_title) + " (" + status + ")");
-            });
-        }};
+        mainPageUtils.initOnCreate(this, status -> {
+            setTitle(getString(R.string.preference_title) + " (" + status + ")");
+        });
 
-        hookTest();
         checkAndConnect();
 
-        ConfigCenter.getInstance().loadConfigurations(this);
+        setActionBarImmersiveMode();
+    }
 
+    private void setActionBarImmersiveMode() {
         int color = SurfaceColors.SURFACE_2.getColor(this);
         getWindow().setStatusBarColor(color);
         getWindow().setNavigationBarColor(color);
-
-        messenger.send(new Intent(XMPushServiceMessenger.IntentGetConnectionStatus));
     }
 
-
-    void hookTest() {
-        Log.i(TAG, String.format("[hook_res] MIUIUtils.getIsMIUI() -> [%s]", MIUIUtils.getIsMIUI()));
-        Log.i(TAG, String.format("[hook_res] DeviceInfo.quicklyGetIMEI() -> [%s]", DeviceInfo.quicklyGetIMEI(this)));
-        Log.i(TAG, String.format("[hook_res] DeviceInfo.getMacAddress() -> [%s]", DeviceInfo.getMacAddress(this)));
-        Log.i(TAG, String.format("[hook_res] ConnectionConfiguration.getXmppServerHost() -> [%s]", ConnectionConfiguration.getXmppServerHost()));
-    }
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
 
     @UiThread
     private void checkAndConnect() {
@@ -109,11 +83,6 @@ public class MainActivity extends AppCompatActivity {
         }, throwable -> {
             Log.e(TAG, "check permissions", throwable);
         }, this));
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfiguration) {
-        super.onConfigurationChanged(newConfiguration);
     }
 
     private void initRealView() {
