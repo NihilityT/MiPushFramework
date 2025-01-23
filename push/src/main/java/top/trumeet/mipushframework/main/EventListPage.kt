@@ -15,30 +15,23 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
@@ -50,8 +43,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import com.elvishew.xlog.XLog
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.xiaomi.xmsf.R
 import com.xiaomi.xmsf.push.utils.RegSecUtils
 import kotlinx.coroutines.Dispatchers
@@ -61,6 +52,7 @@ import top.trumeet.common.utils.Utils
 import top.trumeet.mipush.provider.event.Event
 import top.trumeet.mipush.provider.event.type.TypeFactory
 import top.trumeet.mipushframework.component.AppIcon
+import top.trumeet.mipushframework.component.RefreshableLazyColumn
 import top.trumeet.mipushframework.component.TextView
 import top.trumeet.mipushframework.component.initIconCache
 import top.trumeet.ui.theme.Theme
@@ -268,41 +260,6 @@ class EventListPage() : Fragment() {
     }
 
     @Composable
-    private fun RefreshableLazyColumn(
-        doRefresh: (onRefreshed: () -> Unit) -> Unit,
-        isNeedMore: (lastVisibleIndex: Int) -> Boolean,
-        doLoadMore: (onRefreshed: () -> Unit) -> Unit,
-        content: LazyListScope.() -> Unit
-    ) {
-        val currentIsNeedMore by rememberUpdatedState(isNeedMore)
-        val currentDoLoadMore by rememberUpdatedState(doLoadMore)
-        var isRefreshing by remember { mutableStateOf(false) }
-        val onRefreshed = { isRefreshing = false }
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(isRefreshing),
-            onRefresh = {
-                isRefreshing = true
-                doRefresh(onRefreshed)
-            }
-        ) {
-            val lazyListState = rememberLazyListState()
-            LaunchedEffect(lazyListState) {
-                snapshotFlow { lazyListState.layoutInfo.visibleItemsInfo }
-                    .collect { visibleItems ->
-                        if (isRefreshing) return@collect
-                        val lastIndex = if (visibleItems.isNotEmpty())
-                            visibleItems.last().index else 0
-                        if (currentIsNeedMore(lastIndex)) {
-                            isRefreshing = true
-                            currentDoLoadMore(onRefreshed)
-                        }
-                    }
-            }
-            LazyColumn(Modifier.fillMaxSize(), state = lazyListState, content = content)
-        }
-    }
-
-    @Composable
     private fun EventItem(item: EventInfoForDisplay, onClick: (EventInfoForDisplay) -> Unit) {
         Row(
             Modifier
@@ -443,3 +400,4 @@ class EventInfoForDisplay(
     val appName: String? = null,
     val event: Event = Event(),
 )
+
