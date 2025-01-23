@@ -83,7 +83,7 @@
                 android:configChanges="screenLayout|screenSize|orientation"/>
 
         <activity
-                android:name="top.trumeet.mipushframework.event.RecentActivityActivity"
+                android:name="top.trumeet.mipushframework.main.RecentActivityActivity"
                 android:label="@string/recent_activity_title" />
         <activity
                 android:name="top.trumeet.mipushframework.main.HelpActivity"

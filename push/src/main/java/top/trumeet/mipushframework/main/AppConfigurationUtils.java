@@ -23,7 +23,6 @@ import top.trumeet.common.Constants;
 import top.trumeet.common.utils.NotificationUtils;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.register.RegisteredApplication;
-import top.trumeet.mipushframework.event.RecentActivityActivity;
 
 public class AppConfigurationUtils {
     private final Context context;

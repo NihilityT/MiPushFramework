@@ -57,7 +57,6 @@ import top.trumeet.mipush.provider.register.RegisteredApplication
 import top.trumeet.mipushframework.component.AppIcon
 import top.trumeet.mipushframework.component.iconCache
 import top.trumeet.mipushframework.component.initIconCache
-import top.trumeet.mipushframework.event.EventListPageUtils
 import top.trumeet.mipushframework.utils.ParseUtils
 import top.trumeet.ui.theme.Theme
 import java.util.Locale

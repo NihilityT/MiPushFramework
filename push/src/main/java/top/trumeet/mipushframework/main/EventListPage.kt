@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.event
+package top.trumeet.mipushframework.main
 
 import android.app.SearchManager
 import android.content.Context

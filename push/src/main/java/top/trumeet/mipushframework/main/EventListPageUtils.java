@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.event;
+package top.trumeet.mipushframework.main;
 
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -33,7 +33,6 @@ import java.util.Set;
 
 import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.event.Event;
-import top.trumeet.mipushframework.main.ApplicationInfoPage;
 
 public class EventListPageUtils {
     private final Context context;

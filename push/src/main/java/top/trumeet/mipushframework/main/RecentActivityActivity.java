@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.event;
+package top.trumeet.mipushframework.main;
 
 import android.os.Bundle;
 import android.view.MenuItem;
