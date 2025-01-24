@@ -18,18 +18,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -39,7 +34,6 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.elvishew.xlog.XLog
-import com.google.gson.Gson
 import com.xiaomi.xmsf.R
 import com.xiaomi.xmsf.push.utils.RegSecUtils
 import kotlinx.coroutines.Dispatchers
@@ -52,10 +46,8 @@ import top.trumeet.mipush.provider.event.type.TypeFactory
 import top.trumeet.mipushframework.component.AppIcon
 import top.trumeet.mipushframework.component.RefreshableLazyColumn
 import top.trumeet.mipushframework.component.TextView
-import top.trumeet.mipushframework.component.snapshotStateListSaver
 import java.text.SimpleDateFormat
 import java.util.Date
-import kotlin.reflect.KClass
 
 class EventListPage() : BaseListPage() {
     constructor(packageName: String) : this() {
@@ -99,7 +91,7 @@ fun EventList(query: String = "", packageName: String = "") {
             )
             events.lastOrNull()?.let { lastId = it.id }
             events.map { toEventInfoForDisplay(it, context, EventListPageUtils(context)) }
-        }, query)
+        }, query, packageName)
     }
 }
 
@@ -177,22 +169,22 @@ private fun EventDetailsDialog(
     )
 }
 
+private val g_items = mutableStateListOf<EventInfoForDisplay>()
+
 @Composable
 fun EventList(
     onClick: (EventInfoForDisplay) -> Unit,
     getEvents: (isRefresh: Boolean) -> List<EventInfoForDisplay>,
-    query: String
+    query: String,
+    packageName: String
 ) {
     val isPreview = LocalInspectionMode.current
-    val items =
-        rememberSaveable(saver = snapshotStateListSaver(EventInfoForDisplay::class)) {
-            mutableStateListOf<EventInfoForDisplay>().apply {
-                addAll(
-                    if (isPreview) getEvents(true)
-                    else mutableListOf()
-                )
-            }
-        }
+    val items = remember {
+        if (isPreview) getEvents(true).toMutableList()
+        else if (packageName.isEmpty()) g_items
+        else mutableStateListOf()
+    }
+
 
     val refreshScope = rememberCoroutineScope { Dispatchers.IO }
     val doLoadMore: (onRefreshed: () -> Unit) -> Unit = { onRefreshed ->
@@ -345,7 +337,7 @@ fun EventListPreview() {
     }
 
     Page {
-        EventList({ }, getEvents, "")
+        EventList({ }, getEvents, "", "")
     }
 }
 

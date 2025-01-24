@@ -41,7 +41,6 @@ import top.trumeet.mipush.provider.register.RegisteredApplication
 import top.trumeet.mipushframework.component.AppIcon
 import top.trumeet.mipushframework.component.RefreshableLazyColumn
 import top.trumeet.mipushframework.component.iconCache
-import top.trumeet.mipushframework.component.mutableStateSaver
 import top.trumeet.mipushframework.utils.ParseUtils
 
 class ApplicationListPage : BaseListPage() {
@@ -67,15 +66,15 @@ fun ApplicationList(query: String) {
     }
 }
 
+private var g_items by mutableStateOf(ApplicationPageOperation.MiPushApplications())
+
 @Composable
-fun ApplicationList(query: String = "", getMiPushApplications: () -> ApplicationPageOperation.MiPushApplications) {
+fun ApplicationList(
+    query: String = "",
+    getMiPushApplications: () -> ApplicationPageOperation.MiPushApplications
+) {
     val isPreview = LocalInspectionMode.current
-    var items by rememberSaveable(saver = mutableStateSaver(ApplicationPageOperation.MiPushApplications::class)) {
-        mutableStateOf(
-            if (isPreview) getMiPushApplications()
-            else ApplicationPageOperation.MiPushApplications()
-        )
-    }
+    if (isPreview) g_items = getMiPushApplications()
     var isNeedRefresh by rememberSaveable(query) { mutableStateOf(true) }
 
     val refreshScope = rememberCoroutineScope { Dispatchers.IO }
@@ -83,7 +82,7 @@ fun ApplicationList(query: String = "", getMiPushApplications: () -> Application
         refreshScope.launch {
             val applications = getMiPushApplications()
             withContext(Dispatchers.Main) {
-                items = applications
+                g_items = applications
                 isNeedRefresh = false
                 onRefreshed()
             }
@@ -92,12 +91,12 @@ fun ApplicationList(query: String = "", getMiPushApplications: () -> Application
     }
 
     Page {
-        RefreshableLazyColumn(onRefresh, { items.res.isEmpty() }, onRefresh, isNeedRefresh) {
-            items(items.res, { it.packageName }) {
+        RefreshableLazyColumn(onRefresh, { g_items.res.isEmpty() }, onRefresh, isNeedRefresh) {
+            items(g_items.res, { it.packageName }) {
                 ApplicationItem(it)
             }
             item {
-                val notUseMiPushCount by remember { derivedStateOf { items.totalPkg - items.res.size } }
+                val notUseMiPushCount by remember { derivedStateOf { g_items.totalPkg - g_items.res.size } }
                 Footer(notUseMiPushCount)
             }
         }
