@@ -37,6 +37,7 @@ import com.xiaomi.xmsf.R
 import com.xiaomi.xmsf.push.utils.RegSecUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import top.trumeet.common.Constants
 import top.trumeet.common.utils.Utils
 import top.trumeet.mipush.provider.event.Event
@@ -190,17 +191,22 @@ fun EventList(
             onRefreshed()
         }
     }
+    var isNeedRefresh by remember(query) { mutableStateOf(true) }
     val doRefresh: (onRefreshed: () -> Unit) -> Unit = { onRefreshed ->
         refreshScope.launch {
-            items.clear()
-            items.addAll(getEvents(true))
-            onRefreshed()
+            val elements = getEvents(true)
+            withContext(Dispatchers.Main) {
+                items.clear()
+                items.addAll(elements)
+                isNeedRefresh = false
+                onRefreshed()
+            }
         }
     }
 
     val isNeedMore: (Int) -> Boolean = { it >= items.size - 10 }
 
-    RefreshableLazyColumn(doRefresh, isNeedMore, doLoadMore) {
+    RefreshableLazyColumn(doRefresh, isNeedMore, doLoadMore, isNeedRefresh) {
         items(items, { it.id }) {
             EventItem(it, onClick)
         }
