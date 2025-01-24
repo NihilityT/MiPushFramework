@@ -24,7 +24,7 @@ public class MainPageUtils {
     public MainPageUtils() {
     }
 
-    void initOnCreate(Context context, ConnectionStatusChanged connectionStatusChanged) {
+    public void initOnCreate(Context context, ConnectionStatusChanged connectionStatusChanged) {
         context = context.getApplicationContext();
         messenger = new InternalMessenger(context) {{
             register(new IntentFilter(XMPushServiceMessenger.IntentSetConnectionStatus));
