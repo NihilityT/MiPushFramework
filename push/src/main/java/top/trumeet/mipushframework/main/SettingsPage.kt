@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
@@ -34,9 +35,10 @@ import com.nihility.InternalMessenger
 import com.xiaomi.push.service.XMPushServiceMessenger
 import com.xiaomi.xmsf.R
 import com.xiaomi.xmsf.SettingUtils
+import top.trumeet.common.utils.Utils
+import top.trumeet.mipushframework.MainPageOperation
 import top.trumeet.mipushframework.component.SettingsGroup
 import top.trumeet.mipushframework.component.SettingsItem
-import top.trumeet.common.utils.Utils
 import top.trumeet.ui.theme.Theme
 
 class SettingsPage : Fragment() {
@@ -72,6 +74,7 @@ private fun SettingsScreen() {
     Column {
         ServiceConfigurationBlock()
         DebugBlock()
+        AboutBlock()
     }
 }
 
@@ -177,15 +180,36 @@ private fun DebugBlock() {
         }
 
         SettingsItem(
+            title = stringResource(R.string.try_to_force_register_all_applications)
+        ) {
+            SettingUtils.tryForceRegisterAllApplications()
+        }
+    }
+}
+
+@Composable
+private fun AboutBlock() {
+    val context = LocalContext.current
+    val mainPageOperation = MainPageOperation(context)
+
+    SettingsGroup(title = stringResource(R.string.action_about)) {
+        SettingsItem(
             title = stringResource(R.string.helplib_title)
         ) {
             context.startActivity(Intent(context, HelpActivity::class.java))
         }
 
         SettingsItem(
-            title = stringResource(R.string.try_to_force_register_all_applications)
+            title = stringResource(R.string.action_update)
         ) {
-            SettingUtils.tryForceRegisterAllApplications()
+            mainPageOperation.gotoGitHubReleasePage()
+            Toast.makeText(context, R.string.update_toast, Toast.LENGTH_LONG).show()
+        }
+
+        SettingsItem(
+            title = stringResource(R.string.action_about)
+        ) {
+            mainPageOperation.showAboutDialog()
         }
     }
 }

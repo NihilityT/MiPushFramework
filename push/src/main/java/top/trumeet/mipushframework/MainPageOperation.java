@@ -20,13 +20,13 @@ public class MainPageOperation {
         this.context = context;
     }
 
-    void gotoHelpActivity() {
+    public void gotoHelpActivity() {
         Intent intent = new Intent();
         intent.setClass(context, HelpActivity.class);
         context.startActivity(intent);
     }
 
-    void showAboutDialog() {
+    public void showAboutDialog() {
         String versionInfo = String.format("name: %s\ncode: %d\nflavor: %s\ntype: %s",
                 BuildConfig.VERSION_NAME,
                 BuildConfig.VERSION_CODE,
@@ -43,7 +43,7 @@ public class MainPageOperation {
         content.setText(versionInfo);
     }
 
-    void gotoGitHubReleasePage() {
+    public void gotoGitHubReleasePage() {
         context.startActivity(new Intent(Intent.ACTION_VIEW)
                 .setData(Uri.parse("https://github.com/NihilityT/MiPushFramework/releases")));
     }
