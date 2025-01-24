@@ -73,18 +73,20 @@ fun ApplicationList(getMiPushApplications: () -> ApplicationPageOperation.MiPush
             else ApplicationPageOperation.MiPushApplications()
         )
     }
+    var isNeedRefresh by remember(getMiPushApplications) { mutableStateOf(true) }
 
     val refreshScope = rememberCoroutineScope { Dispatchers.IO }
     val onRefresh: (onRefreshed: () -> Unit) -> Unit = { onRefreshed ->
         refreshScope.launch {
             items = getMiPushApplications()
+            isNeedRefresh = false
             onRefreshed()
             items.res.forEach { iconCache.cache(it.packageName) }
         }
     }
 
     Page {
-        RefreshableLazyColumn(onRefresh, { items.res.isEmpty() }, onRefresh) {
+        RefreshableLazyColumn(onRefresh, { items.res.isEmpty() }, onRefresh, isNeedRefresh) {
             items(items.res, { it.packageName }) {
                 ApplicationItem(it)
             }

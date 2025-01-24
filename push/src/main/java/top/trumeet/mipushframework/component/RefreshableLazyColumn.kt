@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,6 +22,7 @@ fun RefreshableLazyColumn(
     doRefresh: (onRefreshed: () -> Unit) -> Unit,
     isNeedMore: (lastVisibleIndex: Int) -> Boolean,
     doLoadMore: (onRefreshed: () -> Unit) -> Unit,
+    isNeedRefresh: Boolean = false,
     content: LazyListScope.() -> Unit
 ) {
     val currentIsNeedMore by rememberUpdatedState(isNeedMore)
@@ -28,6 +30,13 @@ fun RefreshableLazyColumn(
 
     var isRefreshing by remember { mutableStateOf(false) }
     val onRefreshed by remember { mutableStateOf({ isRefreshing = false }) }
+
+    if (isNeedRefresh) {
+        isRefreshing = true
+        SideEffect {
+            doRefresh(onRefreshed)
+        }
+    }
 
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing),
