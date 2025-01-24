@@ -34,6 +34,7 @@ import com.elvishew.xlog.XLog
 import com.xiaomi.xmsf.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import top.trumeet.common.utils.Utils
 import top.trumeet.mipush.provider.register.RegisteredApplication
 import top.trumeet.mipushframework.component.AppIcon
@@ -78,10 +79,13 @@ fun ApplicationList(getMiPushApplications: () -> ApplicationPageOperation.MiPush
     val refreshScope = rememberCoroutineScope { Dispatchers.IO }
     val onRefresh: (onRefreshed: () -> Unit) -> Unit = { onRefreshed ->
         refreshScope.launch {
-            items = getMiPushApplications()
-            isNeedRefresh = false
-            onRefreshed()
-            items.res.forEach { iconCache.cache(it.packageName) }
+            val applications = getMiPushApplications()
+            withContext(Dispatchers.Main) {
+                items = applications
+                isNeedRefresh = false
+                onRefreshed()
+            }
+            applications.res.forEach { iconCache.cache(it.packageName) }
         }
     }
 
