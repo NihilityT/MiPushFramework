@@ -175,7 +175,7 @@ fun EventList(
     query: String
 ) {
     val isPreview = LocalInspectionMode.current
-    val items = remember(query) {
+    val items = remember {
         mutableStateListOf<EventInfoForDisplay>().apply {
             addAll(
                 if (isPreview) getEvents(true)
