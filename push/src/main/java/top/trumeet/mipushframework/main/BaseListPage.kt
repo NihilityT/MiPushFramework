@@ -70,16 +70,15 @@ abstract class BaseListPage : Fragment() {
 
     @Composable
     protected abstract fun ViewContent()
-    protected open fun initOnPage(context: Context) {}
+}
 
-    @Composable
-    fun Page(content: @Composable () -> Unit) {
-        val context = LocalContext.current
-        initIconCache(context)
-        initOnPage(context)
 
-        Theme {
-            Surface(content = content)
-        }
+@Composable
+fun Page(content: @Composable () -> Unit) {
+    val context = LocalContext.current
+    initIconCache(context)
+
+    Theme {
+        Surface(content = content)
     }
 }
