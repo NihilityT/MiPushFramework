@@ -45,210 +45,215 @@ class ApplicationListPage : BaseListPage() {
 
     @Composable
     override fun ViewContent() {
-        ApplicationList {
-            val miPushApplications =
-                ApplicationPageOperation.getMiPushApplicationsThatQueryMatched(query)
-            ApplicationPageOperation.updateRegisteredApplicationDb(
-                context,
-                miPushApplications.res
-            )
-            miPushApplications
-        }
+        ApplicationList(query)
     }
 
+}
 
-    @Composable
-    fun ApplicationList(getMiPushApplications: () -> ApplicationPageOperation.MiPushApplications) {
-        val isPreview = LocalInspectionMode.current
-        var items by remember {
-            mutableStateOf(
-                if (isPreview) getMiPushApplications()
-                else ApplicationPageOperation.MiPushApplications()
-            )
-        }
-
-        val refreshScope = rememberCoroutineScope { Dispatchers.IO }
-        val onRefresh: (onRefreshed: () -> Unit) -> Unit = { onRefreshed ->
-            refreshScope.launch {
-                items = getMiPushApplications()
-                onRefreshed()
-                items.res.forEach { iconCache.cache(it.packageName) }
-            }
-        }
-
-        Page {
-            RefreshableLazyColumn(onRefresh, { items.res.isEmpty() }, onRefresh) {
-                items(items.res, { it.packageName }) {
-                    ApplicationItem(it)
-                }
-                item {
-                    val notUseMiPushCount by remember { derivedStateOf { items.totalPkg - items.res.size } }
-                    Footer(notUseMiPushCount)
-                }
-            }
-        }
+@Composable
+fun ApplicationList(query: String) {
+    val context = LocalContext.current
+    ApplicationList {
+        val miPushApplications =
+            ApplicationPageOperation.getMiPushApplicationsThatQueryMatched(query)
+        ApplicationPageOperation.updateRegisteredApplicationDb(
+            context,
+            miPushApplications.res
+        )
+        miPushApplications
     }
+}
 
-    @Composable
-    private fun Footer(notUseMiPushCount: Int) {
-        val context = LocalContext.current
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                painterResource(R.drawable.ic_info_outline_black_24dp),
-                null,
-                tint = Color(0xFF757575),
-                modifier = Modifier.padding(10.dp)
-            )
-            Text(
-                ApplicationPageOperation.getNotSupportHint(
-                    context,
-                    notUseMiPushCount
-                )
-            )
-        }
-    }
-
-    @Composable
-    private fun ApplicationItem(item: RegisteredApplication) {
-        val context = LocalContext.current
-
-        Row(
-            Modifier
-                .clickable {
-                    EventListPageUtils.startManagePermissions(
-                        context,
-                        item.packageName,
-                        true
-                    )
-                }
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AppIcon(item.packageName, item.appName, Modifier.size(48.dp))
-            Spacer(Modifier.width(20.dp))
-            Column {
-                AppInfo(item)
-                LastReceive(item)
-            }
-        }
-    }
-
-    @Composable
-    private fun LastReceive(item: RegisteredApplication) {
-        val context = LocalContext.current
-        Text(
-            if (item.lastReceiveTime.time == 0L) ""
-            else stringResource(R.string.last_receive) + ParseUtils.getFriendlyDateString(
-                item.lastReceiveTime,
-                Utils.getUTC(),
-                context
-            ),
-            style = MaterialTheme.typography.bodyLarge,
+@Composable
+fun ApplicationList(getMiPushApplications: () -> ApplicationPageOperation.MiPushApplications) {
+    val isPreview = LocalInspectionMode.current
+    var items by remember {
+        mutableStateOf(
+            if (isPreview) getMiPushApplications()
+            else ApplicationPageOperation.MiPushApplications()
         )
     }
 
-    @Composable
-    private fun AppInfo(item: RegisteredApplication) {
-        val registrationState = RegistrationStateStyle.contentOf(item)
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(
-                item.appName,
-                style = MaterialTheme.typography.bodyLarge,
-                color = registrationState.second
-            )
-            Text(
-                registrationState.first,
-                style = MaterialTheme.typography.bodyMedium,
-                color = registrationState.second
-            )
+    val refreshScope = rememberCoroutineScope { Dispatchers.IO }
+    val onRefresh: (onRefreshed: () -> Unit) -> Unit = { onRefreshed ->
+        refreshScope.launch {
+            items = getMiPushApplications()
+            onRefreshed()
+            items.res.forEach { iconCache.cache(it.packageName) }
         }
     }
 
-
-    @Preview(
-        showBackground = true,
-        device = Devices.PIXEL_3,
-        showSystemUi = true,
-    )
-    @Composable
-    fun ApplicationListPreview() {
-        XLog.init()
-
-        ApplicationList {
-            val miPushApplications = ApplicationPageOperation.MiPushApplications()
-            miPushApplications.res = listOf(
-                registeredApplication(
-                    RegisteredApplication.RegisteredType.NotRegistered,
-                    "123"
-                ),
-                registeredApplication(
-                    RegisteredApplication.RegisteredType.Registered,
-                    "qwe"
-                ),
-                registeredApplication(
-                    RegisteredApplication.RegisteredType.Registered,
-                    "asd"
-                ),
-                registeredApplication(
-                    RegisteredApplication.RegisteredType.Unregistered,
-                    "zxc"
-                ),
-                registeredApplication(
-                    RegisteredApplication.RegisteredType.Unregistered,
-                    "456",
-                    false
-                ),
-            ) + ('a'..'z').map {
-                registeredApplication(
-                    RegisteredApplication.RegisteredType.NotRegistered,
-                    it.toString()
-                )
+    Page {
+        RefreshableLazyColumn(onRefresh, { items.res.isEmpty() }, onRefresh) {
+            items(items.res, { it.packageName }) {
+                ApplicationItem(it)
             }
-
-            miPushApplications
+            item {
+                val notUseMiPushCount by remember { derivedStateOf { items.totalPkg - items.res.size } }
+                Footer(notUseMiPushCount)
+            }
         }
     }
+}
 
-    @Preview(
-        showBackground = true,
-        device = Devices.PIXEL_3,
-        showSystemUi = true,
-    )
-    @Composable
-    fun OneApplicationWithNonMiPushAppPreview() {
-        XLog.init()
-
-        ApplicationList {
-            val miPushApplications = ApplicationPageOperation.MiPushApplications()
-            miPushApplications.res = listOf(
-                registeredApplication(
-                    RegisteredApplication.RegisteredType.NotRegistered,
-                    "123"
-                )
-            )
-            miPushApplications.totalPkg = 100
-            miPushApplications
-        }
-    }
-
-    private fun registeredApplication(
-        registeredType: Int,
-        appName: String,
-        existServices: Boolean = true
-    ): RegisteredApplication {
-        val registeredApplication = RegisteredApplication(
+@Composable
+private fun Footer(notUseMiPushCount: Int) {
+    val context = LocalContext.current
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            painterResource(R.drawable.ic_info_outline_black_24dp),
             null,
-            appName,
-            RegisteredApplication.Type.ASK,
-            true,
-            false,
-            false,
-            false,
-            registeredType,
-            appName
+            tint = Color(0xFF757575),
+            modifier = Modifier.padding(10.dp)
         )
-        registeredApplication.existServices = existServices
-        return registeredApplication
+        Text(
+            ApplicationPageOperation.getNotSupportHint(
+                context,
+                notUseMiPushCount
+            )
+        )
     }
+}
 
+@Composable
+private fun ApplicationItem(item: RegisteredApplication) {
+    val context = LocalContext.current
+
+    Row(
+        Modifier
+            .clickable {
+                EventListPageUtils.startManagePermissions(
+                    context,
+                    item.packageName,
+                    true
+                )
+            }
+            .padding(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AppIcon(item.packageName, item.appName, Modifier.size(48.dp))
+        Spacer(Modifier.width(20.dp))
+        Column {
+            AppInfo(item)
+            LastReceive(item)
+        }
+    }
+}
+
+@Composable
+private fun LastReceive(item: RegisteredApplication) {
+    val context = LocalContext.current
+    Text(
+        if (item.lastReceiveTime.time == 0L) ""
+        else stringResource(R.string.last_receive) + ParseUtils.getFriendlyDateString(
+            item.lastReceiveTime,
+            Utils.getUTC(),
+            context
+        ),
+        style = MaterialTheme.typography.bodyLarge,
+    )
+}
+
+@Composable
+private fun AppInfo(item: RegisteredApplication) {
+    val registrationState = RegistrationStateStyle.contentOf(item)
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(
+            item.appName,
+            style = MaterialTheme.typography.bodyLarge,
+            color = registrationState.second
+        )
+        Text(
+            registrationState.first,
+            style = MaterialTheme.typography.bodyMedium,
+            color = registrationState.second
+        )
+    }
+}
+
+
+@Preview(
+    showBackground = true,
+    device = Devices.PIXEL_3,
+    showSystemUi = true,
+)
+@Composable
+fun ApplicationListPreview() {
+    XLog.init()
+
+    ApplicationList {
+        val miPushApplications = ApplicationPageOperation.MiPushApplications()
+        miPushApplications.res = listOf(
+            registeredApplication(
+                RegisteredApplication.RegisteredType.NotRegistered,
+                "123"
+            ),
+            registeredApplication(
+                RegisteredApplication.RegisteredType.Registered,
+                "qwe"
+            ),
+            registeredApplication(
+                RegisteredApplication.RegisteredType.Registered,
+                "asd"
+            ),
+            registeredApplication(
+                RegisteredApplication.RegisteredType.Unregistered,
+                "zxc"
+            ),
+            registeredApplication(
+                RegisteredApplication.RegisteredType.Unregistered,
+                "456",
+                false
+            ),
+        ) + ('a'..'z').map {
+            registeredApplication(
+                RegisteredApplication.RegisteredType.NotRegistered,
+                it.toString()
+            )
+        }
+
+        miPushApplications
+    }
+}
+
+@Preview(
+    showBackground = true,
+    device = Devices.PIXEL_3,
+    showSystemUi = true,
+)
+@Composable
+fun OneApplicationWithNonMiPushAppPreview() {
+    XLog.init()
+
+    ApplicationList {
+        val miPushApplications = ApplicationPageOperation.MiPushApplications()
+        miPushApplications.res = listOf(
+            registeredApplication(
+                RegisteredApplication.RegisteredType.NotRegistered,
+                "123"
+            )
+        )
+        miPushApplications.totalPkg = 100
+        miPushApplications
+    }
+}
+
+private fun registeredApplication(
+    registeredType: Int,
+    appName: String,
+    existServices: Boolean = true
+): RegisteredApplication {
+    val registeredApplication = RegisteredApplication(
+        null,
+        appName,
+        RegisteredApplication.Type.ASK,
+        true,
+        false,
+        false,
+        false,
+        registeredType,
+        appName
+    )
+    registeredApplication.existServices = existServices
+    return registeredApplication
 }
