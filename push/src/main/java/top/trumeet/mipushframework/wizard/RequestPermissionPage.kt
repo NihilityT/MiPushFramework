@@ -7,7 +7,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,7 +23,9 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
@@ -32,14 +33,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import top.trumeet.mipushframework.MainActivity
@@ -54,13 +53,12 @@ class RequestPermissionPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        val windowInsetsController = WindowInsetsControllerCompat(window, window.decorView)
         setContent {
             Theme {
-                windowInsetsController.isAppearanceLightStatusBars = isSystemInDarkTheme()
-                val backgroundColor = MaterialTheme.colorScheme.primaryContainer
-                window.navigationBarColor = backgroundColor.toArgb()
-                MainPage(navigatorColor = backgroundColor)
+                window.navigationBarColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                    NavigationBarDefaults.Elevation
+                ).toArgb()
+                MainPage()
             }
         }
     }
@@ -71,8 +69,7 @@ class RequestPermissionPage : ComponentActivity() {
 )
 @Composable
 fun MainPage(
-    modifier: Modifier = Modifier,
-    navigatorColor: Color = MaterialTheme.colorScheme.secondaryContainer
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val permissionInfos = getPermissionInfos(context)
@@ -93,7 +90,7 @@ fun MainPage(
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
         RequestPermissionContent(permissionInfos[currentItem.value])
-        BottomBar(currentItem, permissionInfos, navigatorColor)
+        BottomBar(currentItem, permissionInfos)
     }
 }
 
@@ -170,14 +167,14 @@ private fun Description(description: String) {
 private fun Title(title: String) {
     Row(
         Modifier
-            .background(MaterialTheme.colorScheme.primary)
+            .background(MaterialTheme.colorScheme.primaryContainer)
             .fillMaxWidth()
             .fillMaxHeight(0.4f)
     ) {
         Text(
             title,
             style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
             modifier = Modifier
                 .align(Alignment.Bottom)
                 .padding(16.dp)
@@ -187,12 +184,9 @@ private fun Title(title: String) {
 
 @Composable
 private fun BottomBar(
-    currentItem: MutableState<Int>, permissions: List<PermissionInfo>, backgroundColor: Color
+    currentItem: MutableState<Int>, permissions: List<PermissionInfo>
 ) {
-    BottomAppBar(
-        modifier = Modifier.height(56.dp),
-        containerColor = backgroundColor,
-    ) {
+    BottomAppBar(modifier = Modifier.height(56.dp)) {
 
         Row(
             modifier = Modifier.fillMaxWidth(),
