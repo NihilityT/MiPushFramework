@@ -8,7 +8,7 @@ import android.content.SharedPreferences;
 import androidx.core.app.ActivityCompat;
 
 import top.trumeet.common.Constants;
-import top.trumeet.mipushframework.MainActivity;
+import top.trumeet.mipushframework.main.MainPage;
 
 /**
  * Created by Trumeet on 2017/8/24.
@@ -38,6 +38,6 @@ final class WizardSPUtils {
         setShouldShowWizard(false, context);
         ActivityCompat.finishAffinity(context);
         context.startActivity(new Intent(context,
-                MainActivity.class));
+                MainPage.class));
     }
 }

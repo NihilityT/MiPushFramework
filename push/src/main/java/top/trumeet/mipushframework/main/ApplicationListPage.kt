@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +41,7 @@ import top.trumeet.mipush.provider.register.RegisteredApplication
 import top.trumeet.mipushframework.component.AppIcon
 import top.trumeet.mipushframework.component.RefreshableLazyColumn
 import top.trumeet.mipushframework.component.iconCache
+import top.trumeet.mipushframework.component.mutableStateSaver
 import top.trumeet.mipushframework.utils.ParseUtils
 
 class ApplicationListPage : BaseListPage() {
@@ -54,7 +56,7 @@ class ApplicationListPage : BaseListPage() {
 @Composable
 fun ApplicationList(query: String) {
     val context = LocalContext.current
-    ApplicationList {
+    ApplicationList(query) {
         val miPushApplications =
             ApplicationPageOperation.getMiPushApplicationsThatQueryMatched(query)
         ApplicationPageOperation.updateRegisteredApplicationDb(
@@ -66,15 +68,15 @@ fun ApplicationList(query: String) {
 }
 
 @Composable
-fun ApplicationList(getMiPushApplications: () -> ApplicationPageOperation.MiPushApplications) {
+fun ApplicationList(query: String = "", getMiPushApplications: () -> ApplicationPageOperation.MiPushApplications) {
     val isPreview = LocalInspectionMode.current
-    var items by remember {
+    var items by rememberSaveable(saver = mutableStateSaver(ApplicationPageOperation.MiPushApplications::class)) {
         mutableStateOf(
             if (isPreview) getMiPushApplications()
             else ApplicationPageOperation.MiPushApplications()
         )
     }
-    var isNeedRefresh by remember(getMiPushApplications) { mutableStateOf(true) }
+    var isNeedRefresh by rememberSaveable(query) { mutableStateOf(true) }
 
     val refreshScope = rememberCoroutineScope { Dispatchers.IO }
     val onRefresh: (onRefreshed: () -> Unit) -> Unit = { onRefreshed ->

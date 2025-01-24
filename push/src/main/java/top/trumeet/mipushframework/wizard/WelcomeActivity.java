@@ -6,7 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import top.trumeet.mipushframework.MainActivity;
+import top.trumeet.mipushframework.main.MainPage;
 
 /**
  * Created by Trumeet on 2017/8/24.
@@ -31,6 +31,6 @@ public class WelcomeActivity extends AppCompatActivity {
 
     private void jumpToMainActivity() {
         startActivity (new Intent(this,
-                MainActivity.class));
+                MainPage.class));
     }
 }

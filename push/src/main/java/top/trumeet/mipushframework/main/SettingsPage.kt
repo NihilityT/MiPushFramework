@@ -48,14 +48,14 @@ class SettingsPage : Fragment() {
         super.onCreateView(inflater, container, savedInstanceState)
         return ComposeView(requireContext()).apply {
             setContent {
-                SettingsApp()
+                Settings()
             }
         }
     }
 }
 
 @Composable
-private fun SettingsApp() {
+fun Settings() {
     Theme {
         Surface(
             modifier = Modifier
@@ -216,8 +216,8 @@ private fun AboutBlock() {
 
 @Preview(showBackground = true)
 @Composable
-private fun SettingsPreview() {
+fun SettingsPagePreview() {
     Utils.context = LocalContext.current
-    SettingsApp()
+    Settings()
 }
 

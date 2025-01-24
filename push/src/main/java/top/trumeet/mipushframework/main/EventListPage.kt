@@ -18,12 +18,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -33,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.elvishew.xlog.XLog
+import com.google.gson.Gson
 import com.xiaomi.xmsf.R
 import com.xiaomi.xmsf.push.utils.RegSecUtils
 import kotlinx.coroutines.Dispatchers
@@ -45,8 +52,10 @@ import top.trumeet.mipush.provider.event.type.TypeFactory
 import top.trumeet.mipushframework.component.AppIcon
 import top.trumeet.mipushframework.component.RefreshableLazyColumn
 import top.trumeet.mipushframework.component.TextView
+import top.trumeet.mipushframework.component.snapshotStateListSaver
 import java.text.SimpleDateFormat
 import java.util.Date
+import kotlin.reflect.KClass
 
 class EventListPage() : BaseListPage() {
     constructor(packageName: String) : this() {
@@ -74,7 +83,6 @@ private val receiveDateFormat: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd H
 
 @Composable
 fun EventList(query: String = "", packageName: String = "") {
-    var lastId: Long? = null
     Page {
         val context = LocalContext.current
         var clickedEvent by remember { mutableStateOf<EventInfoForDisplay?>(null) }
@@ -83,6 +91,7 @@ fun EventList(query: String = "", packageName: String = "") {
             EventDetailsDialog(clickedEvent!!) { clickedEvent = null }
         }
 
+        var lastId by rememberSaveable { mutableStateOf<Long?>(null) }
         EventList(onClick = { clickedEvent = it }, { isRefresh ->
             if (isRefresh) lastId = null
             val events = EventListPageUtils.getEventsById(
@@ -175,14 +184,15 @@ fun EventList(
     query: String
 ) {
     val isPreview = LocalInspectionMode.current
-    val items = remember {
-        mutableStateListOf<EventInfoForDisplay>().apply {
-            addAll(
-                if (isPreview) getEvents(true)
-                else mutableListOf()
-            )
+    val items =
+        rememberSaveable(saver = snapshotStateListSaver(EventInfoForDisplay::class)) {
+            mutableStateListOf<EventInfoForDisplay>().apply {
+                addAll(
+                    if (isPreview) getEvents(true)
+                    else mutableListOf()
+                )
+            }
         }
-    }
 
     val refreshScope = rememberCoroutineScope { Dispatchers.IO }
     val doLoadMore: (onRefreshed: () -> Unit) -> Unit = { onRefreshed ->
@@ -191,7 +201,7 @@ fun EventList(
             onRefreshed()
         }
     }
-    var isNeedRefresh by remember(query) { mutableStateOf(true) }
+    var isNeedRefresh by rememberSaveable(query) { mutableStateOf(true) }
     val doRefresh: (onRefreshed: () -> Unit) -> Unit = { onRefreshed ->
         refreshScope.launch {
             val elements = getEvents(true)
