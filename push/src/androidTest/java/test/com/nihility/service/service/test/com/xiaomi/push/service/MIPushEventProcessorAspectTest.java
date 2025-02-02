@@ -11,6 +11,7 @@ import com.xiaomi.push.service.MIPushEventProcessor;
 import com.xiaomi.push.service.PushConstants;
 import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.smack.Connection;
+import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmsf.push.utils.Configurations;
@@ -101,6 +102,15 @@ public class MIPushEventProcessorAspectTest {
 
         setAllowAwakeByConfigurationFor(packageName);
         assertTrue(shouldAwake(metaInfo, packageName));
+    }
+
+    @Test
+    public void awakeIfIsRegistrationMessage() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JSONException {
+        container.action = ActionType.Registration;
+        PushMetaInfo metaInfo = new PushMetaInfo();
+        metaInfo.extra = new HashMap<>();
+
+        assertTrue(shouldAwake(metaInfo));
     }
 
     private static void setAllowAwakeByConfigurationFor(String packageName) throws JSONException {
