@@ -13,7 +13,9 @@ import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.smack.Connection;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
+import com.xiaomi.xmsf.push.utils.Configurations;
 
+import org.json.JSONException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -88,12 +90,57 @@ public class MIPushEventProcessorAspectTest {
         assertTrue(reportCheckAlive);
     }
 
+    @Test
+    public void awakeIfAwakeFieldIsTrueByConfigure() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JSONException {
+        String packageName = "arbitrary";
+
+        PushMetaInfo metaInfo = new PushMetaInfo();
+        metaInfo.extra = new HashMap<>();
+
+        assertFalse(shouldAwake(metaInfo, packageName));
+
+        setAllowAwakeByConfigurationFor(packageName);
+        assertTrue(shouldAwake(metaInfo, packageName));
+    }
+
+    private static void setAllowAwakeByConfigurationFor(String packageName) throws JSONException {
+        Configurations.getInstance().load("{\n" +
+                "  \"version\": \"0.1.0\",\n" +
+                "  \"configs\": {\n" +
+                "    \"^\": [\n" +
+                "      [\n" +
+                "        \"cond\",\n" +
+                "        [\n" +
+                "          {\n" +
+                "            \"description\": \"使用 | 来分隔不同的包名\",\n" +
+                "            \"match\": {\n" +
+                "              \"packageName\": \""+ packageName +"\"\n" +
+                "            }\n" +
+                "          },\n" +
+                "          {\n" +
+                "            \"replace\": {\n" +
+                "              \"metaInfo\": {\n" +
+                "                \"extra\": {\n" +
+                "                  \"__awake\": \"true\"\n" +
+                "                }\n" +
+                "              }\n" +
+                "            },\n" +
+                "            \"stop\": false\n" +
+                "          }\n" +
+                "        ]\n" +
+                "      ]\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}");
+    }
+
     private boolean shouldAwake(PushMetaInfo metaInfo) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         String packageName = "test";
         return shouldAwake(metaInfo, packageName);
     }
 
     private boolean shouldAwake(PushMetaInfo metaInfo, String packageName) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        container.setPackageName(packageName);
         container.metaInfo = metaInfo;
         return JavaCalls.callStaticMethodOrThrow(MIPushEventProcessor.class, "shouldSendBroadcast",
                 service, packageName, container, metaInfo);

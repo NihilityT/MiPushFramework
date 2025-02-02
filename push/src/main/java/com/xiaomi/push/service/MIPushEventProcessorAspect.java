@@ -128,7 +128,7 @@ public class MIPushEventProcessorAspect {
                                        XMPushService pushService, String packageName, XmPushActionContainer container, PushMetaInfo metaInfo) throws Throwable {
         joinPoint.proceed();
         XmPushActionContainer decorated = decoratedContainer(container.packageName, container);
-        return AppInfoUtilsAspect.shouldSendBroadcast(pushService, packageName, metaInfo);
+        return AppInfoUtilsAspect.shouldSendBroadcast(pushService, packageName, decorated.metaInfo);
     }
 
     @Before("execution(* com.xiaomi.push.service.MIPushEventProcessor.processMIPushMessage(..)) && args(pushService, decryptedContent, packetBytesLen)")
