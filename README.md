@@ -1,16 +1,10 @@
 # MiPushFramework
 
-[![Build Status](https://travis-ci.org/MiPushFramework/MiPushFramework.svg?branch=master)](https://travis-ci.org/MiPushFramework/MiPushFramework)
-[![License GPL-3.0](https://img.shields.io/badge/license-GPLv3.0-blue.svg)](https://github.com/MiPushFramework/MiPushFramework/blob/master/LICENSE)
+[![Test CI](https://github.com/NihilityT/MiPushFramework/actions/workflows/test_ci.yml/badge.svg)](https://github.com/NihilityT/MiPushFramework/actions/workflows/test_ci.yml)
+[![License GPL-3.0](https://img.shields.io/badge/license-GPLv3.0-blue.svg)](LICENSE)
 ![Min Android Version](https://img.shields.io/badge/android-lollipop-%23860597.svg)
 
 在非 MIUI 系统上体验小米系统级推送。
-
-![](https://raw.githubusercontent.com/MiPushFramework/MiPushFramework/master/art/tab_events.jpg)
-![](https://raw.githubusercontent.com/MiPushFramework/MiPushFramework/master/art/tab_permissions.jpg)
-![](https://raw.githubusercontent.com/MiPushFramework/MiPushFramework/master/art/ask.jpg)
-![](https://raw.githubusercontent.com/MiPushFramework/MiPushFramework/master/art/tab_settings.jpg)
-![](https://raw.githubusercontent.com/MiPushFramework/MiPushFramework/master/art/tab_apps.jpg)
 
 ## 什么是小米系统级推送，为什么会有这个项目
 
@@ -22,22 +16,30 @@
 
 ### 系统级推送
 
-类似 GCM，小米推送的系统级推送是在 MIUI 完成的。应用在启动时，会判断如果是 MIUI ROM 则向系统注册推送，推送工作都由系统完成，应用无需后台，更省电。
+类似 GCM，小米推送的系统级推送是在 MIUI 完成的。
 
-然而在非 MIUI，每个使用小米推送的应用都会在后台启动一个 `XMPushService`， 10个应用就有10个，20个就有20个服务.. 非常耗电耗内存费流量。
+接入小米推送的应用在启动时，会根据系统是否为 MIUI ROM 来决定如何向用户推送消息。
+- 对于 MIUI ROM，推送工作都由系统完成，应用**无需后台**，更省电。
+- 对于非 MIUI ROM，每个应用都会**在后台启动**一个 `XMPushService` 服务，该服务会创建一个用于接收推送消息的连接。相比于 MIUI ROM 由系统实现的推送能力，多个应用启动的多个服务与连接，会更加的耗电、内存和流量。
 
 
 
 ### 本项目的意义
 
-本项目就是想让任何不用MIUI的用户都能用上小米的系统推送，这样既能保证推送，又保证了无需后台。
+本项目起源于这样一个想法：让任何非 MIUI ROM 的用户都能用上类似 MIUI ROM 的系统级推送能力，在应用没有常驻后台的情况下也能向用户推送消息。
 
 
-## 注意
+## 功能
 
-* 请勿使用 黑域、绿色守护、Xposed一些模块 对 `Push` 做操作，可能导致推送不稳定
-* 只有推送功能。其他完整功能（如查找手机）请使用 MIUI
-* 服务本身不需要 Root、Xposed 支持，但是为了伪装为MIUI设备，建议使用伪装增强模块
+- 基本的推送能力。基本与 MIUI ROM 中的推送服务（`com.xiaomi.xmsf`）一致，不过默认禁止拉起应用
+- 对通知的改写。可以通过配置文件，修改消息的标题、内容及样式等，控制收到消息时忽略、亮屏或自动弹出等
+- 观测。可以在本项目的应用界面中，查看都有什么应用接入了小米推送服务及其推送的消息内容
+
+### 注意
+
+* 给予 `com.xiaomi.xmsf` 最大的权限，请勿使用 黑域、绿色守护、Xposed 等模块对其做限制，这可能会导致推送不稳定
+* 在 MIUI ROM 上，部分依靠推送的功能不可用，如 网络短信，目前明确可用的有 查找手机
+* 服务本身不需要 Root、Xposed 支持，但是为了伪装为 MIUI ROM，使应用自动向 `com.xiaomi.xmsf` 注册信息，建议使用伪装增强模块
 
 
 
@@ -47,6 +49,7 @@
 * 使用后，其他应用的 `XMPushService` 会自动禁用，就像在 MIUI，同时还能保证推送
 * 完整事件记录，可以监控每个应用的 注册和推送
 * 拦截小米推送产生的不必要唤醒，也能阻止它读取您的隐私
+* 自定义能力，定制你的消息内容与行为
 
 
 
@@ -55,8 +58,25 @@
 
 安装步骤非常简单 ：
 
-* 前往 [Releases 标签](https://github.com/MiPushFramework/MiPushFramework/releases)，下载最新的 Release APK ，并安装。
-* 跟着向导进行设置。
+* 前往 [Releases](https://github.com/MiPushFramework/MiPushFramework/releases) 或 [Test CI](https://github.com/NihilityT/MiPushFramework/actions/workflows/test_ci.yml)，下载最新的 APK 并安装。
+* 跟着向导进行设置
+* 可选：开启高级配置中的 推送服务保活 选项
+
+### 常见问题
+
+- vc105 版本与 normal 版本有什么区别？
+    - 最主要的区别在于消息的传递方式不同，推送服务 105 版本使用 startService，108 以上版本使用 bindService
+    - 目前建议优先使用 normal 版本，若有问题再切换为 105 版本
+    - 对于 MIUI ROM，使用 normal 版本的另一个好处是，应用不会在重启系统后变回官方版本
+    - 建议 COS 使用 vc105 版本，目前发现 COS 系统无法使用 Bind 方式传递消息，因无测试机无法排查原因
+
+- 是否支持分身（999）应用？
+    - 目前没有这方面的计划，也没有测试过，不接受相关反馈
+
+- 配置文件都有什么作用？我应该使用配置文件吗？
+    - 配置文件可以修改消息的标题、内容及样式等，控制收到消息时忽略、亮屏或自动弹出等
+    - 目前大部分“官方”配置都可以无脑使用，部分配置是否要使用，参见[仓库说明](https://github.com/NihilityT/MiPushConfigurations)、配置名或配置中的 description 字段
+
 
 
 ## 反馈问题
@@ -84,7 +104,6 @@
 * 对于部分小众的ROM （如 360OS）导致无法正常工作的情况，我们只会竭尽全力保证推送的运行，其它不妨碍推送的「特殊适配」会被忽略。对于这些情况，建议您更换更好的 ROM 以获得最佳体验。
 * 努比亚ROM应用（第三方使用 MiPush 的应用）可能不会自动禁用其 XMPushService 并启动服务，请尝试将框架设为系统应用
 * 锤子 ROM 下，Push 可以正确收到通知，但是通知栏没有提示 #143
-* 开发者学生党，开学了更新可能不太及时，请谅解
 * 一些通知 Feature 可能无法使用（如通知都会显示为推送框架发出，而不是目标应用）
 
 ## 感谢
@@ -92,8 +111,3 @@
 * @Rachel030219 提供文件
 * Android Open Source Project, MultiType, greenDao, SetupWizardLibCompat, Condom, MaterialPreference，GreenDaoUpgradeHelper, epic, Log4a，helplib，RxJava RxAndroid，RxActivityResult，RxPermissions, hiBeaver
 * 酷安 @PzHown @lmnm011223 @苏沐晨风丶（未采纳） 提供图标
-
-
-# License
-
-GPL v3，有些狗不遵守开源协议（非本项目），请**务必**遵守开源协议
