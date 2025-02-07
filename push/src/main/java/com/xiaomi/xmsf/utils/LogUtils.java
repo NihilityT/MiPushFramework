@@ -42,7 +42,7 @@ import top.trumeet.common.Constants;
  */
 
 public class LogUtils {
-    public static void init (@NonNull Context context) {
+    public static void init(@NonNull Context context) {
 
         int logLevel = LogLevel.INFO;
         if (BuildConfig.DEBUG) {
@@ -66,7 +66,7 @@ public class LogUtils {
         XLog.init(configuration, androidPrinter, filePrinter);
     }
 
-    public static String getLogFolder (@NonNull Context context) {
+    public static String getLogFolder(@NonNull Context context) {
         return context.getCacheDir().getAbsolutePath() + "/logs";
     }
 
@@ -90,8 +90,8 @@ public class LogUtils {
 
     @Nullable
     public static Intent getShareIntent(Context context) {
-        File zipFile = new File(context.getExternalCacheDir().getAbsolutePath() + "/logs/logs-" +
-                new SimpleDateFormat("yyyy-mm-dd-H-m-s", Locale.US).format(new Date()) + ".zip");
+        File zipFile = new File(context.getExternalCacheDir().getAbsolutePath() + "/logs/" +
+                logArchiveName(new Date()) + ".zip");
         try {
             com.elvishew.xlog.LogUtils.compress(getLogFolder(context),
                     zipFile.getAbsolutePath());
@@ -117,5 +117,15 @@ public class LogUtils {
             // TODO: Maybe some error are occurred?
             return null;
         }
+    }
+
+    @NonNull
+    public static String logArchiveName(Date date) {
+        return "logs_" + dateInfo(date);
+    }
+
+    @NonNull
+    public static String dateInfo(Date date) {
+        return new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(date);
     }
 }
