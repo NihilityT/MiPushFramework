@@ -43,14 +43,9 @@ import top.trumeet.common.Constants;
 
 public class LogUtils {
     public static void init(@NonNull Context context) {
-
-        int logLevel = LogLevel.INFO;
-        if (BuildConfig.DEBUG) {
-            logLevel = LogLevel.ALL;
-        }
         LogConfiguration configuration = new LogConfiguration.Builder()
                 .tag("Xmsf")
-                .logLevel(logLevel)
+                .logLevel(LogLevel.ALL)
                 .jsonFormatter(new DefaultJsonFormatter())
                 .xmlFormatter(new DefaultXmlFormatter())
                 .stackTraceFormatter(new DefaultStackTraceFormatter())
