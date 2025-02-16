@@ -117,18 +117,23 @@ public class MIPushEventProcessorAspect {
 
 
     /**
-     *  default behavior is
-     *  return true
-     *  unless
-     *  - metaInfo.EXTRA_PARAM_CHECK_ALIVE exists
-     *  - metaInfo.EXTRA_PARAM_AWAKE is false
-     *  - the target application is not running
+     * default behavior is
+     * return true
+     * unless
+     * - metaInfo.EXTRA_PARAM_CHECK_ALIVE exists
+     * - metaInfo.EXTRA_PARAM_AWAKE is false
+     * - the target application is not running
      */
     @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.shouldSendBroadcast(..)) && args(pushService, packageName, container, metaInfo)")
     public boolean shouldSendBroadcast(final ProceedingJoinPoint joinPoint,
                                        XMPushService pushService, String packageName, XmPushActionContainer container, PushMetaInfo metaInfo) throws Throwable {
         joinPoint.proceed();
         if (container.action == ActionType.Registration) {
+            return true;
+        }
+        if (container.packageName.startsWith("com.mi.")
+                || container.packageName.startsWith("com.miui.")
+                || container.packageName.startsWith("com.xiaomi.")) {
             return true;
         }
         XmPushActionContainer decorated = decoratedContainer(container.packageName, container);

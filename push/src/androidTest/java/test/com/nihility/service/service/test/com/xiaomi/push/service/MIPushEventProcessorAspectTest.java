@@ -80,6 +80,13 @@ public class MIPushEventProcessorAspectTest {
     }
 
     @Test
+    public void awakeIfIsXiaomiApp() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        assertTrue(shouldAwake(null, "com.mi.xxx"));
+        assertTrue(shouldAwake(null, "com.miui.xxx"));
+        assertTrue(shouldAwake(null, "com.xiaomi.xxx"));
+    }
+
+    @Test
     public void keepBehaviorForReportCheckAlive() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         PushMetaInfo metaInfo = new PushMetaInfo();
         metaInfo.setId("arbitrarily");
