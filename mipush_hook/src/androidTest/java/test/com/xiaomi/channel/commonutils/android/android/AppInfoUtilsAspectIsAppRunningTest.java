@@ -1,4 +1,4 @@
-package com.test.com.xiaomi.channel.commonutils.android;
+package test.com.xiaomi.channel.commonutils.android.android;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

@@ -1,4 +1,4 @@
-package com.xiaomi.push.service;
+package test.com.xiaomi.push.service.service;
 
 import static com.xiaomi.push.service.MIPushEventProcessor.buildIntent;
 import static com.xiaomi.push.service.MIPushEventProcessor.postProcessMIPushMessage;
@@ -13,6 +13,8 @@ import android.content.Intent;
 
 import com.nihility.service.RegistrationRecorder;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
+import com.xiaomi.push.service.MIPushEventProcessor;
+import com.xiaomi.push.service.XmPushActionOperator;
 import com.xiaomi.push.service.clientReport.ReportConstants;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 

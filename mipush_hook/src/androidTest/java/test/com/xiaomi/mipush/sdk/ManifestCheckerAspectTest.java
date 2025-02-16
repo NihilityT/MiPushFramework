@@ -1,4 +1,4 @@
-package com.xiaomi.mipush.sdk;
+package test.com.xiaomi.mipush.sdk;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
+import com.xiaomi.mipush.sdk.ManifestChecker;
 import com.xiaomi.push.service.PushConstants;
 
 import org.junit.Test;

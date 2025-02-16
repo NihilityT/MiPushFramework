@@ -1,8 +1,9 @@
-package com.xiaomi.push.service;
+package test.com.xiaomi.push.service.service;
 
 import static org.junit.Assert.assertTrue;
 
 import com.nihility.Hooked;
+import com.xiaomi.push.service.MIPushNotificationHelper;
 
 import org.junit.Test;
 

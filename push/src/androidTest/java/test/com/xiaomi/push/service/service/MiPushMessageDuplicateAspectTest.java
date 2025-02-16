@@ -1,4 +1,4 @@
-package com.xiaomi.push.service;
+package test.com.xiaomi.push.service.service;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -6,6 +6,9 @@ import static org.junit.Assert.assertTrue;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
+import com.xiaomi.push.service.MiPushMessageDuplicate;
+import com.xiaomi.push.service.MiPushMessageDuplicateAspect;
+import com.xiaomi.push.service.XMPushService;
 
 import org.junit.Test;
 

@@ -1,6 +1,8 @@
-package com.xiaomi.xmsf.utils;
+package test.com.xiaomi.xmsf.utils.utils;
 
 import static org.junit.Assert.assertEquals;
+
+import com.xiaomi.xmsf.utils.LogUtils;
 
 import org.junit.Test;
 

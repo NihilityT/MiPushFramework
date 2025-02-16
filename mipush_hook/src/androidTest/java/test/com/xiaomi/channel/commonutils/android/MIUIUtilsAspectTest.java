@@ -1,6 +1,8 @@
-package com.xiaomi.channel.commonutils.android;
+package test.com.xiaomi.channel.commonutils.android;
 
 import static org.junit.Assert.assertEquals;
+
+import com.xiaomi.channel.commonutils.android.MIUIUtils;
 
 import org.junit.Test;
 

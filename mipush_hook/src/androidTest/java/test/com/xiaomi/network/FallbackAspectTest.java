@@ -1,4 +1,4 @@
-package com.xiaomi.network;
+package test.com.xiaomi.network;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.nihility.Configurations;
 import com.nihility.Dependencies;
+import com.xiaomi.network.Fallback;
 import com.xiaomi.smack.ConnectionConfiguration;
 
 import org.junit.Test;
