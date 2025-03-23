@@ -73,20 +73,12 @@
         </activity>
         <activity android:name="top.trumeet.mipushframework.wizard.RequestPermissionPage" />
 
-        <activity
-                android:name="top.trumeet.mipushframework.MainActivity"
-                android:configChanges="screenLayout|screenSize|orientation"
-                android:label="@string/preference_title" />
-
         <activity android:name="top.trumeet.mipushframework.main.MainPage" />
 
         <activity
                 android:name="top.trumeet.mipushframework.main.ApplicationInfoPage"
                 android:configChanges="screenLayout|screenSize|orientation" />
 
-        <activity
-                android:name="top.trumeet.mipushframework.main.RecentActivityActivity"
-                android:label="@string/recent_activity_title" />
         <activity
                 android:name="top.trumeet.mipushframework.main.RecentEventListPage"
                 android:label="@string/recent_activity_title" />

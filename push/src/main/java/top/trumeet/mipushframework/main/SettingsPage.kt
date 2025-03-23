@@ -41,19 +41,6 @@ import top.trumeet.mipushframework.component.SettingsGroup
 import top.trumeet.mipushframework.component.SettingsItem
 import top.trumeet.ui.theme.Theme
 
-class SettingsPage : Fragment() {
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        super.onCreateView(inflater, container, savedInstanceState)
-        return ComposeView(requireContext()).apply {
-            setContent {
-                Settings()
-            }
-        }
-    }
-}
-
 @Composable
 fun Settings() {
     Theme {

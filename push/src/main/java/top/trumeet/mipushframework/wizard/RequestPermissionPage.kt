@@ -41,8 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import top.trumeet.mipushframework.MainActivity
 import top.trumeet.mipushframework.component.MarkdownView
+import top.trumeet.mipushframework.main.MainPage
 import top.trumeet.mipushframework.wizard.permission.AlertWindowPermissionInfo
 import top.trumeet.mipushframework.wizard.permission.PermissionInfo
 import top.trumeet.mipushframework.wizard.permission.RequestIgnoreBatteryOptimizationsPermissionInfo
@@ -97,7 +97,7 @@ fun MainPage(
 @Composable
 private fun JumpToMainActivity() {
     val context = LocalContext.current
-    context.startActivity(Intent(context, MainActivity::class.java))
+    context.startActivity(Intent(context, MainPage::class.java))
 }
 
 private fun allPermissionsGranted(
