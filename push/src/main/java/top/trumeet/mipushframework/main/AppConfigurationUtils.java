@@ -58,7 +58,7 @@ public class AppConfigurationUtils {
 
     void gotoRecentEventsPage() {
         context.startActivity(
-                new Intent(context, RecentActivityActivity.class)
+                new Intent(context, RecentEventListPage.class)
                         .setData(Uri.parse(application.getPackageName())));
     }
 
