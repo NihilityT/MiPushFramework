@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.main
+package top.trumeet.mipushframework.main.subpage
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +41,7 @@ import top.trumeet.mipush.provider.register.RegisteredApplication
 import top.trumeet.mipushframework.component.AppIcon
 import top.trumeet.mipushframework.component.RefreshableLazyColumn
 import top.trumeet.mipushframework.component.iconCache
+import top.trumeet.mipushframework.main.RegistrationStateStyle
 import top.trumeet.mipushframework.utils.ParseUtils
 
 @Composable

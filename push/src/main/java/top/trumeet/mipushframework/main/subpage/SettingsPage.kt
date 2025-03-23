@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.main
+package top.trumeet.mipushframework.main.subpage
 
 import android.content.Context
 import android.content.Intent
@@ -33,6 +33,8 @@ import top.trumeet.common.utils.Utils
 import top.trumeet.mipushframework.MainPageOperation
 import top.trumeet.mipushframework.component.SettingsGroup
 import top.trumeet.mipushframework.component.SettingsItem
+import top.trumeet.mipushframework.main.AdvancedSettingsPage
+import top.trumeet.mipushframework.main.HelpPage
 import top.trumeet.ui.theme.Theme
 
 @Composable

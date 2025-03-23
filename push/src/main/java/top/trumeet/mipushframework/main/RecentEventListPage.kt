@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.view.WindowCompat
 import top.trumeet.mipushframework.component.SearchBar
+import top.trumeet.mipushframework.main.subpage.EventList
 import top.trumeet.ui.theme.Theme
 
 class RecentEventListPage : ComponentActivity() {

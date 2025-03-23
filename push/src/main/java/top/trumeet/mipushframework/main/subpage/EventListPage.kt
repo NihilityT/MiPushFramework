@@ -1,8 +1,6 @@
-package top.trumeet.mipushframework.main
+package top.trumeet.mipushframework.main.subpage
 
 import android.content.Context
-import android.view.Menu
-import android.view.MenuInflater
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -68,7 +66,11 @@ fun EventList(query: String = "", packageName: String = "") {
                 lastId, Constants.PAGE_SIZE, packageName, query
             )
             events.lastOrNull()?.let { lastId = it.id }
-            events.map { toEventInfoForDisplay(it, context, EventListPageUtils(context)) }
+            events.map { toEventInfoForDisplay(it, context,
+                EventListPageUtils(
+                    context
+                )
+            ) }
         }, query, packageName)
     }
 }
@@ -83,7 +85,10 @@ private fun toEventInfoForDisplay(
     val container = RegSecUtils.getContainerWithRegSec(it)
     val summary = type.getSummary(context).toString()
     val content = if (container != null)
-        EventListPageUtils.getDecoratedSummary(summary, container)
+        EventListPageUtils.getDecoratedSummary(
+            summary,
+            container
+        )
     else summary
     return EventInfoForDisplay(
         id = it.id,
@@ -106,7 +111,9 @@ private fun EventDetailsDialog(
 ) {
     var json by remember {
         mutableStateOf(
-            content ?: EventListPageUtils.getJson(clickedEvent.event).toString()
+            content ?: EventListPageUtils.getJson(
+                clickedEvent.event
+            ).toString()
         )
     }
     AlertDialog(
@@ -118,10 +125,11 @@ private fun EventDetailsDialog(
             ) {
                 val context = LocalContext.current
                 TextButton({
-                    json = EventListPageUtils.getContent(
-                        clickedEvent.event,
-                        RegSecUtils.getContainerWithRegSec(clickedEvent.event)
-                    )
+                    json =
+                        EventListPageUtils.getContent(
+                            clickedEvent.event,
+                            RegSecUtils.getContainerWithRegSec(clickedEvent.event)
+                        )
                 }) { Text(stringResource(R.string.action_configurate)) }
 
                 TextButton({

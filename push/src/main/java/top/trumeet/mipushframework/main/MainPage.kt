@@ -37,6 +37,13 @@ import androidx.navigation.compose.rememberNavController
 import com.xiaomi.xmsf.R
 import top.trumeet.mipushframework.MainPageUtils
 import top.trumeet.mipushframework.component.SearchBar
+import top.trumeet.mipushframework.main.subpage.ApplicationList
+import top.trumeet.mipushframework.main.subpage.ApplicationListPreview
+import top.trumeet.mipushframework.main.subpage.EventDetailsDialogPreview
+import top.trumeet.mipushframework.main.subpage.EventList
+import top.trumeet.mipushframework.main.subpage.EventListPreview
+import top.trumeet.mipushframework.main.subpage.Settings
+import top.trumeet.mipushframework.main.subpage.SettingsPagePreview
 import top.trumeet.ui.theme.Theme
 
 private val mainPageUtils1 = MainPageUtils()

@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.main
+package top.trumeet.mipushframework.main.subpage
 
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable

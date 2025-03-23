@@ -1,4 +1,4 @@
-package top.trumeet.mipushframework.main;
+package top.trumeet.mipushframework.main.subpage;
 
 import static top.trumeet.mipush.provider.db.RegisteredApplicationDb.registerApplication;
 
