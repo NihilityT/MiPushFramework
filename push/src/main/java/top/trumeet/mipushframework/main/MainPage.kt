@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -76,14 +77,14 @@ class MainPage : ComponentActivity() {
                     composable(Screen.Events.route.toString()) {
                         Column {
                             var query by rememberSaveable { mutableStateOf("") }
-                            SearchBar { query = it }
+                            SearchBar(placeholder) { query = it }
                             EventList(query)
                         }
                     }
                     composable(Screen.Apps.route.toString()) {
                         Column {
                             var query by rememberSaveable { mutableStateOf("") }
-                            SearchBar { query = it }
+                            SearchBar(placeholder) { query = it }
                             ApplicationList(query)
                         }
                     }
@@ -166,7 +167,7 @@ private fun MainEventsPreview() {
             composable(Screen.Events.route.toString()) {
                 Column {
                     val onValueChange: (String) -> Unit = {}
-                    SearchBar(onValueChange)
+                    SearchBar(placeholder, onValueChange)
                     EventListPreview()
                 }
             }
@@ -188,7 +189,7 @@ private fun MainAppsPreview() {
             composable(Screen.Apps.route.toString()) {
                 Column {
                     val onValueChange: (String) -> Unit = {}
-                    SearchBar(onValueChange)
+                    SearchBar(placeholder, onValueChange)
                     ApplicationListPreview()
                 }
             }
@@ -214,9 +215,10 @@ private fun MainSettingsPreview() {
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun SearchBar(onValueChange: (String) -> Unit) {
+private fun SearchBar(placeholder: String, onValueChange: (String) -> Unit) {
     val focusManager = LocalFocusManager.current
     var query by rememberSaveable { mutableStateOf("") }
+    val ph by rememberUpdatedState(placeholder)
     val debounceOnValueChange: (String) -> Unit = debounce(onValueChange)
     val change: (String) -> Unit = { query = it; debounceOnValueChange(it) }
     TopAppBar(title = {
@@ -224,7 +226,7 @@ private fun SearchBar(onValueChange: (String) -> Unit) {
             value = query,
             onValueChange = change,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(placeholder) },
+            placeholder = { Text(ph) },
             trailingIcon = {
                 if (query.isNotEmpty()) {
                     IconButton({ change("") }) {
