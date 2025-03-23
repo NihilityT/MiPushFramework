@@ -49,28 +49,6 @@ import top.trumeet.mipushframework.component.TextView
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class EventListPage() : BaseListPage() {
-    constructor(packageName: String) : this() {
-        packetName = packageName
-    }
-
-    private var packetName: String = ""
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        if (packetName.isNotEmpty()) {
-            inflater.inflate(R.menu.menu_main, menu)
-        }
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    @Composable
-    override fun ViewContent() {
-        EventList(query, packetName)
-    }
-
-}
-
-
 private val receiveDateFormat: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
 @Composable

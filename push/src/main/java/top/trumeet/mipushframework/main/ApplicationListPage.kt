@@ -43,15 +43,6 @@ import top.trumeet.mipushframework.component.RefreshableLazyColumn
 import top.trumeet.mipushframework.component.iconCache
 import top.trumeet.mipushframework.utils.ParseUtils
 
-class ApplicationListPage : BaseListPage() {
-
-    @Composable
-    override fun ViewContent() {
-        ApplicationList(query)
-    }
-
-}
-
 @Composable
 fun ApplicationList(query: String) {
     val context = LocalContext.current
