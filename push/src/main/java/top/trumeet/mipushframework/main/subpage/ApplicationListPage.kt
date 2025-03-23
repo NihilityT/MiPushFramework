@@ -1,5 +1,6 @@
 package top.trumeet.mipushframework.main.subpage
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,7 +28,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,6 +44,14 @@ import top.trumeet.mipushframework.component.iconCache
 import top.trumeet.mipushframework.main.RegistrationStateStyle
 import top.trumeet.mipushframework.utils.ParseUtils
 
+data class AppInfoForDisplay(
+    val registrationState: Pair<String, Color>,
+    val lastReceiveTime: String,
+)
+
+private var g_itemsInfo by mutableStateOf(emptyMap<String, AppInfoForDisplay>())
+private var g_items by mutableStateOf(ApplicationPageOperation.MiPushApplications())
+
 @Composable
 fun ApplicationList(query: String) {
     val context = LocalContext.current
@@ -58,13 +66,12 @@ fun ApplicationList(query: String) {
     }
 }
 
-private var g_items by mutableStateOf(ApplicationPageOperation.MiPushApplications())
-
 @Composable
 fun ApplicationList(
     query: String = "",
     getMiPushApplications: () -> ApplicationPageOperation.MiPushApplications
 ) {
+    val context = LocalContext.current
     val isPreview = LocalInspectionMode.current
     if (isPreview) g_items = getMiPushApplications()
     var isNeedRefresh by rememberSaveable(query) { mutableStateOf(true) }
@@ -73,12 +80,15 @@ fun ApplicationList(
     val onRefresh: (onRefreshed: () -> Unit) -> Unit = { onRefreshed ->
         refreshScope.launch {
             val applications = getMiPushApplications()
+            updateInfos(applications, context)
             withContext(Dispatchers.Main) {
                 g_items = applications
                 isNeedRefresh = false
                 onRefreshed()
             }
-            applications.res.forEach { iconCache.cache(it.packageName) }
+            applications.res.forEach {
+                iconCache.cache(it.packageName)
+            }
         }
     }
 
@@ -93,6 +103,25 @@ fun ApplicationList(
             }
         }
     }
+}
+
+private fun updateInfos(
+    applications: ApplicationPageOperation.MiPushApplications,
+    context: Context
+) {
+    val infoMap = emptyMap<String, AppInfoForDisplay>().toMutableMap()
+    applications.res.forEach {
+        infoMap[it.packageName] = AppInfoForDisplay(
+            registrationState = RegistrationStateStyle.contentOf(it, context),
+            lastReceiveTime = if (it.lastReceiveTime.time == 0L) ""
+            else context.getString(R.string.last_receive) + ParseUtils.getFriendlyDateString(
+                it.lastReceiveTime,
+                Utils.getUTC(),
+                context
+            ),
+        )
+    }
+    g_itemsInfo = infoMap
 }
 
 @Composable
@@ -141,31 +170,26 @@ private fun ApplicationItem(item: RegisteredApplication) {
 
 @Composable
 private fun LastReceive(item: RegisteredApplication) {
-    val context = LocalContext.current
+    val info = g_itemsInfo[item.packageName]!!
     Text(
-        if (item.lastReceiveTime.time == 0L) ""
-        else stringResource(R.string.last_receive) + ParseUtils.getFriendlyDateString(
-            item.lastReceiveTime,
-            Utils.getUTC(),
-            context
-        ),
+        info.lastReceiveTime,
         style = MaterialTheme.typography.bodyLarge,
     )
 }
 
 @Composable
 private fun AppInfo(item: RegisteredApplication) {
-    val registrationState = RegistrationStateStyle.contentOf(item)
+    val info = g_itemsInfo[item.packageName]!!
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(
             item.appName,
             style = MaterialTheme.typography.bodyLarge,
-            color = registrationState.second
+            color = info.registrationState.second
         )
         Text(
-            registrationState.first,
+            info.registrationState.first,
             style = MaterialTheme.typography.bodyMedium,
-            color = registrationState.second
+            color = info.registrationState.second
         )
     }
 }

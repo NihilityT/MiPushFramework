@@ -1,8 +1,7 @@
 package top.trumeet.mipushframework.main
 
-import androidx.compose.runtime.Composable
+import android.content.Context
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import com.xiaomi.xmsf.R
 import top.trumeet.mipush.provider.register.RegisteredApplication
 
@@ -12,24 +11,23 @@ object RegistrationStateStyle {
     val GreenColor = Color(0xff4caf50)
     val YellowColor = Color(0xffff9800)
 
-    @Composable
-    fun contentOf(app: RegisteredApplication): Pair<String, Color> {
+    fun contentOf(app: RegisteredApplication, context: Context): Pair<String, Color> {
         val prefix =
-            if (!app.existServices) stringResource(R.string.mipush_services_not_found) + " - "
+            if (!app.existServices) context.getString(R.string.mipush_services_not_found) + " - "
             else ""
         val color = colorOf(app)
         return when (app.registeredType) {
             RegisteredApplication.RegisteredType.Registered -> {
-                Pair(prefix + stringResource(R.string.app_registered), color)
+                Pair(prefix + context.getString(R.string.app_registered), color)
             }
 
             RegisteredApplication.RegisteredType.Unregistered -> {
-                Pair(prefix + stringResource(R.string.app_registered_error), color)
+                Pair(prefix + context.getString(R.string.app_registered_error), color)
             }
 
 //      RegisteredApplication.RegisteredType.NotRegistered
             else -> {
-                Pair(prefix + stringResource(R.string.status_app_not_registered), color)
+                Pair(prefix + context.getString(R.string.status_app_not_registered), color)
             }
         }
     }
