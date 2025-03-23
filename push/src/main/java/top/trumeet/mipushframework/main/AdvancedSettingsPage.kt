@@ -35,7 +35,7 @@ import top.trumeet.mipushframework.component.SettingsItem
 import top.trumeet.ui.theme.Theme
 
 
-class AdvancedSettingsActivity : ComponentActivity() {
+class AdvancedSettingsPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

@@ -83,7 +83,7 @@
                 android:name="top.trumeet.mipushframework.main.RecentEventListPage"
                 android:label="@string/recent_activity_title" />
         <activity
-                android:name="top.trumeet.mipushframework.main.HelpActivity"
+                android:name="top.trumeet.mipushframework.main.HelpPage"
                 android:label="@string/helplib_title"
                 android:theme="@style/AppTheme" />
 

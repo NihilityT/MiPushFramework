@@ -3,10 +3,6 @@ package top.trumeet.mipushframework.main
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,11 +22,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.fragment.app.Fragment
 import com.nihility.InternalMessenger
 import com.xiaomi.push.service.XMPushServiceMessenger
 import com.xiaomi.xmsf.R
@@ -74,7 +68,7 @@ private fun ServiceConfigurationBlock() {
             title = stringResource(R.string.settings_service_advance_setting),
             summary = stringResource(R.string.settings_summary_service_advance_setting)
         ) {
-            context.startActivity(Intent(context, AdvancedSettingsActivity::class.java))
+            context.startActivity(Intent(context, AdvancedSettingsPage::class.java))
         }
 
         SetConfigurationsDirectory()
@@ -183,7 +177,7 @@ private fun AboutBlock() {
         SettingsItem(
             title = stringResource(R.string.helplib_title)
         ) {
-            context.startActivity(Intent(context, HelpActivity::class.java))
+            context.startActivity(Intent(context, HelpPage::class.java))
         }
 
         SettingsItem(

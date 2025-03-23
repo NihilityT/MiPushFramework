@@ -31,7 +31,7 @@ import top.trumeet.mipushframework.component.MarkdownView
 import top.trumeet.ui.theme.Theme
 import java.io.InputStreamReader
 
-class HelpActivity : AppCompatActivity() {
+class HelpPage : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

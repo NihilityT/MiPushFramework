@@ -11,7 +11,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.xiaomi.xmsf.BuildConfig;
 import com.xiaomi.xmsf.R;
 
-import top.trumeet.mipushframework.main.HelpActivity;
+import top.trumeet.mipushframework.main.HelpPage;
 
 public class MainPageOperation {
     private final Context context;
@@ -22,7 +22,7 @@ public class MainPageOperation {
 
     public void gotoHelpActivity() {
         Intent intent = new Intent();
-        intent.setClass(context, HelpActivity.class);
+        intent.setClass(context, HelpPage.class);
         context.startActivity(intent);
     }
 
