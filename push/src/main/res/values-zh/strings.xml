@@ -152,7 +152,7 @@
     <string name="date_format_long">%1$s</string>
     <!-- For Just format -->
     <string name="action_edit_permission_title">修改权限（保存 ----></string>
-    <string name="action_edit_permission">修改权限</string>
+    <string name="action_app_info">应用信息</string>
     <!-- For Long ago format -->
     <string name="permissions">权限</string>
 

@@ -159,7 +159,7 @@ private fun EventDetailsDialog(
                         context,
                         clickedEvent.packageName
                     )
-                }) { Text(stringResource(R.string.action_edit_permission)) }
+                }) { Text(stringResource(R.string.action_app_info)) }
             }
         },
         title = { Text("Developer Info") },
