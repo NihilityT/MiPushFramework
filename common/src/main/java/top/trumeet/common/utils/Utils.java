@@ -19,7 +19,6 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
-import java.util.Calendar;
 import java.util.Date;
 
 import top.trumeet.common.override.AppOpsManagerOverride;
@@ -60,12 +59,7 @@ public final class Utils {
     }
 
     public static Date getUTC(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        int zoneOffset = cal.get(java.util.Calendar.ZONE_OFFSET);
-        int dstOffset = cal.get(java.util.Calendar.DST_OFFSET);
-        cal.add(java.util.Calendar.MILLISECOND, -(zoneOffset + dstOffset));
-        return cal.getTime();
+        return date;
     }
 
     public static Date getUTC() {

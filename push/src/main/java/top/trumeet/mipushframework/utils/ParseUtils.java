@@ -2,14 +2,14 @@ package top.trumeet.mipushframework.utils;
 
 import android.content.Context;
 
+import com.xiaomi.xmsf.R;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-
-import com.xiaomi.xmsf.R;
 
 /**
  * Created by Trumeet on 2017/7/18.
@@ -37,13 +37,6 @@ public class ParseUtils {
         Calendar calendarServer = Calendar.getInstance();
         calendarServer.setTime(fromServer);
         calendarCurrent.setTime(current);
-
-        int zoneOffset = calendarServer.get(java.util.Calendar.ZONE_OFFSET);
-        int dstOffset = calendarServer.get(java.util.Calendar.DST_OFFSET);
-
-        calendarServer.add(java.util.Calendar.MILLISECOND, (zoneOffset + dstOffset));
-        calendarCurrent.add(java.util.Calendar.MILLISECOND, (zoneOffset + dstOffset));
-
 
         long time1 = calendarCurrent.getTimeInMillis();
         long time2 = calendarServer.getTimeInMillis();
@@ -90,7 +83,7 @@ public class ParseUtils {
         }
     }
 
-    private static String parseDate(Date date) {
+    public static String parseDate(Date date) {
         DateFormat formatter = DateFormat.getDateTimeInstance();
         return formatter.format(date);
 
