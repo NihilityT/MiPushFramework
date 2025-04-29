@@ -23,6 +23,7 @@ public class CustomConfiguration {
     private static final String CONVERSATION_MESSAGE = Config("conversation_message");
     private static final String CLEAR_GROUP = Config("clear_group");
     private static final String BORROW_CHANNEL_ID = Config("borrow_channel_id");
+    private static final String TEXT_ICON = Config("text_icon");
 
     private static final String NOTIFICATION_LARGE_ICON_URI = "notification_large_icon_uri";
     private static final String CHANNEL_ID = "channel_id";
@@ -132,6 +133,10 @@ public class CustomConfiguration {
 
     public String focusParam(String defaultValue) {
         return get(FOCUS_PARAM, defaultValue);
+    }
+
+    public String textIcon(String defaultValue) {
+        return get(TEXT_ICON, defaultValue);
     }
 
     public boolean get(String key, boolean defaultValue) {

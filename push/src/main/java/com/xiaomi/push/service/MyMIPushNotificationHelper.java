@@ -8,6 +8,7 @@ import static com.xiaomi.push.service.MyNotificationIconHelper.MiB;
 import static com.xiaomi.xmsf.push.notification.NotificationController.getBitmapFromUri;
 import static com.xiaomi.xmsf.push.notification.NotificationController.getLargeIcon;
 import static com.xiaomi.xmsf.push.notification.NotificationController.getNotificationManagerEx;
+import static com.xiaomi.xmsf.push.notification.NotificationController.roundLargeIconIfConfigured;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -18,6 +19,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -446,6 +448,7 @@ public class MyMIPushNotificationHelper {
         String sender = custom.conversationSender(null);
         String senderId = custom.conversationSenderId(null);
         String senderIcon = custom.conversationSenderIcon(null);
+        String textIcon = custom.textIcon(null);
 
         Person.Builder personBuilder = new Person.Builder().setName(sender);
         personBuilder.setImportant(custom.conversationImportant(false));
@@ -455,6 +458,12 @@ public class MyMIPushNotificationHelper {
         Bitmap largeIcon = getLargeIcon(context, metaInfo, senderIcon);
         if (largeIcon != null) {
             personBuilder.setIcon(IconCompat.createWithBitmap(largeIcon));
+        } else if (textIcon != null) {
+            personBuilder.setIcon(IconCompat.createWithBitmap(
+                    roundLargeIconIfConfigured(metaInfo,
+                            ImageUtils.INSTANCE.textToBitmap(textIcon, 72, 0xFF003E6F, Color.WHITE)
+                    )));
+
         }
         return personBuilder;
     }

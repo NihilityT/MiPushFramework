@@ -30,7 +30,6 @@ import com.nihility.notification.NotificationManagerEx;
 import com.xiaomi.push.service.MyNotificationIconHelper;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
-import top.trumeet.mipushframework.main.AdvancedSettingsPage;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.push.utils.IconConfigurations;
@@ -40,6 +39,7 @@ import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.cache.IconCache;
 import top.trumeet.common.utils.CustomConfiguration;
 import top.trumeet.common.utils.ImgUtils;
+import top.trumeet.mipushframework.main.AdvancedSettingsPage;
 
 /**
  * @author Trumeet
@@ -181,10 +181,15 @@ public class NotificationController {
         Bitmap largeIcon = IconCache.getInstance().getBitmap(context, iconUri,
                 (context1, iconUri1) -> getBitmapFromUri(context1, iconUri1, 200 * KiB));
         if (largeIcon != null) {
-            CustomConfiguration custom = new CustomConfiguration(metaInfo.getExtra());
-            if (custom.roundLargeIcon(false)) {
-                largeIcon = ImgUtils.trimImgToCircle(largeIcon, Color.TRANSPARENT);
-            }
+            largeIcon = roundLargeIconIfConfigured(metaInfo, largeIcon);
+        }
+        return largeIcon;
+    }
+
+    public static Bitmap roundLargeIconIfConfigured(PushMetaInfo metaInfo, Bitmap largeIcon) {
+        CustomConfiguration custom = new CustomConfiguration(metaInfo.getExtra());
+        if (custom.roundLargeIcon(false)) {
+            largeIcon = ImgUtils.trimImgToCircle(largeIcon, Color.TRANSPARENT);
         }
         return largeIcon;
     }
