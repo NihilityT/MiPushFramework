@@ -58,7 +58,7 @@ class RequestPermissionPage : ComponentActivity() {
                 window.navigationBarColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
                     NavigationBarDefaults.Elevation
                 ).toArgb()
-                MainPage()
+                PermissionMainPage()
             }
         }
     }
@@ -68,7 +68,7 @@ class RequestPermissionPage : ComponentActivity() {
     showBackground = true,
 )
 @Composable
-fun MainPage(
+fun PermissionMainPage(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
