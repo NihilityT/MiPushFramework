@@ -95,7 +95,7 @@ private fun toEventInfoForDisplay(
         packageName = it.pkg,
         configOptions = utils.getStatus(container) ?: setOf(),
         channel = utils.getStatusDescription(it),
-        receiveDate = EventListPageUtils.getReceiveDate(it),
+        receiveDate = Date(it.date),
         title = type.getTitle(context).toString(),
         content = content,
         appName = "",

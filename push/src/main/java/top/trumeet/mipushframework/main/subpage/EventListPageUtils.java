@@ -24,10 +24,6 @@ import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import org.apache.thrift.TBase;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -96,35 +92,6 @@ public class EventListPageUtils {
             return null;
         }
         return info;
-    }
-
-    public @NonNull String getReceiveDateString(@NonNull Event item) {
-        DateFormat formatter = SimpleDateFormat.getDateTimeInstance();
-        return context.getString(R.string.date_format_long, formatter.format(getReceiveDate(item)));
-    }
-
-    static @NonNull Date getReceiveDate(@NonNull Event item) {
-        Calendar calendarServer = Calendar.getInstance();
-        calendarServer.setTime(new Date(item.getDate()));
-        int zoneOffset = calendarServer.get(Calendar.ZONE_OFFSET);
-        int dstOffset = calendarServer.get(Calendar.DST_OFFSET);
-        calendarServer.add(Calendar.MILLISECOND, (zoneOffset + dstOffset));
-        return calendarServer.getTime();
-    }
-
-
-    @Nullable
-    public String getDecoratedStatus(XmPushActionContainer container) {
-        try {
-            Set<String> ops = getStatus(container);
-            String status = container.getMetaInfo().getExtra().get("channel_name");
-            if (!ops.isEmpty()) {
-                status = ops + " " + status;
-            }
-            return status;
-        } catch (Throwable ignored) {
-        }
-        return null;
     }
 
     public Set<String> getStatus(XmPushActionContainer container) {
