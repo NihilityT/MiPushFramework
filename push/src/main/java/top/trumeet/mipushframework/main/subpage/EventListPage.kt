@@ -80,7 +80,7 @@ private fun toEventInfoForDisplay(
     context: Context,
     utils: EventListPageUtils
 ): EventInfoForDisplay {
-    val type = TypeFactory.create(it, it.pkg)
+    val type = TypeFactory.createForDisplay(it, it.pkg)
 
     val container = RegSecUtils.getContainerWithRegSec(it)
     val summary = type.getSummary(context).toString()

@@ -150,7 +150,7 @@ public class MIPushEventProcessorAspect {
             return;
         }
         logger.d("buildContainer" + " " + ConvertUtils.toJson(buildContainer));
-        recordEvent(TypeFactory.create(buildContainer, buildContainer.packageName));
+        recordEvent(TypeFactory.createForStore(buildContainer, buildContainer.packageName));
     }
 
     private static XmPushActionContainer decoratedContainer(String realTargetPackage, XmPushActionContainer container) {

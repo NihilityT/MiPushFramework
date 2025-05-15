@@ -15,7 +15,7 @@ import top.trumeet.mipush.provider.event.EventType;
  */
 
 public class TypeFactory {
-    public static EventType create (XmPushActionContainer buildContainer,
+    public static EventType createForStore(XmPushActionContainer buildContainer,
                                     String pkg) {
         String info = String.valueOf(ConvertUtils.toJson(buildContainer));
         byte[] payload = XmPushThriftSerializeUtils.convertThriftObjectToBytes(buildContainer);
@@ -39,7 +39,7 @@ public class TypeFactory {
         return new UnknownType(type, info, pkg, payload);
     }
 
-    public static EventType create (Event eventFromDB, String pkg) {
+    public static EventType createForDisplay(Event eventFromDB, String pkg) {
         switch (eventFromDB.getType()) {
             case Event.Type.Command:
                 return new CommandType(eventFromDB.getInfo(),
