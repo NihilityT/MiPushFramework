@@ -8,7 +8,7 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.xiaomi.push.service.MIPushEventProcessor;
+import com.xiaomi.push.service.XmPushActionOperator;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmpush.thrift.XmPushActionRegistrationResult;
 import com.xiaomi.xmsf.push.utils.RegSecUtils;
@@ -139,7 +139,7 @@ public class EventDb {
 
         RegistrationInfo info = new RegistrationInfo();
         for (Event event : events) {
-            XmPushActionContainer container = MIPushEventProcessor.buildContainer(event.getPayload());
+            XmPushActionContainer container = XmPushActionOperator.packToContainer(event.getPayload());
             XmPushActionRegistrationResult data = null;
             try {
                 data = (XmPushActionRegistrationResult)

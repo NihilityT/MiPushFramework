@@ -94,7 +94,7 @@ public class MIPushEventProcessorAspect {
         };
     }
 
-    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.buildContainer(..))")
+    @Around("execution(* com.xiaomi.push.service.XmPushActionOperator.packToContainer(..))")
     public XmPushActionContainer buildContainerHook(final ProceedingJoinPoint joinPoint) throws Throwable {
         XmPushActionContainer container = (XmPushActionContainer) joinPoint.proceed();
         recordContainer(container);
@@ -145,7 +145,7 @@ public class MIPushEventProcessorAspect {
                                      XMPushService pushService, byte[] decryptedContent, long packetBytesLen) {
         logger.d(joinPoint.getSignature());
 
-        XmPushActionContainer buildContainer = buildContainer(decryptedContent);
+        XmPushActionContainer buildContainer = XmPushActionOperator.packToContainer(decryptedContent);
         if (MiPushMessageDuplicateAspect.isMockMessage(buildContainer)) {
             return;
         }

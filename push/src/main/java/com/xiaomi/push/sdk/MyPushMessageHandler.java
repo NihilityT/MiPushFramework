@@ -19,10 +19,10 @@ import com.catchingnow.icebox.sdk_client.IceBox;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.topjohnwu.superuser.Shell;
-import com.xiaomi.push.service.MIPushEventProcessor;
 import com.xiaomi.push.service.MIPushNotificationHelper;
 import com.xiaomi.push.service.MyMIPushNotificationHelper;
 import com.xiaomi.push.service.PushConstants;
+import com.xiaomi.push.service.XmPushActionOperator;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmsf.push.notification.NotificationController;
@@ -64,7 +64,7 @@ public class MyPushMessageHandler extends IntentService {
             return;
         }
 
-        final XmPushActionContainer container = MIPushEventProcessor.buildContainer(payload);
+        final XmPushActionContainer container = XmPushActionOperator.packToContainer(payload);
         if (container == null) {
             return;
         }
@@ -86,7 +86,7 @@ public class MyPushMessageHandler extends IntentService {
             return;
         }
 
-        final XmPushActionContainer container = MIPushEventProcessor.buildContainer(payload);
+        final XmPushActionContainer container = XmPushActionOperator.packToContainer(payload);
         if (container == null) {
             return;
         }
@@ -131,7 +131,7 @@ public class MyPushMessageHandler extends IntentService {
     }
 
     public static ComponentName forwardToTargetApplication(Context context, byte[] payload) {
-        XmPushActionContainer container = MIPushEventProcessor.buildContainer(payload);
+        XmPushActionContainer container = XmPushActionOperator.packToContainer(payload);
         PushMetaInfo metaInfo = container.getMetaInfo();
         String targetPackage = container.getPackageName();
 

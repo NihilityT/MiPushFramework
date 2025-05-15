@@ -25,6 +25,10 @@ public class XmPushActionOperator {
         xmPushService.sendMessage(packageName, msgBytes, false);
     }
 
+    public static XmPushActionContainer packToContainer(byte[] payload) {
+        return MIPushEventProcessor.buildContainer(payload);
+    }
+
     public static @NonNull XmPushActionContainer packToContainer(XmPushActionNotification action, String packageName) {
         return JavaCalls.callStaticMethod(
                 PushContainerHelper.class.getName(), "generateRequestContainer",

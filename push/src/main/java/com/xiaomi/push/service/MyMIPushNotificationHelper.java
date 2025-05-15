@@ -115,7 +115,7 @@ public class MyMIPushNotificationHelper {
      * @see `MIPushNotificationHelper`#notifyPushMessage
      */
     public static void notifyPushMessage(Context context, byte[] decryptedContent) {
-        XmPushActionContainer container = buildContainer(decryptedContent);
+        XmPushActionContainer container = XmPushActionOperator.packToContainer(decryptedContent);
         AppInfoUtils.AppNotificationOp notificationOp = AppInfoUtils.getAppNotificationOp(context, getTargetPackage(container), true);
         if (notificationOp == AppInfoUtils.AppNotificationOp.NOT_ALLOWED) {
             logger.w("Do not notify because user block " + getTargetPackage(container) + "'s notification");

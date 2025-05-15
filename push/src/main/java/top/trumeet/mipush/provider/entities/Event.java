@@ -1,12 +1,12 @@
 package top.trumeet.mipush.provider.entities;
 
-import static com.xiaomi.push.service.MIPushEventProcessor.buildContainer;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
+import com.xiaomi.push.service.XmPushActionOperator;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 
 import org.greenrobot.greendao.annotation.Entity;
@@ -31,7 +31,7 @@ import top.trumeet.common.utils.Utils;
 public class Event {
     public @Nullable XmPushActionContainer getContainer() {
         XmPushActionContainer container = getPayload() == null ?
-                null : buildContainer(getPayload());
+                null : XmPushActionOperator.packToContainer(getPayload());
         return container;
     }
 
