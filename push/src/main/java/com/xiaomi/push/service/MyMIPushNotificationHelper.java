@@ -65,7 +65,7 @@ import top.trumeet.common.cache.IconCache;
 import top.trumeet.common.utils.CustomConfiguration;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
-import top.trumeet.mipush.provider.register.RegisteredApplication;
+import top.trumeet.mipush.provider.entities.RegisteredApplication;
 
 /**
  * @author zts1993

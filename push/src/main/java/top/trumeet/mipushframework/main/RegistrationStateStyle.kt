@@ -3,7 +3,7 @@ package top.trumeet.mipushframework.main
 import android.content.Context
 import androidx.compose.ui.graphics.Color
 import com.xiaomi.xmsf.R
-import top.trumeet.mipush.provider.register.RegisteredApplication
+import top.trumeet.mipush.provider.entities.RegisteredApplication
 
 object RegistrationStateStyle {
 

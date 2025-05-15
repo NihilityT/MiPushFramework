@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import top.trumeet.mipush.provider.db.EventDb;
-import top.trumeet.mipush.provider.event.Event;
+import top.trumeet.mipush.provider.entities.Event;
 import top.trumeet.mipushframework.main.ApplicationInfoPage;
 
 public class EventListPageUtils {

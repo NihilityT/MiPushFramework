@@ -6,7 +6,7 @@ import android.text.TextUtils;
 
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 
-import top.trumeet.mipush.provider.event.Event;
+import top.trumeet.mipush.provider.entities.Event;
 
 public class RegSecUtils {
     public static final String RegSecField = "__reg_sec__";

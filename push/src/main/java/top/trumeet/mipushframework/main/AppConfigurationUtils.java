@@ -22,7 +22,7 @@ import java.util.List;
 import top.trumeet.common.Constants;
 import top.trumeet.common.utils.NotificationUtils;
 import top.trumeet.common.utils.Utils;
-import top.trumeet.mipush.provider.register.RegisteredApplication;
+import top.trumeet.mipush.provider.entities.RegisteredApplication;
 
 public class AppConfigurationUtils {
     private final Context context;

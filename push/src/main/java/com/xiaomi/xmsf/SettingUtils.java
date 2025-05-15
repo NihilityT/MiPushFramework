@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import top.trumeet.common.Constants;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.db.EventDb;
-import top.trumeet.mipush.provider.register.RegisteredApplication;
+import top.trumeet.mipush.provider.entities.RegisteredApplication;
 import top.trumeet.mipushframework.main.subpage.ApplicationPageOperation;
 
 public class SettingUtils {

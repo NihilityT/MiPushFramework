@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import top.trumeet.mipush.provider.db.EventDb;
+import top.trumeet.mipush.provider.entities.Event;
 
 /**
  * 喂给 {@link Event} 的详细信息。

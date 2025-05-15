@@ -23,7 +23,7 @@ import java.util.Set;
 
 import top.trumeet.common.utils.DatabaseUtils;
 import top.trumeet.common.utils.Utils;
-import top.trumeet.mipush.provider.event.Event;
+import top.trumeet.mipush.provider.entities.Event;
 import top.trumeet.mipush.provider.event.EventType;
 import top.trumeet.mipush.provider.gen.db.EventDao;
 

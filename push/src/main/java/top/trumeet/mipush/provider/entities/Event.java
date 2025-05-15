@@ -1,4 +1,4 @@
-package top.trumeet.mipush.provider.event;
+package top.trumeet.mipush.provider.entities;
 
 import static com.xiaomi.push.service.MIPushEventProcessor.buildContainer;
 import static java.lang.annotation.RetentionPolicy.SOURCE;

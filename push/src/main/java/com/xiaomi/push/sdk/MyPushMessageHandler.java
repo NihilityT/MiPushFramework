@@ -29,9 +29,6 @@ import com.xiaomi.xmsf.push.notification.NotificationController;
 import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.utils.ConfigCenter;
 
-import org.json.JSONException;
-
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.function.Consumer;
 
@@ -40,8 +37,6 @@ import top.trumeet.common.ita.ITopActivity;
 import top.trumeet.common.ita.TopActivityFactory;
 import top.trumeet.common.utils.CustomConfiguration;
 import top.trumeet.common.utils.Utils;
-import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
-import top.trumeet.mipush.provider.register.RegisteredApplication;
 
 /**
  * @author zts1993

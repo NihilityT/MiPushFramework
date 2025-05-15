@@ -16,9 +16,9 @@ import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
-import top.trumeet.mipush.provider.event.Event;
+import top.trumeet.mipush.provider.entities.Event;
 import top.trumeet.mipush.provider.event.type.RegistrationType;
-import top.trumeet.mipush.provider.register.RegisteredApplication;
+import top.trumeet.mipush.provider.entities.RegisteredApplication;
 
 public class RegisterRecorder {
     private final String TAG = RegisterRecorder.class.getSimpleName();

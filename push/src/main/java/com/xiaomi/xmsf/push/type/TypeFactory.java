@@ -7,7 +7,7 @@ import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
 import com.xiaomi.xmsf.utils.ConvertUtils;
 
-import top.trumeet.mipush.provider.event.Event;
+import top.trumeet.mipush.provider.entities.Event;
 import top.trumeet.mipush.provider.event.EventType;
 import top.trumeet.mipush.provider.event.type.NotificationType;
 import top.trumeet.mipush.provider.event.type.RegistrationResultType;

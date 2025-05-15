@@ -1,6 +1,6 @@
 package top.trumeet.mipush.provider.event.type;
 
-import top.trumeet.mipush.provider.event.Event;
+import top.trumeet.mipush.provider.entities.Event;
 import top.trumeet.mipush.provider.event.EventType;
 
 /**

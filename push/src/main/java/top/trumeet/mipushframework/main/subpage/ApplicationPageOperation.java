@@ -29,7 +29,7 @@ import top.trumeet.common.utils.ElapsedTimer;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
-import top.trumeet.mipush.provider.register.RegisteredApplication;
+import top.trumeet.mipush.provider.entities.RegisteredApplication;
 import top.trumeet.mipushframework.utils.MiPushManifestChecker;
 
 public class ApplicationPageOperation {

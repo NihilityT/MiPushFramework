@@ -37,7 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.trumeet.common.utils.Utils
-import top.trumeet.mipush.provider.register.RegisteredApplication
+import top.trumeet.mipush.provider.entities.RegisteredApplication
 import top.trumeet.mipushframework.component.AppIcon
 import top.trumeet.mipushframework.component.RefreshableLazyColumn
 import top.trumeet.mipushframework.component.iconCache
@@ -266,17 +266,18 @@ private fun registeredApplication(
     appName: String,
     existServices: Boolean = true
 ): RegisteredApplication {
-    val registeredApplication = RegisteredApplication(
-        null,
-        appName,
-        RegisteredApplication.Type.ASK,
-        true,
-        false,
-        false,
-        false,
-        registeredType,
-        appName
-    )
+    val registeredApplication =
+        RegisteredApplication(
+            null,
+            appName,
+            RegisteredApplication.Type.ASK,
+            true,
+            false,
+            false,
+            false,
+            registeredType,
+            appName
+        )
     registeredApplication.existServices = existServices
     return registeredApplication
 }

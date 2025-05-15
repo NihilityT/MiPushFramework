@@ -54,8 +54,8 @@ import top.trumeet.mipushframework.component.SettingsGroup
 import top.trumeet.mipushframework.component.SettingsItem
 import top.trumeet.common.utils.Utils
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb
-import top.trumeet.mipush.provider.register.RegisteredApplication
-import top.trumeet.mipush.provider.register.RegisteredApplication.RegisteredType
+import top.trumeet.mipush.provider.entities.RegisteredApplication
+import top.trumeet.mipush.provider.entities.RegisteredApplication.RegisteredType
 import top.trumeet.mipushframework.component.MarkdownView
 import top.trumeet.ui.theme.Theme
 
@@ -93,7 +93,8 @@ class ApplicationInfoPage : ComponentActivity() {
             if (application == null &&
                 intent.getBooleanExtra(EXTRA_IGNORE_NOT_REGISTERED, false)
             ) {
-                application = RegisteredApplication()
+                application =
+                    RegisteredApplication()
                 application.packageName = pkg
                 application.registeredType = RegisteredType.NotRegistered
             }

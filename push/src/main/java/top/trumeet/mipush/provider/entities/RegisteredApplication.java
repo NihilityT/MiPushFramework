@@ -1,4 +1,4 @@
-package top.trumeet.mipush.provider.register;
+package top.trumeet.mipush.provider.entities;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 

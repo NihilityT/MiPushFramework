@@ -16,7 +16,7 @@ import java.util.List;
 import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.gen.db.RegisteredApplicationDao;
-import top.trumeet.mipush.provider.register.RegisteredApplication;
+import top.trumeet.mipush.provider.entities.RegisteredApplication;
 
 /**
  * Created by Trumeet on 2017/12/23.
