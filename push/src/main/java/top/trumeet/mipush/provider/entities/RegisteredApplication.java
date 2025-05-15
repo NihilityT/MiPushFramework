@@ -175,19 +175,6 @@ public class RegisteredApplication implements Parcelable {
         this.type = type;
     }
 
-
-    @NonNull
-    public CharSequence getLabel (Context context) {
-        PackageManager pm = context.getPackageManager();
-        try {
-            return pm.getApplicationInfo(packageName, PackageManager.GET_UNINSTALLED_PACKAGES).loadLabel(pm);
-        } catch (PackageManager.NameNotFoundException e) {
-            return packageName;
-        } catch (Resources.NotFoundException e) {   // Not using multi-catch due to build error from greendao
-            return packageName;
-        }
-    }
-
     @NonNull
     public Drawable getIcon (Context context) {
         PackageManager pm = context.getPackageManager();

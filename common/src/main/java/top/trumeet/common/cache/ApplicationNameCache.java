@@ -3,6 +3,8 @@ package top.trumeet.common.cache;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+
+import androidx.annotation.Nullable;
 import androidx.collection.LruCache;
 
 /**
@@ -10,7 +12,7 @@ import androidx.collection.LruCache;
  */
 public class ApplicationNameCache {
     private volatile static ApplicationNameCache cache = null;
-    private LruCache<String, CharSequence> cacheInstance;
+    private final LruCache<String, CharSequence> cacheInstance;
 
 
     private ApplicationNameCache() {
@@ -30,16 +32,20 @@ public class ApplicationNameCache {
 
     public CharSequence getAppName(final Context ctx, final String pkg) {
 
-        return new AbstractCacheAspect<CharSequence>(cacheInstance) {
+        return new AbstractCacheAspect<>(cacheInstance) {
             @Override
             CharSequence gen() {
-                CharSequence name = pkg;
+                return appName();
+            }
+
+            private @Nullable CharSequence appName() {
                 PackageManager pm = ctx.getPackageManager();
                 try {
-                    name = pm.getApplicationInfo(pkg, PackageManager.GET_UNINSTALLED_PACKAGES).loadLabel(pm);
-                } catch (PackageManager.NameNotFoundException | Resources.NotFoundException ignored) { }
-
-                return name;
+                    return pm.getApplicationInfo(pkg, PackageManager.GET_UNINSTALLED_PACKAGES).loadLabel(pm);
+                } catch (PackageManager.NameNotFoundException |
+                         Resources.NotFoundException ignored) {
+                    return pkg;
+                }
             }
         }.get(pkg);
     }

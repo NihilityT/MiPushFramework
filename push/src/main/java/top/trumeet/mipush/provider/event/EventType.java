@@ -1,13 +1,12 @@
 package top.trumeet.mipush.provider.event;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.text.Html;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.entities.Event;
 
@@ -37,12 +36,7 @@ public abstract class EventType {
 
     @NonNull
     public CharSequence getTitle (Context context) {
-        PackageManager pm = context.getPackageManager();
-        try {
-            return pm.getApplicationInfo(pkg, PackageManager.GET_UNINSTALLED_PACKAGES).loadLabel(pm);
-        } catch (PackageManager.NameNotFoundException | Resources.NotFoundException e) {
-            return pkg;
-        }
+        return ApplicationNameCache.getInstance().getAppName(context, pkg);
     }
 
     @Nullable
