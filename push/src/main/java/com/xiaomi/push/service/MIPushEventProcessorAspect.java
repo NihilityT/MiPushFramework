@@ -1,7 +1,5 @@
 package com.xiaomi.push.service;
 
-import static com.xiaomi.push.service.MIPushEventProcessor.buildContainer;
-
 import android.content.Intent;
 import android.widget.Toast;
 
@@ -17,7 +15,6 @@ import com.xiaomi.push.service.clientReport.ReportConstants;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
-import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
 import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.utils.ConvertUtils;
 
@@ -150,7 +147,7 @@ public class MIPushEventProcessorAspect {
             return;
         }
         logger.d("buildContainer" + " " + ConvertUtils.toJson(buildContainer));
-        recordEvent(TypeFactory.createForStore(buildContainer, buildContainer.packageName));
+        recordEvent(TypeFactory.createForStore(buildContainer));
     }
 
     private static XmPushActionContainer decoratedContainer(String realTargetPackage, XmPushActionContainer container) {

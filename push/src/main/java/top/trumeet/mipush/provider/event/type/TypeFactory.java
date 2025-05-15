@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import com.xiaomi.push.service.XmPushActionOperator;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
-import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
 import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import top.trumeet.mipush.provider.entities.Event;
@@ -16,21 +15,28 @@ import top.trumeet.mipush.provider.event.EventType;
  */
 
 public class TypeFactory {
-    public static EventType createForStore(XmPushActionContainer buildContainer,
-                                    String pkg) {
+    public static EventType createForStore(XmPushActionContainer buildContainer) {
+        String pkg = buildContainer.packageName;
         String info = String.valueOf(ConvertUtils.toJson(buildContainer));
         byte[] payload = XmPushActionOperator.packToBytes(buildContainer);
+
         switch (buildContainer.getAction()) {
-            case Command:
-                break;
             case SendMessage:
-                NotificationType eventType = new NotificationType(info, pkg, buildContainer.getMetaInfo().getTitle(),
-                        buildContainer.getMetaInfo().getDescription(), payload);
+                NotificationType eventType = new NotificationType(
+                        info,
+                        pkg,
+                        buildContainer.getMetaInfo().getTitle(),
+                        buildContainer.getMetaInfo().getDescription(),
+                        payload);
                 eventType.setType(Event.Type.SendMessage);
                 return eventType;
             case Notification:
-                return new NotificationType(info, pkg, buildContainer.getMetaInfo().getTitle(),
-                        buildContainer.getMetaInfo().getDescription(), payload);
+                return new NotificationType(
+                        info,
+                        pkg,
+                        buildContainer.getMetaInfo().getTitle(),
+                        buildContainer.getMetaInfo().getDescription(),
+                        payload);
             case Registration:
                 return new RegistrationResultType(info, pkg, payload);
         }
@@ -40,27 +46,46 @@ public class TypeFactory {
         return new UnknownType(type, info, pkg, payload);
     }
 
-    public static EventType createForDisplay(Event eventFromDB, String pkg) {
+    public static EventType createForDisplay(Event eventFromDB) {
+        String pkg = eventFromDB.getPkg();
         switch (eventFromDB.getType()) {
             case Event.Type.Command:
-                return new CommandType(eventFromDB.getInfo(),
-                        pkg, eventFromDB.getPayload());
+                return new CommandType(
+                        eventFromDB.getInfo(),
+                        pkg,
+                        eventFromDB.getPayload());
             case Event.Type.Notification:
-                return new NotificationType(eventFromDB.getInfo(), pkg, eventFromDB.getNotificationTitle(),
-                        eventFromDB.getNotificationSummary(), eventFromDB.getPayload());
+                return new NotificationType(
+                        eventFromDB.getInfo(),
+                        pkg,
+                        eventFromDB.getNotificationTitle(),
+                        eventFromDB.getNotificationSummary(),
+                        eventFromDB.getPayload());
             case Event.Type.SendMessage:
-                NotificationType type = new NotificationType(eventFromDB.getInfo(), pkg, eventFromDB.getNotificationTitle(),
-                        eventFromDB.getNotificationSummary(), eventFromDB.getPayload());
+                NotificationType type = new NotificationType(
+                        eventFromDB.getInfo(),
+                        pkg,
+                        eventFromDB.getNotificationTitle(),
+                        eventFromDB.getNotificationSummary(),
+                        eventFromDB.getPayload());
                 type.setType(Event.Type.SendMessage);
                 return type;
             case Event.Type.Registration:
-                return new RegistrationType(eventFromDB.getInfo(),
-                        pkg, eventFromDB.getPayload());
+                return new RegistrationType(
+                        eventFromDB.getInfo(),
+                        pkg,
+                        eventFromDB.getPayload());
             case Event.Type.RegistrationResult:
-                return new RegistrationResultType(eventFromDB.getInfo(),
-                        pkg, eventFromDB.getPayload());
+                return new RegistrationResultType(
+                        eventFromDB.getInfo(),
+                        pkg,
+                        eventFromDB.getPayload());
             default:
-                return new UnknownType(eventFromDB.getType(), eventFromDB.getInfo(), pkg, eventFromDB.getPayload());
+                return new UnknownType(
+                        eventFromDB.getType(),
+                        eventFromDB.getInfo(),
+                        pkg,
+                        eventFromDB.getPayload());
         }
     }
 
