@@ -18,7 +18,6 @@ import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
-import com.xiaomi.xmsf.push.type.TypeFactory;
 import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.utils.ConvertUtils;
 
@@ -35,6 +34,7 @@ import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
 import top.trumeet.mipush.provider.entities.Event;
 import top.trumeet.mipush.provider.event.EventType;
+import top.trumeet.mipush.provider.event.type.TypeFactory;
 
 @Aspect
 public class MIPushEventProcessorAspect {
