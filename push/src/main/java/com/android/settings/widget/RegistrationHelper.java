@@ -27,7 +27,7 @@ public class RegistrationHelper {
     }
 
     public static void tryForceRegister(String packageName) {
-        byte[] msgBytes = XmPushThriftSerializeUtils.convertThriftObjectToBytes(
+        byte[] msgBytes = XmPushActionOperator.packToBytes(
                 createForceRegisterMessage(packageName));
         Intent intent = new Intent(PushConstants.MIPUSH_ACTION_NEW_MESSAGE);
         intent.setPackage(packageName);

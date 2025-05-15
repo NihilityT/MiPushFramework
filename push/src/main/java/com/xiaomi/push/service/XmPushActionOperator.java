@@ -21,7 +21,7 @@ public class XmPushActionOperator {
     }
 
     public void sendMessage(XmPushActionContainer sendMsgContainer, String packageName) {
-        byte[] msgBytes = XmPushThriftSerializeUtils.convertThriftObjectToBytes(sendMsgContainer);
+        byte[] msgBytes = XmPushActionOperator.packToBytes(sendMsgContainer);
         xmPushService.sendMessage(packageName, msgBytes, false);
     }
 

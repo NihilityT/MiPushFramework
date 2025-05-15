@@ -2,6 +2,7 @@ package top.trumeet.mipush.provider.event.type;
 
 import android.annotation.SuppressLint;
 
+import com.xiaomi.push.service.XmPushActionOperator;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
@@ -18,7 +19,7 @@ public class TypeFactory {
     public static EventType createForStore(XmPushActionContainer buildContainer,
                                     String pkg) {
         String info = String.valueOf(ConvertUtils.toJson(buildContainer));
-        byte[] payload = XmPushThriftSerializeUtils.convertThriftObjectToBytes(buildContainer);
+        byte[] payload = XmPushActionOperator.packToBytes(buildContainer);
         switch (buildContainer.getAction()) {
             case Command:
                 break;

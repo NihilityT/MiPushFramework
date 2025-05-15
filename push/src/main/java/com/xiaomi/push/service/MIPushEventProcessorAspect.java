@@ -58,7 +58,7 @@ public class MIPushEventProcessorAspect {
     }
 
     private static void invokeProcessMiPushMessage(XMPushService pushService, XmPushActionContainer container) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
-        byte[] mockDecryptedContent = XmPushThriftSerializeUtils.convertThriftObjectToBytes(container);
+        byte[] mockDecryptedContent = XmPushActionOperator.packToBytes(container);
         invokeProcessMiPushMessage(pushService, mockDecryptedContent);
     }
 
