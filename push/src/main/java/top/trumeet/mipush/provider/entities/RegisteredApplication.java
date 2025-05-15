@@ -103,15 +103,6 @@ public class RegisteredApplication implements Parcelable {
     @Property(nameInDb = "notification_on_register")
     private boolean notificationOnRegister;
 
-    @Property(nameInDb = "group_notifications_for_same_session")
-    private boolean groupNotificationsForSameSession;
-
-    @Property(nameInDb = "clear_all_notifications_of_session")
-    private boolean clearAllNotificationsOfSession;
-
-    @Property(nameInDb = "show_pass_through")
-    private boolean showPassThrough;
-
     @IntDef({RegisteredType.NotRegistered, RegisteredType.Registered, RegisteredType.Unregistered})
     @Retention(SOURCE)
     @Target({ElementType.PARAMETER, ElementType.TYPE,
@@ -133,17 +124,13 @@ public class RegisteredApplication implements Parcelable {
     @Transient
     public Date lastReceiveTime = new Date(0);
 
-    @Generated(hash = 1327348616)
+    @Generated(hash = 686342621)
     public RegisteredApplication(Long id, String packageName, int type, boolean notificationOnRegister,
-            boolean groupNotificationsForSameSession, boolean clearAllNotificationsOfSession, boolean showPassThrough,
             int registeredType, String appName) {
         this.id = id;
         this.packageName = packageName;
         this.type = type;
         this.notificationOnRegister = notificationOnRegister;
-        this.groupNotificationsForSameSession = groupNotificationsForSameSession;
-        this.clearAllNotificationsOfSession = clearAllNotificationsOfSession;
-        this.showPassThrough = showPassThrough;
         this.registeredType = registeredType;
         this.appName = appName;
     }
@@ -207,30 +194,6 @@ public class RegisteredApplication implements Parcelable {
 
     public boolean getNotificationOnRegister() {
         return this.notificationOnRegister;
-    }
-
-    public boolean getGroupNotificationsForSameSession() {
-        return this.groupNotificationsForSameSession;
-    }
-
-    public void setGroupNotificationsForSameSession(boolean groupNotificationsForSameSession) {
-        this.groupNotificationsForSameSession = groupNotificationsForSameSession;
-    }
-
-    public boolean getClearAllNotificationsOfSession() {
-        return this.clearAllNotificationsOfSession;
-    }
-
-    public void setClearAllNotificationsOfSession(boolean clearAllNotificationsOfSession) {
-        this.clearAllNotificationsOfSession = clearAllNotificationsOfSession;
-    }
-
-    public boolean getShowPassThrough() {
-        return this.showPassThrough;
-    }
-
-    public void setShowPassThrough(boolean showPassThrough) {
-        this.showPassThrough = showPassThrough;
     }
 
     public @RegisteredType int getRegisteredType() {

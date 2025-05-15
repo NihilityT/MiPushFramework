@@ -496,16 +496,12 @@ public class MyMIPushNotificationHelper {
         String packageName = buildContainer.getPackageName();
         RegisteredApplication application = RegisteredApplicationDb.getRegisteredApplication(packageName);
 
-        boolean groupSession = application != null && application.getGroupNotificationsForSameSession();
         CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
         String group = configuration.notificationGroup(null);
         if (group != null) {
             group = packageName + "_" + GROUP_TYPE_MIPUSH_GROUP + "_" + group;
         } else if (metaInfo.passThrough == 1) {
             group = packageName + "_" + GROUP_TYPE_PASS_THROUGH;
-        } else if (groupSession) {
-            String id = metaInfo.isSetNotifyId() ? String.valueOf(metaInfo.getNotifyId()) : "";
-            group = packageName + "_" + GROUP_TYPE_SAME_NOTIFICATION_ID + "_" + id;
         } else {
             group = packageName;
         }

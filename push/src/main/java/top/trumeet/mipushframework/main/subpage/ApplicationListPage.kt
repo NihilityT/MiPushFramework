@@ -272,9 +272,6 @@ private fun registeredApplication(
             appName,
             RegisteredApplication.Type.ASK,
             true,
-            false,
-            false,
-            false,
             registeredType,
             appName
         )

@@ -52,9 +52,6 @@ public class RegisteredApplicationDb {
                         , pkg
                         , RegisteredApplication.Type.ASK
                         , true
-                        , false
-                        , false
-                        , false
                         , RegisteredApplication.RegisteredType.NotRegistered
                         , ApplicationNameCache.getInstance()
                         .getAppName(Utils.getApplication(), pkg).toString()
