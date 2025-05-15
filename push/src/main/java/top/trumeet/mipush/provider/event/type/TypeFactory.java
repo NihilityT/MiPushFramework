@@ -22,76 +22,44 @@ public class TypeFactory {
 
         switch (buildContainer.getAction()) {
             case SendMessage:
-                NotificationType eventType = new NotificationType(
-                        info,
-                        pkg,
-                        buildContainer.getMetaInfo().getTitle(),
-                        buildContainer.getMetaInfo().getDescription(),
-                        payload);
+                NotificationType eventType = new NotificationType(info, pkg, payload);
                 eventType.setType(Event.Type.SendMessage);
                 return eventType;
             case Notification:
-                return new NotificationType(
-                        info,
-                        pkg,
-                        buildContainer.getMetaInfo().getTitle(),
-                        buildContainer.getMetaInfo().getDescription(),
-                        payload);
+                return new NotificationType(info, pkg, payload);
             case Registration:
                 return new RegistrationResultType(info, pkg, payload);
+            default:
+                return new UnknownType(getTypeId(buildContainer.getAction()), info, pkg, payload);
         }
-
-        ActionType rawType = buildContainer.getAction();
-        int type = getTypeId(rawType);
-        return new UnknownType(type, info, pkg, payload);
     }
 
     public static EventType createForDisplay(Event eventFromDB) {
         String pkg = eventFromDB.getPkg();
+        String info = eventFromDB.getInfo();
+        byte[] payload = eventFromDB.getPayload();
+
         switch (eventFromDB.getType()) {
             case Event.Type.Command:
-                return new CommandType(
-                        eventFromDB.getInfo(),
-                        pkg,
-                        eventFromDB.getPayload());
+                return new CommandType(info, pkg, payload);
             case Event.Type.Notification:
-                return new NotificationType(
-                        eventFromDB.getInfo(),
-                        pkg,
-                        eventFromDB.getNotificationTitle(),
-                        eventFromDB.getNotificationSummary(),
-                        eventFromDB.getPayload());
+                return new NotificationType(info, pkg, payload);
             case Event.Type.SendMessage:
-                NotificationType type = new NotificationType(
-                        eventFromDB.getInfo(),
-                        pkg,
-                        eventFromDB.getNotificationTitle(),
-                        eventFromDB.getNotificationSummary(),
-                        eventFromDB.getPayload());
+                NotificationType type = new NotificationType(info, pkg, payload);
                 type.setType(Event.Type.SendMessage);
                 return type;
             case Event.Type.Registration:
-                return new RegistrationType(
-                        eventFromDB.getInfo(),
-                        pkg,
-                        eventFromDB.getPayload());
+                return new RegistrationType(info, pkg, payload);
             case Event.Type.RegistrationResult:
-                return new RegistrationResultType(
-                        eventFromDB.getInfo(),
-                        pkg,
-                        eventFromDB.getPayload());
+                return new RegistrationResultType(info, pkg, payload);
             default:
-                return new UnknownType(
-                        eventFromDB.getType(),
-                        eventFromDB.getInfo(),
-                        pkg,
-                        eventFromDB.getPayload());
+                return new UnknownType(eventFromDB.getType(), info, pkg, payload);
         }
     }
 
 
     @SuppressLint("WrongConstant")
-    private static @Event.Type int getTypeId (ActionType type) {
+    private static @Event.Type int getTypeId(ActionType type) {
         switch (type) {
             case Command:
                 return Event.Type.Command;

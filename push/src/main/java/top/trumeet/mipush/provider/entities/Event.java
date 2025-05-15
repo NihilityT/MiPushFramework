@@ -130,12 +130,6 @@ public class Event {
     @Property(nameInDb = "dev_info")
     private String info;
 
-    @Property(nameInDb = "noti_title")
-    private String notificationTitle;
-
-    @Property(nameInDb = "noti_summary")
-    private String notificationSummary;
-
     @Property(nameInDb = "payload")
     private byte[] payload;
 
@@ -146,35 +140,17 @@ public class Event {
     public Event() {
     }
 
-    @Generated(hash = 715718956)
-    public Event(Long id, @NotNull String pkg, int type, long date, int result, String info, String notificationTitle,
-            String notificationSummary, byte[] payload, String regSec) {
+    @Generated(hash = 1173825013)
+    public Event(Long id, @NotNull String pkg, int type, long date, int result, String info, byte[] payload,
+            String regSec) {
         this.id = id;
         this.pkg = pkg;
         this.type = type;
         this.date = date;
         this.result = result;
         this.info = info;
-        this.notificationTitle = notificationTitle;
-        this.notificationSummary = notificationSummary;
         this.payload = payload;
         this.regSec = regSec;
-    }
-
-    public String getNotificationTitle() {
-        return notificationTitle;
-    }
-
-    public void setNotificationTitle(String notificationTitle) {
-        this.notificationTitle = notificationTitle;
-    }
-
-    public String getNotificationSummary() {
-        return notificationSummary;
-    }
-
-    public void setNotificationSummary(String notificationSummary) {
-        this.notificationSummary = notificationSummary;
     }
 
     public Long getId() {

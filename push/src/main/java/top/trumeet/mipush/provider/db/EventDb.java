@@ -59,17 +59,15 @@ public class EventDb {
     }
 
     public static @NonNull Event createEvent(@Event.ResultType int result, EventType type) {
-        return type.fillEvent(new Event(null
+        return new Event(null
                 , type.getPkg()
                 , type.getType()
                 , Utils.getUTC().getTime()
                 , result
                 , type.getInfo()
-                , null
-                , null
                 , type.getPayload()
                 , Utils.getRegSec(type.getPkg())
-        ));
+        );
     }
 
     public static List<Event> queryById(

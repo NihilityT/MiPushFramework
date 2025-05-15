@@ -5,6 +5,9 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.xiaomi.push.service.XmPushActionOperator;
+import com.xiaomi.xmpush.thrift.XmPushActionContainer;
+
 import top.trumeet.mipush.provider.entities.Event;
 import top.trumeet.mipush.provider.event.EventType;
 import top.trumeet.common.R;
@@ -19,10 +22,11 @@ public class NotificationType extends EventType {
     private final String mNotificationTitle;
     private final String mNotificationDetail;
 
-    public NotificationType(String mInfo, String pkg, String mNotificationTitle, String mNotificationDetail, byte[] payload) {
+    public NotificationType(String mInfo, String pkg, byte[] payload) {
         super(Event.Type.Notification, mInfo, pkg, payload);
-        this.mNotificationTitle = mNotificationTitle;
-        this.mNotificationDetail = mNotificationDetail;
+        XmPushActionContainer container = XmPushActionOperator.packToContainer(payload);
+        this.mNotificationTitle = container.getMetaInfo().getTitle();
+        this.mNotificationDetail = container.getMetaInfo().getDescription();
     }
 
     @Override
@@ -40,19 +44,4 @@ public class NotificationType extends EventType {
                 mNotificationDetail;
     }
 
-    public String getNotificationTitle() {
-        return mNotificationTitle;
-    }
-
-    public String getNotificationDetail() {
-        return mNotificationDetail;
-    }
-
-    @NonNull
-    @Override
-    public Event fillEvent (@NonNull Event original) {
-        original.setNotificationTitle(mNotificationTitle);
-        original.setNotificationSummary(mNotificationDetail);
-        return original;
-    }
 }
