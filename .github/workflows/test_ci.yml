@@ -5,6 +5,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
 
@@ -72,3 +75,11 @@ jobs:
       with:
         name: ${{ env.vc105_debug_artifact }}
         path: push/build/outputs/apk/vc105/debug/*.apk
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        name: ${{ steps.ghd.outputs.describe }}
+        tag_name: ${{ steps.ghd.outputs.describe }}
+        prerelease: true
+        files: push/build/outputs/apk/*/*/*.apk
