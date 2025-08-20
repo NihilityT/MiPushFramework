@@ -35,6 +35,8 @@ jobs:
     - name: Git describe
       id: ghd
       uses: proudust/gh-describe@v2.1.0
+      with:
+        exclude: v*-*
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
@@ -76,10 +78,18 @@ jobs:
         name: ${{ env.vc105_debug_artifact }}
         path: push/build/outputs/apk/vc105/debug/*.apk
 
+    - name: Get Version Name
+      id: gvn
+      run: |
+        artifact_name=(push/build/outputs/apk/*/*/*.apk)
+        version=$(echo $artifact_name | sed 's/.*(v.*)(-[^-]+){2}/\1/' -r)
+        echo "version=$version" >> $GITHUB_OUTPUT
+
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        name: ${{ steps.ghd.outputs.describe }}
-        tag_name: ${{ steps.ghd.outputs.describe }}
+        name: ${{ steps.gvn.outputs.version }}
+        tag_name: ${{ steps.gvn.outputs.version }}
+        target_commitish: ${{ steps.ghd.outputs.sha }}
         prerelease: true
         files: push/build/outputs/apk/*/*/*.apk

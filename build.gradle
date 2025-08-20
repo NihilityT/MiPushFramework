@@ -90,7 +90,7 @@ private String getVersionNameFromGit() {
         def stdout = new ByteArrayOutputStream()
         exec {
             // v0.3.10-187-gef4be8c9-dirty
-            commandLine 'git', 'describe', '--tags', '--dirty'
+            commandLine 'git', 'describe', '--tags', '--dirty', '--exclude', 'v*-*'
             standardOutput = stdout
         }
         return stdout.toString().trim()
