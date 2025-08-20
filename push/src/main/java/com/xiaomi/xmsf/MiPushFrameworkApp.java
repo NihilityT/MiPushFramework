@@ -44,7 +44,6 @@ import com.xiaomi.xmsf.utils.LogUtils;
 
 import java.lang.reflect.Field;
 
-import rx_activity_result2.RxActivityResult;
 import top.trumeet.common.Constants;
 import top.trumeet.common.push.PushServiceAccessibility;
 import top.trumeet.common.utils.Utils;
@@ -90,9 +89,6 @@ public class MiPushFrameworkApp extends Application {
         hookMiPushSDK();
 
         NotificationManagerEx.init(getApplicationContext());
-
-        RxActivityResult.register(this);
-
 
         initMiSdkLogger();
         initPushLogger();
