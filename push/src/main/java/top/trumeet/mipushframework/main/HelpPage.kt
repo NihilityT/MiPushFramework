@@ -38,7 +38,7 @@ class HelpPage : AppCompatActivity() {
             val color = SurfaceColors.SURFACE_2.getColor(this)
             window.statusBarColor = color
             Theme {
-                HelpPage()
+                HelpList()
             }
         }
     }
