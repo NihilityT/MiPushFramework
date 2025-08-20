@@ -101,7 +101,7 @@ private fun ContactUs() {
         openUrl(context, "https://pd.qq.com/s/4tsiu8hlu")
     }
     ClickableListItem(R.string.helplib_action_telegram_group) {
-        openUrl(context, "http://t.me/mipushframework")
+        openUrl(context, "https://t.me/+aiUicn7pRudjYThl")
     }
     ClickableListItem(R.string.helplib_action_issue) {
         openUrl(context, "https://github.com/NihilityT/MiPushFramework/issues")
