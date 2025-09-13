@@ -23,14 +23,12 @@ import com.topjohnwu.superuser.Shell;
 import com.xiaomi.push.service.MIPushNotificationHelper;
 import com.xiaomi.push.service.MyMIPushNotificationHelper;
 import com.xiaomi.push.service.PushConstants;
-import com.xiaomi.push.service.XmPushActionOperator;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmsf.push.notification.NotificationController;
 import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.utils.ConfigCenter;
 
-import java.util.HashMap;
 import java.util.function.Consumer;
 
 import top.trumeet.common.Constants;
@@ -65,7 +63,7 @@ public class MyPushMessageHandler extends IntentService {
             return;
         }
 
-        final XmPushActionContainer container = XmPushActionOperator.packToContainer(payload);
+        final XmPushActionContainer container = XMPushUtils.packToContainer(payload);
         if (container == null) {
             return;
         }
@@ -87,7 +85,7 @@ public class MyPushMessageHandler extends IntentService {
             return;
         }
 
-        final XmPushActionContainer container = XmPushActionOperator.packToContainer(payload);
+        final XmPushActionContainer container = XMPushUtils.packToContainer(payload);
         if (container == null) {
             return;
         }
@@ -131,7 +129,7 @@ public class MyPushMessageHandler extends IntentService {
     }
 
     public static ComponentName forwardToTargetApplication(Context context, byte[] payload) {
-        XmPushActionContainer container = XmPushActionOperator.packToContainer(payload);
+        XmPushActionContainer container = XMPushUtils.packToContainer(payload);
         PushMetaInfo metaInfo = container.getMetaInfo();
         String targetPackage = container.getPackageName();
 

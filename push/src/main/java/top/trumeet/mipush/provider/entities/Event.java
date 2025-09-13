@@ -6,7 +6,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
-import com.xiaomi.push.service.XmPushActionOperator;
+import com.nihility.XMPushUtils;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 
 import org.greenrobot.greendao.annotation.Entity;
@@ -31,7 +31,7 @@ import top.trumeet.common.utils.Utils;
 public class Event {
     public @Nullable XmPushActionContainer getContainer() {
         XmPushActionContainer container = getPayload() == null ?
-                null : XmPushActionOperator.packToContainer(getPayload());
+                null : XMPushUtils.packToContainer(getPayload());
         return container;
     }
 

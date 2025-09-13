@@ -5,15 +5,14 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
+import com.nihility.XMPushUtils;
 import com.topjohnwu.superuser.Shell;
 import com.xiaomi.push.sdk.MyPushMessageHandler;
 import com.xiaomi.push.service.PushConstants;
-import com.xiaomi.push.service.XmPushActionOperator;
 import com.xiaomi.xmpush.thrift.NotificationType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmpush.thrift.XmPushActionNotification;
-import com.xiaomi.xmpush.thrift.XmPushThriftSerializeUtils;
 
 import top.trumeet.common.utils.Utils;
 
@@ -27,7 +26,7 @@ public class RegistrationHelper {
     }
 
     public static void tryForceRegister(String packageName) {
-        byte[] msgBytes = XmPushActionOperator.packToBytes(
+        byte[] msgBytes = XMPushUtils.packToBytes(
                 createForceRegisterMessage(packageName));
         Intent intent = new Intent(PushConstants.MIPUSH_ACTION_NEW_MESSAGE);
         intent.setPackage(packageName);
@@ -45,7 +44,7 @@ public class RegistrationHelper {
         regIdExpiredNotification.setId(id);
         PushMetaInfo metaInfo = new PushMetaInfo();
         metaInfo.setId(id);
-        XmPushActionContainer regIdExpiredContainer = XmPushActionOperator.packToContainer(regIdExpiredNotification, packageName);
+        XmPushActionContainer regIdExpiredContainer = XMPushUtils.packToContainer(regIdExpiredNotification, packageName);
         regIdExpiredContainer.setMetaInfo(metaInfo);
         return regIdExpiredContainer;
     }

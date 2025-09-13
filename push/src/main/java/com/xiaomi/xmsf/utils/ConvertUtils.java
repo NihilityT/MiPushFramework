@@ -11,12 +11,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.nihility.XMPushUtils;
 import com.xiaomi.channel.commonutils.android.DataCryptUtils;
 import com.xiaomi.channel.commonutils.string.Base64Coder;
 import com.xiaomi.mipush.sdk.DecryptException;
 import com.xiaomi.mipush.sdk.PushContainerHelper;
 import com.xiaomi.push.service.PushConstants;
-import com.xiaomi.push.service.XmPushActionOperator;
 import com.xiaomi.xmpush.thrift.*;
 import com.xiaomi.xmsf.push.utils.RegSecUtils;
 
@@ -92,7 +92,7 @@ public class ConvertUtils {
             byte[] payload = intent.getByteArrayExtra(PushConstants.MIPUSH_EXTRA_PAYLOAD);
             if (payload != null) {
                 extras.add(PushConstants.MIPUSH_EXTRA_PAYLOAD, toJson(
-                        XmPushActionOperator.packToContainer(payload)));
+                        XMPushUtils.packToContainer(payload)));
             }
             json.add("extras", extras);
         }

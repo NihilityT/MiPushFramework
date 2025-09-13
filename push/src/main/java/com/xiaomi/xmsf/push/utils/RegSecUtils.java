@@ -2,7 +2,7 @@ package com.xiaomi.xmsf.push.utils;
 
 import android.text.TextUtils;
 
-import com.xiaomi.push.service.XmPushActionOperator;
+import com.nihility.XMPushUtils;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 
 import top.trumeet.mipush.provider.entities.Event;
@@ -27,7 +27,7 @@ public class RegSecUtils {
         if (event == null || event.getPayload() == null) {
             return null;
         }
-        XmPushActionContainer container = XmPushActionOperator.packToContainer(event.getPayload());
+        XmPushActionContainer container = XMPushUtils.packToContainer(event.getPayload());
         if (container == null) {
             return null;
         }

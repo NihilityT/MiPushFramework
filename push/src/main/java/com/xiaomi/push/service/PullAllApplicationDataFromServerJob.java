@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
+import com.nihility.XMPushUtils;
 import com.xiaomi.xmpush.thrift.XmPushActionNotification;
 
 import java.util.Map;
@@ -35,7 +36,7 @@ public class PullAllApplicationDataFromServerJob extends XMPushService.Job {
             }
 
             xmPushActionOperator.sendMessage(
-                    XmPushActionOperator.packToContainer(getPullAction(appId), packageName),
+                    XMPushUtils.packToContainer(getPullAction(appId), packageName),
                     packageName);
         }
     }

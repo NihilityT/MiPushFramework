@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import com.com.xiaomi.channel.commonutils.android.AppInfoUtilsAspect;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.XMPushUtils;
 import com.nihility.service.RegistrationRecorder;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.push.service.clientReport.ReportConstants;
@@ -55,7 +56,7 @@ public class MIPushEventProcessorAspect {
     }
 
     private static void invokeProcessMiPushMessage(XMPushService pushService, XmPushActionContainer container) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
-        byte[] mockDecryptedContent = XmPushActionOperator.packToBytes(container);
+        byte[] mockDecryptedContent = XMPushUtils.packToBytes(container);
         invokeProcessMiPushMessage(pushService, mockDecryptedContent);
     }
 
@@ -142,7 +143,7 @@ public class MIPushEventProcessorAspect {
                                      XMPushService pushService, byte[] decryptedContent, long packetBytesLen) {
         logger.d(joinPoint.getSignature());
 
-        XmPushActionContainer buildContainer = XmPushActionOperator.packToContainer(decryptedContent);
+        XmPushActionContainer buildContainer = XMPushUtils.packToContainer(decryptedContent);
         if (MiPushMessageDuplicateAspect.isMockMessage(buildContainer)) {
             return;
         }

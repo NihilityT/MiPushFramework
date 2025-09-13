@@ -5,7 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.xiaomi.push.service.XmPushActionOperator;
+import com.nihility.XMPushUtils;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 
 import top.trumeet.mipush.provider.entities.Event;
@@ -24,7 +24,7 @@ public class NotificationType extends EventType {
 
     public NotificationType(String mInfo, String pkg, byte[] payload) {
         super(Event.Type.Notification, mInfo, pkg, payload);
-        XmPushActionContainer container = XmPushActionOperator.packToContainer(payload);
+        XmPushActionContainer container = XMPushUtils.packToContainer(payload);
         this.mNotificationTitle = container.getMetaInfo().getTitle();
         this.mNotificationDetail = container.getMetaInfo().getDescription();
     }
