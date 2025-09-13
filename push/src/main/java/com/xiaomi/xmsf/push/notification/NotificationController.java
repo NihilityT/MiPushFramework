@@ -26,6 +26,7 @@ import androidx.core.graphics.drawable.IconCompat;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.XMPushUtils;
 import com.nihility.notification.NotificationManagerEx;
 import com.xiaomi.push.service.MyNotificationIconHelper;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
@@ -117,7 +118,7 @@ public class NotificationController {
 
     @NonNull
     public static String getExistsChannelId(Context context, PushMetaInfo metaInfo, String packageName) {
-        CustomConfiguration custom = new CustomConfiguration(metaInfo.extra);
+        CustomConfiguration custom = XMPushUtils.getConfiguration(metaInfo);
         String channelId = custom.borrowChannelId(null);
         if (TextUtils.isEmpty(channelId) ||
                 getNotificationManagerEx().getNotificationChannel(packageName, channelId) == null) {
@@ -139,7 +140,7 @@ public class NotificationController {
         // Set small icon
         processIcon(context, packageName, notificationBuilder);
 
-        CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
+        CustomConfiguration configuration = XMPushUtils.getConfiguration(metaInfo);
         String iconUri = configuration.notificationLargeIconUri(null);
         Bitmap largeIcon = getLargeIcon(context, metaInfo, iconUri);
         if (largeIcon != null) {
@@ -187,7 +188,7 @@ public class NotificationController {
     }
 
     public static Bitmap roundLargeIconIfConfigured(PushMetaInfo metaInfo, Bitmap largeIcon) {
-        CustomConfiguration custom = new CustomConfiguration(metaInfo.getExtra());
+        CustomConfiguration custom = XMPushUtils.getConfiguration(metaInfo);
         if (custom.roundLargeIcon(false)) {
             largeIcon = ImgUtils.trimImgToCircle(largeIcon, Color.TRANSPARENT);
         }

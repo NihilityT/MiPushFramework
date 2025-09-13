@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat;
 import com.catchingnow.icebox.sdk_client.IceBox;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.XMPushUtils;
 import com.topjohnwu.superuser.Shell;
 import com.xiaomi.push.service.MIPushNotificationHelper;
 import com.xiaomi.push.service.MyMIPushNotificationHelper;
@@ -101,8 +102,7 @@ public class MyPushMessageHandler extends IntentService {
         } catch (Exception e) {
             logger.e("cancelNotification", e);
         }
-        CustomConfiguration custom = new CustomConfiguration(container.metaInfo != null ?
-                container.metaInfo.extra : new HashMap<>());
+        CustomConfiguration custom = XMPushUtils.getConfiguration(container);
 
         NotificationController.cancel(context, container,
                 notificationId, notificationGroup, custom.clearGroup(false));

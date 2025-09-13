@@ -1,6 +1,5 @@
 package com.xiaomi.push.service;
 
-import static com.xiaomi.push.service.MIPushEventProcessor.buildContainer;
 import static com.xiaomi.push.service.MIPushNotificationHelper.FROM_NOTIFICATION;
 import static com.xiaomi.push.service.MIPushNotificationHelper.getTargetPackage;
 import static com.xiaomi.push.service.MIPushNotificationHelper.isBusinessMessage;
@@ -38,6 +37,7 @@ import androidx.core.graphics.drawable.IconCompat;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.XMPushUtils;
 import com.nihility.notification.NotificationManagerEx;
 import com.xiaomi.channel.commonutils.android.AppInfoUtils;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
@@ -235,7 +235,7 @@ public class MyMIPushNotificationHelper {
 
         Context pkgCtx = getPackageContext(context, packageName);
         NotificationCompat.MessagingStyle.Message message = createMessage(context, container, pkgCtx);
-        CustomConfiguration custom = new CustomConfiguration(metaInfo.getExtra());
+        CustomConfiguration custom = XMPushUtils.getConfiguration(metaInfo);
         boolean useMessagingStyle = message != null && custom.useMessagingStyle(false);
 
         int notificationId = getNotificationId(container);
@@ -322,7 +322,7 @@ public class MyMIPushNotificationHelper {
     }
 
     private static Bitmap getBigPic(Context context, PushMetaInfo metaInfo) {
-        CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
+        CustomConfiguration configuration = XMPushUtils.getConfiguration(metaInfo);
         String bigPicUri = configuration.notificationBigPicUri(null);
         return IconCache.getInstance().getBitmap(context, bigPicUri,
                 (context1, iconUri) -> getBitmapFromUri(
@@ -391,7 +391,7 @@ public class MyMIPushNotificationHelper {
     @Nullable
     private static NotificationCompat.MessagingStyle.Message createMessage(Context context, XmPushActionContainer container, Context pkgCtx) {
         PushMetaInfo metaInfo = container.metaInfo;
-        CustomConfiguration custom = new CustomConfiguration(metaInfo.getExtra());
+        CustomConfiguration custom = XMPushUtils.getConfiguration(metaInfo);
         String senderMessage = custom.conversationMessage(null);
         if (senderMessage == null) {
             return null;
@@ -413,13 +413,13 @@ public class MyMIPushNotificationHelper {
     }
 
     private static boolean isGroupConversation(PushMetaInfo metaInfo) {
-        CustomConfiguration custom = new CustomConfiguration(metaInfo.getExtra());
+        CustomConfiguration custom = XMPushUtils.getConfiguration(metaInfo);
         return custom.conversationTitle(null) != null;
     }
 
     @NonNull
     private static Person.Builder getGroupFor(Context context, PushMetaInfo metaInfo) {
-        CustomConfiguration custom = new CustomConfiguration(metaInfo.getExtra());
+        CustomConfiguration custom = XMPushUtils.getConfiguration(metaInfo);
         String conversation = custom.conversationTitle(null);
         String conversationId = custom.conversationId(null);
         String conversationIcon = custom.conversationIcon(null);
@@ -444,7 +444,7 @@ public class MyMIPushNotificationHelper {
 
     @NonNull
     private static Person.Builder getPerson(Context context, PushMetaInfo metaInfo) {
-        CustomConfiguration custom = new CustomConfiguration(metaInfo.getExtra());
+        CustomConfiguration custom = XMPushUtils.getConfiguration(metaInfo);
         String sender = custom.conversationSender(null);
         String senderId = custom.conversationSenderId(null);
         String senderIcon = custom.conversationSenderIcon(null);
@@ -496,7 +496,7 @@ public class MyMIPushNotificationHelper {
         String packageName = buildContainer.getPackageName();
         RegisteredApplication application = RegisteredApplicationDb.getRegisteredApplication(packageName);
 
-        CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
+        CustomConfiguration configuration = XMPushUtils.getConfiguration(metaInfo);
         String group = configuration.notificationGroup(null);
         if (group != null) {
             group = packageName + "_" + GROUP_TYPE_MIPUSH_GROUP + "_" + group;
@@ -579,7 +579,7 @@ public class MyMIPushNotificationHelper {
         intent.putExtras(extra);
         intent.addCategory(String.valueOf(metaInfo.getNotifyId()));
 
-        CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
+        CustomConfiguration configuration = XMPushUtils.getConfiguration(metaInfo);
         boolean useActivity = configuration.useClickedActivity(false);
         Intent activityIntent = getSdkIntent(context, container);
         if (!useActivity || activityIntent == null) {

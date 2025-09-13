@@ -1,5 +1,7 @@
 package top.trumeet.common.utils;
 
+import androidx.annotation.Nullable;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -38,7 +40,7 @@ public class CustomConfiguration {
 
     private Map<String, String> mExtra = new HashMap<>();
 
-    public CustomConfiguration(Map<String, String> extra) {
+    public CustomConfiguration(@Nullable Map<String, String> extra) {
         if (extra != null) {
             mExtra = extra;
         }

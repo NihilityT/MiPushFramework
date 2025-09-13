@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.nihility.XMPushUtils;
 import com.nihility.service.XMPushServiceAbility;
 import com.xiaomi.push.service.MIPushEventProcessorAspect;
 import com.xiaomi.xmpush.thrift.XmPushActionCommandResult;
@@ -183,14 +184,11 @@ public class EventListPageUtils {
             }
             if (container.metaInfo.passThrough == 0) {
                 configureContainer(container);
-                CustomConfiguration configuration = getConfiguration(container);
+                CustomConfiguration configuration = XMPushUtils.getConfiguration(container);
                 return configuration.channelName(context.getString(R.string.message_type_notification));
             }
         }
         return "";
     }
 
-    private static @NonNull CustomConfiguration getConfiguration(XmPushActionContainer container) {
-        return new CustomConfiguration(container.getMetaInfo().getExtra());
-    }
 }
