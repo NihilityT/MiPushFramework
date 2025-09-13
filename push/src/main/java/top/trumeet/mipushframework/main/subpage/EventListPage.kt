@@ -27,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -230,10 +231,12 @@ fun EventList(
 
 @Composable
 private fun EventItem(item: EventInfoForDisplay, onClick: (EventInfoForDisplay) -> Unit) {
+    val disabled = item.configOptions.contains("disable")
+    val alpha = if (disabled) 0.5f else 1f
     Row(
         Modifier
             .clickable { onClick(item) }
-            .padding(10.dp),
+            .padding(10.dp).alpha(alpha),
         verticalAlignment = Alignment.CenterVertically
     ) {
         AppIcon(item.packageName, item.appName, modifier = Modifier.size(48.dp))
@@ -315,6 +318,11 @@ fun EventListPreview() {
                 EventInfoForDisplay(
                     1212, "123",
                     setOf("123", "456"), "c1", date(2025, 1, 1),
+                    "title", "content"
+                ),
+                EventInfoForDisplay(
+                    123, "123",
+                    setOf("disable", "456"), "c1", date(2025, 1, 1),
                     "title", "content"
                 )
             )
