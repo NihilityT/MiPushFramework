@@ -87,12 +87,7 @@ public class EventListPageUtils {
     }
 
     static @Nullable CharSequence getJson(Event event) {
-        XmPushActionContainer container = event.getContainer();
-        final CharSequence info = containerToJson(container, event.getRegSec());
-        if (info == null) {
-            return null;
-        }
-        return info;
+        return containerToJson(event.getContainer(), event.getRegSec());
     }
 
     public Set<String> getStatus(XmPushActionContainer container) {

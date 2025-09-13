@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -66,11 +67,14 @@ fun EventList(query: String = "", packageName: String = "") {
                 lastId, Constants.PAGE_SIZE, packageName, query
             )
             events.lastOrNull()?.let { lastId = it.id }
-            events.map { toEventInfoForDisplay(it, context,
-                EventListPageUtils(
-                    context
+            events.map {
+                toEventInfoForDisplay(
+                    it, context,
+                    EventListPageUtils(
+                        context
+                    )
                 )
-            ) }
+            }
         }, query, packageName)
     }
 }
@@ -116,6 +120,7 @@ private fun EventDetailsDialog(
             ).toString()
         )
     }
+    val context = LocalContext.current
     AlertDialog(
         onDismiss,
         {
@@ -123,7 +128,6 @@ private fun EventDetailsDialog(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                val context = LocalContext.current
                 TextButton({
                     json =
                         EventListPageUtils.getContent(
@@ -133,12 +137,27 @@ private fun EventDetailsDialog(
                 }) { Text(stringResource(R.string.action_configurate)) }
 
                 TextButton({
+                    EventListPageUtils.copyToClipboard(context, json)
+                }) { Text(stringResource(android.R.string.copy)) }
+
+                TextButton({
                     EventListPageUtils.mockMessage(
                         RegSecUtils.getContainerWithRegSec(
                             clickedEvent.event
                         )
                     )
                 }) { Text(stringResource(R.string.action_notify)) }
+            }
+        },
+        title = {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .height(36.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Developer Info", style = MaterialTheme.typography.titleLarge)
 
                 TextButton({
                     EventListPageUtils.startManagePermissions(
@@ -148,7 +167,6 @@ private fun EventDetailsDialog(
                 }) { Text(stringResource(R.string.action_app_info)) }
             }
         },
-        title = { Text("Developer Info") },
         text = {
             TextView(json)
         }
