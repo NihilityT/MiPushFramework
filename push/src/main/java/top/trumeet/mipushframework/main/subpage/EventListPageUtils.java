@@ -27,6 +27,7 @@ import org.apache.thrift.TBase;
 import java.util.List;
 import java.util.Set;
 
+import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.entities.Event;
 import top.trumeet.mipushframework.main.ApplicationInfoPage;
@@ -95,18 +96,27 @@ public class EventListPageUtils {
     }
 
     public Set<String> getStatus(XmPushActionContainer container) {
-        try {
-            Set<String> ops = Configurations.getInstance().handle(container.getPackageName(), container);
-            if (!NotificationChannelManager.isNotificationChannelEnabled(
-                    container.getPackageName(),
-                    NotificationController.getExistsChannelId(context,
-                            container.metaInfo, container.packageName))) {
-                ops.add("disable");
-            }
-            return ops;
-        } catch (Throwable ignored) {
+        Set<String> ops = configureContainer(container.deepCopy());
+        if (isNotificationDisabled(container)) {
+            ops.add("disable");
         }
-        return null;
+        return ops;
+    }
+
+    private boolean isNotificationDisabled(XmPushActionContainer container) {
+        return !Utils.isAppInstalled(container.getPackageName()) ||
+                !NotificationChannelManager.isNotificationChannelEnabled(
+                        container.getPackageName(),
+                        NotificationController.getExistsChannelId(context,
+                                container.metaInfo, container.packageName));
+    }
+
+    private static Set<String> configureContainer(XmPushActionContainer container) {
+        try {
+            return Configurations.getInstance().handle(container.getPackageName(), container);
+        } catch (Throwable ignored) {
+            return Set.of();
+        }
     }
 
     public static CharSequence containerToJson(XmPushActionContainer container, String regSec) {

@@ -93,7 +93,7 @@ private fun toEventInfoForDisplay(
     return EventInfoForDisplay(
         id = it.id,
         packageName = it.pkg,
-        configOptions = utils.getStatus(container) ?: setOf(),
+        configOptions = utils.getStatus(container),
         channel = utils.getStatusDescription(it),
         receiveDate = Date(it.date),
         title = type.getTitle(context).toString(),
