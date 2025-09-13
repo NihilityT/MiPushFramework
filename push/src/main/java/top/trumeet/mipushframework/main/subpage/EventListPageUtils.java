@@ -189,7 +189,11 @@ public class EventListPageUtils {
                 return context.getString(R.string.message_type_pass_through);
             }
             if (container.metaInfo.passThrough == 0) {
-                return context.getString(R.string.message_type_notification);
+                configureContainer(container);
+                String channelName = container.getMetaInfo().getExtra().get("channel_name");
+                return channelName != null
+                        ? channelName
+                        : context.getString(R.string.message_type_notification);
             }
         } while (false);
         return "";
