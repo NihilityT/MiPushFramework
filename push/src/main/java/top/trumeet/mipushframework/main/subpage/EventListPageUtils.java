@@ -27,6 +27,7 @@ import org.apache.thrift.TBase;
 import java.util.List;
 import java.util.Set;
 
+import top.trumeet.common.utils.CustomConfiguration;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.entities.Event;
@@ -175,22 +176,21 @@ public class EventListPageUtils {
 
     @NonNull
     private String getStatusDescriptionByEvent(@NonNull Event item) {
-        do {
-            XmPushActionContainer container = RegSecUtils.getContainerWithRegSec(item);
-            if (container == null) {
-                break;
-            }
+        XmPushActionContainer container = RegSecUtils.getContainerWithRegSec(item);
+        if (container != null) {
             if (container.metaInfo.passThrough == 1) {
                 return context.getString(R.string.message_type_pass_through);
             }
             if (container.metaInfo.passThrough == 0) {
                 configureContainer(container);
-                String channelName = container.getMetaInfo().getExtra().get("channel_name");
-                return channelName != null
-                        ? channelName
-                        : context.getString(R.string.message_type_notification);
+                CustomConfiguration configuration = getConfiguration(container);
+                return configuration.channelName(context.getString(R.string.message_type_notification));
             }
-        } while (false);
+        }
         return "";
+    }
+
+    private static @NonNull CustomConfiguration getConfiguration(XmPushActionContainer container) {
+        return new CustomConfiguration(container.getMetaInfo().getExtra());
     }
 }
