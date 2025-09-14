@@ -8,9 +8,9 @@ import androidx.annotation.Nullable;
 import com.nihility.XMPushUtils;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 
+import top.trumeet.common.R;
 import top.trumeet.mipush.provider.entities.Event;
 import top.trumeet.mipush.provider.event.EventType;
-import top.trumeet.common.R;
 
 /**
  * 对应 {@link top.trumeet.common.event.Event.Type#SendMessage}
@@ -25,8 +25,13 @@ public class NotificationType extends EventType {
     public NotificationType(String mInfo, String pkg, byte[] payload) {
         super(Event.Type.Notification, mInfo, pkg, payload);
         XmPushActionContainer container = XMPushUtils.packToContainer(payload);
-        this.mNotificationTitle = container.getMetaInfo().getTitle();
-        this.mNotificationDetail = container.getMetaInfo().getDescription();
+        if (container != null && container.getMetaInfo() != null) {
+            this.mNotificationTitle = container.getMetaInfo().getTitle();
+            this.mNotificationDetail = container.getMetaInfo().getDescription();
+        } else {
+            this.mNotificationTitle = null;
+            this.mNotificationDetail = null;
+        }
     }
 
     @Override

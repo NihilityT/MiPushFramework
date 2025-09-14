@@ -92,7 +92,10 @@ public class EventListPageUtils {
         return containerToJson(event.getContainer(), event.getRegSec());
     }
 
-    public Set<String> getStatus(XmPushActionContainer container) {
+    public Set<String> getStatus(@Nullable XmPushActionContainer container) {
+        if (container == null) {
+            return Set.of();
+        }
         Set<String> ops = configureContainer(container.deepCopy());
         if (isNotificationDisabled(container)) {
             ops.add("disable");

@@ -84,7 +84,7 @@ fun EventList(query: String = "", packageName: String = "") {
     }
 }
 
-private fun toEventInfoForDisplay(
+fun toEventInfoForDisplay(
     it: Event,
     context: Context,
     utils: EventListPageUtils
