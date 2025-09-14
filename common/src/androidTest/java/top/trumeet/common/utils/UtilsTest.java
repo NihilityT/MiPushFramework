@@ -18,6 +18,7 @@ public class UtilsTest {
     @Before
     public void prepareContext () {
         appContext = InstrumentationRegistry.getTargetContext();
+        Utils.context = appContext;
     }
 
     @Test
