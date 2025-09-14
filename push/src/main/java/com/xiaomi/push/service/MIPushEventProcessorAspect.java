@@ -92,7 +92,8 @@ public class MIPushEventProcessorAspect {
         };
     }
 
-    @Around("execution(* com.xiaomi.push.service.XmPushActionOperator.packToContainer(..))")
+    @Around("execution(* com.nihility.XMPushUtils.packToContainer(..))" +
+            "|| execution(* com.xiaomi.push.service.MIPushEventProcessor.buildContainer(..))")
     public XmPushActionContainer buildContainerHook(final ProceedingJoinPoint joinPoint) throws Throwable {
         XmPushActionContainer container = (XmPushActionContainer) joinPoint.proceed();
         recordContainer(container);

@@ -1,6 +1,7 @@
 package com.nihility;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.mipush.sdk.PushContainerHelper;
@@ -31,7 +32,7 @@ public class XMPushUtils {
         return new CustomConfiguration(metaInfo.getExtra());
     }
 
-    public static XmPushActionContainer packToContainer(byte[] payload) {
+    public static @Nullable XmPushActionContainer packToContainer(byte[] payload) {
         return MIPushEventProcessor.buildContainer(payload);
     }
 
