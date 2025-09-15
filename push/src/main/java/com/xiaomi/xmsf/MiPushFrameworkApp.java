@@ -80,7 +80,8 @@ public class MiPushFrameworkApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Shell.getShell();
+
+        tryToGetHighPrivilege();
 
         initGlobalContext();
 
@@ -119,6 +120,10 @@ public class MiPushFrameworkApp extends Application {
         }
 
 
+    }
+
+    private static void tryToGetHighPrivilege() {
+        Shell.getShell();
     }
 
     private void initGlobalContext() {
