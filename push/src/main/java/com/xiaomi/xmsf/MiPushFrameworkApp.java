@@ -40,7 +40,6 @@ import top.trumeet.mipush.provider.DatabaseUtils;
 
 
 public class MiPushFrameworkApp extends Application {
-    private final Hooker hooker = new Hooker();
     private com.elvishew.xlog.Logger logger;
 
     private static final String MIPUSH_EXTRA = "mipush_extra";
