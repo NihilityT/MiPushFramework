@@ -82,15 +82,7 @@ public class MiPushFrameworkApp extends Application {
 
         PushControllerUtils.setAllEnable(true, this);
 
-        long currentTimeMillis = System.currentTimeMillis();
-        long lastStartupTime = getLastStartupTime();
-        if (isAppMainProc(this)) {
-            if ((currentTimeMillis - lastStartupTime > 300000 || currentTimeMillis - lastStartupTime < 0)) {
-                setStartupTime(currentTimeMillis);
-                MiuiPushActivateService.awakePushActivateService(PushControllerUtils.wrapContext(this)
-                        , "com.xiaomi.xmsf.push.SCAN");
-            }
-        }
+        awakePushActivateServiceOnMainProc(PushControllerUtils.wrapContext(this));
 
         try {
             if (!PushServiceAccessibility.isInDozeWhiteList(this)) {
@@ -102,6 +94,19 @@ public class MiPushFrameworkApp extends Application {
         }
 
 
+    }
+
+    private void awakePushActivateServiceOnMainProc(Context context) {
+        if (isAppMainProc(this)) {
+            long currentTimeMillis = System.currentTimeMillis();
+            long elapsedMs = currentTimeMillis - getLastStartupTime();
+            int fiveMinutesMs = 300_000;
+            if (elapsedMs > fiveMinutesMs || elapsedMs < 0) {
+                setStartupTime(currentTimeMillis);
+                MiuiPushActivateService.awakePushActivateService(
+                        context, "com.xiaomi.xmsf.push.SCAN");
+            }
+        }
     }
 
     private void installCondom() {
