@@ -81,8 +81,8 @@ public class MiPushFrameworkApp extends Application {
     public void onCreate() {
         super.onCreate();
         Shell.getShell();
-        instance = this;
-        Utils.context = this;
+
+        initGlobalContext();
 
         initMiPushHookLib();
         initLogger();
@@ -119,6 +119,11 @@ public class MiPushFrameworkApp extends Application {
         }
 
 
+    }
+
+    private void initGlobalContext() {
+        instance = this;
+        Utils.context = this;
     }
 
     private static void initMiPushHookLib() {
