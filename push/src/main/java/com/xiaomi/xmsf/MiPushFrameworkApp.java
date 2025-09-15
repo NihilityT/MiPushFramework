@@ -14,35 +14,24 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationChannelGroupCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.elvishew.xlog.XLog;
-import com.nihility.Configurations;
-import com.nihility.Dependencies;
 import com.nihility.notification.NotificationManagerEx;
-import com.nihility.service.XMPushServiceAbility;
+import com.nihility.utils.Hooker;
 import com.oasisfeng.condom.CondomOptions;
 import com.oasisfeng.condom.CondomProcess;
 import com.topjohnwu.superuser.Shell;
-import com.xiaomi.channel.commonutils.android.Region;
 import com.xiaomi.channel.commonutils.logger.LoggerInterface;
 import com.xiaomi.channel.commonutils.logger.MyLog;
 import com.xiaomi.mipush.sdk.Logger;
-import com.xiaomi.network.HostManager;
-import com.xiaomi.push.service.AppRegionStorage;
-import com.xiaomi.smack.ConnectionConfiguration;
-import com.xiaomi.smack.SmackConfiguration;
 import com.xiaomi.xmsf.push.control.PushControllerUtils;
 import com.xiaomi.xmsf.push.control.XMOutbound;
 import com.xiaomi.xmsf.push.service.MiuiPushActivateService;
-import com.xiaomi.xmsf.utils.ConfigCenter;
 import com.xiaomi.xmsf.utils.LogUtils;
-
-import java.lang.reflect.Field;
 
 import top.trumeet.common.Constants;
 import top.trumeet.common.push.PushServiceAccessibility;
@@ -51,6 +40,7 @@ import top.trumeet.mipush.provider.DatabaseUtils;
 
 
 public class MiPushFrameworkApp extends Application {
+    private final Hooker hooker = new Hooker();
     private com.elvishew.xlog.Logger logger;
 
     private static final String MIPUSH_EXTRA = "mipush_extra";
@@ -86,8 +76,7 @@ public class MiPushFrameworkApp extends Application {
         initGlobalContext();
         initAllLogger();
 
-        initMiPushHookLib();
-        hookMiPushSDK();
+        Hooker.hook(this);
 
         NotificationManagerEx.init(getApplicationContext());
 
@@ -135,78 +124,11 @@ public class MiPushFrameworkApp extends Application {
         Utils.context = this;
     }
 
-    private static void initMiPushHookLib() {
-        Configurations configurations = new Configurations() {
-            @NonNull
-            @Override
-            public String getXMPPServer() {
-                return ConfigCenter.getInstance().getXMPPServer(getContext().getApplicationContext());
-            }
-        };
-        Dependencies dependencies = Dependencies.getInstance();
-        dependencies.init(configurations);
-        dependencies.init(pushService -> new XMPushServiceAbility(pushService));
-        dependencies.check();
-    }
 
     private void initBasicLogger() {
         LogUtils.init(this);
         logger = XLog.tag(MiPushFrameworkApp.class.getSimpleName()).build();
         logger.i("App starts: " + BuildConfig.VERSION_NAME);
-    }
-
-    private void hookMiPushSDK() {
-        try {
-            hookField(SmackConfiguration.class, "pingInterval", 3 * 60 * 1000);
-            hookMiPushServerHost();
-            AppRegionStorage regionStorage = AppRegionStorage.getInstance(getApplicationContext());
-            regionStorage.setRegion(Region.China.name());
-            regionStorage.setCountryCode("CN");
-        } catch (Throwable e) {
-            logger.e(e.getMessage(), e);
-        }
-    }
-
-    private static void hookMiPushServerHost() {
-        addReservedHost(ConnectionConfiguration.XMPP_SERVER_CHINA_HOST_P, new String[] {
-                ConnectionConfiguration.XMPP_SERVER_CHINA_HOST_P,
-                "220.181.106.151:5222",
-                "220.181.106.151:443",
-                "220.181.106.152:5222",
-                "118.26.252.226:443",
-                "118.26.252.225:443",
-                "58.83.177.235:5222",
-                "58.83.177.220:5222",
-        });
-
-        String resolver = "resolver.msg.xiaomi.net";
-        addReservedHost(resolver, new String[] {
-                resolver,
-                "111.13.142.153:5222",
-                "118.26.252.209:5222",
-                "39.156.150.162:5222",
-                "111.13.142.153:80",
-                "39.156.150.162:80",
-                "123.125.102.48:5222",
-                "220.181.106.150:5222",
-                "118.26.252.209:5222",
-        });
-    }
-
-    private static void addReservedHost(String host, String[] hosts) {
-        for (String h : hosts) {
-            HostManager.addReservedHost(host, h);
-        }
-    }
-
-    private void hookField(Class klass, String field, Object value) {
-        try {
-            Field target = klass.getDeclaredField(field);
-            target.setAccessible(true);
-            target.set(null, value);
-        } catch (Throwable e) {
-            logger.e(e.getMessage(), e);
-        }
     }
 
     private void notifyDozeWhiteListRequest(NotificationManagerCompat manager) {
