@@ -10,6 +10,8 @@ import com.nihility.Configurations;
 import com.nihility.Dependencies;
 import com.nihility.service.XMPushServiceAbility;
 import com.xiaomi.channel.commonutils.android.Region;
+import com.xiaomi.channel.commonutils.logger.LoggerInterface;
+import com.xiaomi.channel.commonutils.logger.MyLog;
 import com.xiaomi.network.HostManager;
 import com.xiaomi.push.service.AppRegionStorage;
 import com.xiaomi.smack.ConnectionConfiguration;
@@ -24,6 +26,12 @@ public class Hooker {
     public static void hook(Context context) {
         initMiPushHookLib(context);
         hookMiPushSDK(context);
+    }
+
+    public static void setLogger(Context context) {
+        LoggerInterface logger = buildMiSDKLogger();
+        initMiSdkLogger(logger);
+        initPushLogger(context, logger);
     }
 
     private static void initMiPushHookLib(final Context context) {
@@ -92,5 +100,39 @@ public class Hooker {
         } catch (Throwable e) {
            logger.e(e.getMessage(), e);
         }
+    }
+
+    /**
+     * The only purpose is to make sure Logger is created after the XLog is configured.
+     */
+    private static LoggerInterface buildMiSDKLogger() {
+        return new LoggerInterface() {
+            private static final String TAG = "PushCore";
+            private Logger logger = XLog.tag(TAG).build();
+
+            @Override
+            public void setTag(String tag) {
+                logger = XLog.tag(TAG + "-" + tag).build();
+            }
+
+            @Override
+            public void log(String content, Throwable t) {
+                logger.i(content, t);
+            }
+
+            @Override
+            public void log(String content) {
+                logger.i(content);
+            }
+        };
+    }
+
+    private static void initPushLogger(Context context, LoggerInterface logger) {
+        com.xiaomi.mipush.sdk.Logger.setLogger(context, logger);
+    }
+
+    private static void initMiSdkLogger(LoggerInterface logger) {
+        MyLog.setLogger(logger);
+        MyLog.setLogLevel(MyLog.INFO);
     }
 }

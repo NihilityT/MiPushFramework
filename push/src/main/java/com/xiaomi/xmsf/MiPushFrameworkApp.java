@@ -25,9 +25,6 @@ import com.nihility.utils.Hooker;
 import com.oasisfeng.condom.CondomOptions;
 import com.oasisfeng.condom.CondomProcess;
 import com.topjohnwu.superuser.Shell;
-import com.xiaomi.channel.commonutils.logger.LoggerInterface;
-import com.xiaomi.channel.commonutils.logger.MyLog;
-import com.xiaomi.mipush.sdk.Logger;
 import com.xiaomi.xmsf.push.control.PushControllerUtils;
 import com.xiaomi.xmsf.push.control.XMOutbound;
 import com.xiaomi.xmsf.push.service.MiuiPushActivateService;
@@ -73,8 +70,9 @@ public class MiPushFrameworkApp extends Application {
         tryToGetHighPrivilege();
 
         initGlobalContext();
-        initAllLogger();
+        initBasicLogger();
 
+        Hooker.setLogger(PushControllerUtils.wrapContext(this));
         Hooker.hook(this);
 
         NotificationManagerEx.init(getApplicationContext());
@@ -106,12 +104,6 @@ public class MiPushFrameworkApp extends Application {
         }
 
 
-    }
-
-    private void initAllLogger() {
-        initBasicLogger();
-        initMiSdkLogger();
-        initPushLogger();
     }
 
     private static void tryToGetHighPrivilege() {
@@ -159,40 +151,6 @@ public class MiPushFrameworkApp extends Application {
                 .setAutoCancel(true)
                 .build();
         manager.notify(getClass().getSimpleName(), 100, notification);  // Use tag to avoid conflict with push notifications.
-    }
-
-    /**
-     * The only purpose is to make sure Logger is created after the XLog is configured.
-     */
-    private LoggerInterface buildMiSDKLogger() {
-        return new LoggerInterface() {
-            private static final String TAG = "PushCore";
-            private com.elvishew.xlog.Logger logger = XLog.tag(TAG).build();
-
-            @Override
-            public void setTag(String tag) {
-                logger = XLog.tag(TAG + "-" + tag).build();
-            }
-
-            @Override
-            public void log(String content, Throwable t) {
-                logger.i(content, t);
-            }
-
-            @Override
-            public void log(String content) {
-                logger.i(content);
-            }
-        };
-    }
-
-    private void initPushLogger() {
-        Logger.setLogger(PushControllerUtils.wrapContext(this), buildMiSDKLogger());
-    }
-
-    private void initMiSdkLogger() {
-        MyLog.setLogger(buildMiSDKLogger());
-        MyLog.setLogLevel(MyLog.INFO);
     }
 
 
