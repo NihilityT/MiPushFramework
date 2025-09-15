@@ -83,7 +83,10 @@ public class MiPushFrameworkApp extends Application {
         PushControllerUtils.setAllEnable(true, this);
 
         awakePushActivateServiceOnMainProc(PushControllerUtils.wrapContext(this));
+        requestDozeWhiteList();
+    }
 
+    private void requestDozeWhiteList() {
         try {
             if (!PushServiceAccessibility.isInDozeWhiteList(this)) {
                 NotificationManagerCompat manager = NotificationManagerCompat.from(this);
@@ -92,8 +95,6 @@ public class MiPushFrameworkApp extends Application {
         } catch (RuntimeException e) {
             logger.e(e.getMessage(), e);
         }
-
-
     }
 
     private void awakePushActivateServiceOnMainProc(Context context) {
