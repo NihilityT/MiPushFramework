@@ -78,9 +78,7 @@ public class MiPushFrameworkApp extends Application {
         NotificationManagerEx.init(getApplicationContext());
 
 
-        CondomOptions options = XMOutbound.create(this, TAG_CONDOM + "_PROCESS",
-                false);
-        CondomProcess.installExceptDefaultProcess(this, options);
+        installCondom();
 
         PushControllerUtils.setAllEnable(true, this);
 
@@ -104,6 +102,12 @@ public class MiPushFrameworkApp extends Application {
         }
 
 
+    }
+
+    private void installCondom() {
+        CondomOptions options = XMOutbound.create(this, TAG_CONDOM + "_PROCESS",
+                false);
+        CondomProcess.installExceptDefaultProcess(this, options);
     }
 
     private static void tryToGetHighPrivilege() {
