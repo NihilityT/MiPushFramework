@@ -84,15 +84,13 @@ public class MiPushFrameworkApp extends Application {
         tryToGetHighPrivilege();
 
         initGlobalContext();
+        initAllLogger();
 
         initMiPushHookLib();
-        initLogger();
         hookMiPushSDK();
 
         NotificationManagerEx.init(getApplicationContext());
 
-        initMiSdkLogger();
-        initPushLogger();
 
         CondomOptions options = XMOutbound.create(this, TAG_CONDOM + "_PROCESS",
                 false);
@@ -122,6 +120,12 @@ public class MiPushFrameworkApp extends Application {
 
     }
 
+    private void initAllLogger() {
+        initBasicLogger();
+        initMiSdkLogger();
+        initPushLogger();
+    }
+
     private static void tryToGetHighPrivilege() {
         Shell.getShell();
     }
@@ -145,7 +149,7 @@ public class MiPushFrameworkApp extends Application {
         dependencies.check();
     }
 
-    private void initLogger() {
+    private void initBasicLogger() {
         LogUtils.init(this);
         logger = XLog.tag(MiPushFrameworkApp.class.getSimpleName()).build();
         logger.i("App starts: " + BuildConfig.VERSION_NAME);
