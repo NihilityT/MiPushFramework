@@ -25,6 +25,7 @@ import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import org.apache.thrift.TBase;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -94,7 +95,7 @@ public class EventListPageUtils {
 
     public Set<String> getStatus(@Nullable XmPushActionContainer container) {
         if (container == null) {
-            return Set.of();
+            return new HashSet<>();
         }
         Set<String> ops = configureContainer(container.deepCopy());
         if (isNotificationDisabled(container)) {
@@ -103,7 +104,7 @@ public class EventListPageUtils {
         return ops;
     }
 
-    private boolean isNotificationDisabled(XmPushActionContainer container) {
+    protected boolean isNotificationDisabled(XmPushActionContainer container) {
         return !Utils.isAppInstalled(container.getPackageName()) ||
                 !NotificationChannelManager.isNotificationChannelEnabled(
                         container.getPackageName(),
@@ -115,7 +116,7 @@ public class EventListPageUtils {
         try {
             return Configurations.getInstance().handle(container.getPackageName(), container);
         } catch (Throwable ignored) {
-            return Set.of();
+            return new HashSet<>();
         }
     }
 

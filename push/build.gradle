@@ -41,6 +41,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    testOptions {
+        unitTests.all {
+            jvmArgs '-noverify'
+        }
+    }
 
     flavorDimensions "versionCode"
     productFlavors {
