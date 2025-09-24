@@ -41,8 +41,6 @@ public class MiPushFrameworkApp extends Application {
 
     private static final String MIPUSH_EXTRA = "mipush_extra";
 
-    private static MiPushFrameworkApp instance;
-
 
     static {
         // Set settings before the main shell can be created
@@ -51,10 +49,6 @@ public class MiPushFrameworkApp extends Application {
                 .setFlags(Shell.FLAG_REDIRECT_STDERR)
                 .setTimeout(10)
         );
-    }
-
-    public static Context getContext(){
-        return instance;
     }
 
     @Override
@@ -121,7 +115,6 @@ public class MiPushFrameworkApp extends Application {
     }
 
     private void initGlobalContext() {
-        instance = this;
         Utils.context = this;
     }
 
