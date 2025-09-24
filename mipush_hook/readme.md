@@ -1,6 +1,82 @@
 # 不能在此模块中使用写 kotlin 代码，会出现编译错误
 
+# server -> xmsf -> application
+
 ``` mermaid
+
+graph TB;
+subgraph cloud
+    cloud.mipushServer["mipush server"]
+end
+
+cloud.mipushServer --> XMPushService.PacketListener
+
+subgraph app.that.support.mipush
+
+    Application
+    PushMessageProcessor.processMessage --PushMessageReceiver--> Application
+    PushMessageHandler.processMessageForCallback --MiPushClient.MiPushClientCallback--> Application
+
+    subgraph com.xiaomi.mipush.sdk
+        subgraph PushMessageProcessor
+            PushMessageProcessor.processIntent --> PushMessageProcessor.processMessage
+            --NotificationType.ForceSync--> SyncInfoHelper.doSyncInfoAsync
+        end
+        subgraph MessageHandleService
+            MessageHandleService.processJob
+        end
+        subgraph PushMessageReceiver
+            PushMessageReceiver.onReceive --> MessageHandleService.processJob
+        end
+        subgraph PushMessageHandler
+            PushMessageHandler.onStart --> PushMessageHandler.onHandleIntent
+            --> PushMessageHandler.handleNewMessage --> MessageHandleService.processJob
+            --> PushMessageProcessor.processIntent
+            PushMessageHandler.onHandleIntent --CallbackPushMode--> PushMessageProcessor.processIntent
+            PushMessageProcessor.processMessage --> PushMessageHandler.processMessageForCallback
+        end
+        subgraph PushServiceReceiver
+            PushServiceReceiver.onReceive --> PushMessageHandler.onHandleIntent
+        end
+        subgraph PushMessageHelper
+            PushMessageHelper.sendCommandMessageBroadcast --> PushServiceReceiver.onReceive
+            PushMessageHelper.sendQuitMessageBroadcast --> PushServiceReceiver.onReceive
+        end
+    end
+end
+
+subgraph com.xiaomi.xmsf
+subgraph com.xiaomi.push.service
+    subgraph MIPushEventProcessor
+        MIPushEventProcessor.processNewPacket
+        --> MIPushEventProcessor.processMIPushMessage
+        --Intent(MIPUSH_ACTION_NEW_MESSAGE)--> MIPushEventProcessor.postProcessMIPushMessage
+        --> MIPushNotificationHelper.notifyPushMessage --> NotificationManagerHelper.notify --notification--> PushMessageHandler.onStart
+        MIPushEventProcessor.postProcessMIPushMessage --broadcast MIPUSH_ACTION_MESSAGE_ARRIVED--> PushMessageReceiver.onReceive
+    end
+    subgraph ClientEventDispatcher
+        ClientEventDispatcher.notifyPacketArrival
+    end
+    subgraph PacketSync
+        PacketSync.onPacketReceive --> ClientEventDispatcher.notifyPacketArrival
+        PacketSync.onBlobReceive --> PacketSync.handleBlob --> ClientEventDispatcher.notifyPacketArrival
+        --chid 5--> MIPushEventProcessor.processNewPacket
+    end
+
+    subgraph XMPushService
+        XMPushService.PacketListener --> XMPushService.BlobReceiveJob --> PacketSync.onBlobReceive
+        XMPushService.PacketListener --> XMPushService.PacketReceiveJob --> PacketSync.onPacketReceive
+    end
+end
+end
+
+```
+
+
+# server <-> xmsf <-> application
+
+``` mermaid
+
 graph TB;
 subgraph cloud
     cloud.mipushServer["mipush server"]
