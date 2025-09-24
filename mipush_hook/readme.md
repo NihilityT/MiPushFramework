@@ -3,43 +3,43 @@
 ``` mermaid
 graph TB;
 subgraph cloud
-    mipushServer["mipush server"]
+    cloud.mipushServer["mipush server"]
 end
 
-Application --Context.startService()--> onStartCommand
-Application --Context.bindService()-->  Messenger
-mipushServer --> PacketListener
+Application --Context.startService()--> XMPushService.onStartCommand
+Application --Context.bindService()-->  XMPushService.Messenger
+cloud.mipushServer --> XMPushService.PacketListener
 
 subgraph app.that.support.mipush
 
     Application
-    processMessage --PushMessageReceiver--> Application
-    processMessageForCallback --MiPushClient.MiPushClientCallback--> Application
-    
+    PushMessageProcessor.processMessage --PushMessageReceiver--> Application
+    PushMessageHandler.processMessageForCallback --MiPushClient.MiPushClientCallback--> Application
+
     subgraph com.xiaomi.mipush.sdk
         subgraph PushMessageProcessor
-            processIntent --> processMessage
+            PushMessageProcessor.processIntent --> PushMessageProcessor.processMessage
             --NotificationType.ForceSync--> SyncInfoHelper.doSyncInfoAsync
         end
         subgraph MessageHandleService
-            processJob
+            MessageHandleService.processJob
         end
         subgraph PushMessageReceiver
-            onReceive --> processJob
+            PushMessageReceiver.onReceive --> MessageHandleService.processJob
         end
         subgraph PushMessageHandler
             PushMessageHandler.onStart --> PushMessageHandler.onHandleIntent
-            --> handleNewMessage --> processJob
-            --> processIntent
-            PushMessageHandler.onHandleIntent --CallbackPushMode--> processIntent
-            processMessage --> processMessageForCallback
+            --> PushMessageHandler.handleNewMessage --> MessageHandleService.processJob
+            --> PushMessageProcessor.processIntent
+            PushMessageHandler.onHandleIntent --CallbackPushMode--> PushMessageProcessor.processIntent
+            PushMessageProcessor.processMessage --> PushMessageHandler.processMessageForCallback
         end
         subgraph PushServiceReceiver
             PushServiceReceiver.onReceive --> PushMessageHandler.onHandleIntent
         end
         subgraph PushMessageHelper
-            sendCommandMessageBroadcast --> PushServiceReceiver.onReceive
-            sendQuitMessageBroadcast --> PushServiceReceiver.onReceive
+            PushMessageHelper.sendCommandMessageBroadcast --> PushServiceReceiver.onReceive
+            PushMessageHelper.sendQuitMessageBroadcast --> PushServiceReceiver.onReceive
         end
     end
 end
@@ -47,66 +47,66 @@ end
 subgraph com.xiaomi.xmsf
 subgraph com.xiaomi.push.service
     subgraph MIPushAccountUtils
-        register
+        MIPushAccountUtils.register
     end
     subgraph MIPushHelper
-        contructAppAbsentMessage
+        MIPushHelper.contructAppAbsentMessage
     end
     subgraph MIPushClientManager
-        registerApp
+        MIPushClientManager.registerApp
     end
     subgraph ClientEventDispatcher
-        notifyPacketArrival
+        ClientEventDispatcher.notifyPacketArrival
     end
     subgraph MIPushNotificationHelper
-        notifyPushMessage
+        MIPushNotificationHelper.notifyPushMessage
     end
     subgraph NotificationManagerHelper
-        notify
+        NotificationManagerHelper.notify
     end
-    
+
     subgraph MIPushEventProcessor
-        processNewPacket
-        --> processMIPushMessage
-        --Intent(MIPUSH_ACTION_NEW_MESSAGE)--> postProcessMIPushMessage
-        --> notifyPushMessage --> notify --notification--> PushMessageHandler.onStart
-        postProcessMIPushMessage --broadcast MIPUSH_ACTION_MESSAGE_ARRIVED--> onReceive
+        MIPushEventProcessor.processNewPacket
+        --> MIPushEventProcessor.processMIPushMessage
+        --Intent(MIPUSH_ACTION_NEW_MESSAGE)--> MIPushEventProcessor.postProcessMIPushMessage
+        --> MIPushNotificationHelper.notifyPushMessage --> NotificationManagerHelper.notify --notification--> PushMessageHandler.onStart
+        MIPushEventProcessor.postProcessMIPushMessage --broadcast MIPUSH_ACTION_MESSAGE_ARRIVED--> PushMessageReceiver.onReceive
     end
     subgraph PacketSync
-        onPacketReceive --> notifyPacketArrival
-        onBlobReceive --> handleBlob --> notifyPacketArrival
-        --chid 5--> processNewPacket
+        PacketSync.onPacketReceive --> ClientEventDispatcher.notifyPacketArrival
+        PacketSync.onBlobReceive --> PacketSync.handleBlob --> ClientEventDispatcher.notifyPacketArrival
+        --chid 5--> MIPushEventProcessor.processNewPacket
     end
-    
+
     subgraph XMPushService
-        Messenger --send(what:17)--> onStart
-        onStartCommand --> onStart
-        onStart --IntentJob--> handleIntent
-        
-        handleIntent ==ACTION_SEND_MESSAGE==> sendMessage
-        handleIntent --MIPUSH_ACTION_UNREGISTER_APP/ACTION_SEND_IQ/ACTION_SEND_PRESENCE--> sendMessage
-        sendMessage --> sendPacket
-        sendPacket --> mipushServer
-        
-        handleIntent --ACTION_BATCH_SEND_MESSAGE--> sendMessages
-        sendMessages --> batchSendPacket
-        batchSendPacket --> mipushServer
-        
-        handleIntent --ACTION_OPEN_CHANNEL--> BindJob/ReBindJob --> mipushServer
-        handleIntent --ACTION_CLOSE_CHANNEL--> UnbindJob --> mipushServer
-        
-        handleIntent --MIPUSH_ACTION_REGISTER_APP--> registerForMiPushApp
-        --> registerApp --XMPP--> mipushServer
-        
-        registerApp --> MIPushAppRegisterJob
-        --> register --register mipush account on server by HTTP.POST--> mipushServer
-        register --reconnect XMPP--> mipushServer
-        
-        handleIntent --ACTION_UNINSTALL--> contructAppAbsentMessage --> mipushServer
-        handleIntent --MIPUSH_ACTION_ENABLE_PUSH_MESSAGE--> MIPushAppRegisterJob
-        
-        PacketListener --> BlobReceiveJob --> onBlobReceive
-        PacketListener --> PacketReceiveJob --> onPacketReceive
+        XMPushService.Messenger --send(what:17)--> XMPushService.onStart
+        XMPushService.onStartCommand --> XMPushService.onStart
+        XMPushService.onStart --IntentJob--> XMPushService.handleIntent
+
+        XMPushService.handleIntent ==ACTION_SEND_MESSAGE==> XMPushService.sendMessage
+        XMPushService.handleIntent --MIPUSH_ACTION_UNREGISTER_APP/ACTION_SEND_IQ/ACTION_SEND_PRESENCE--> XMPushService.sendMessage
+        XMPushService.sendMessage --> XMPushService.sendPacket
+        XMPushService.sendPacket --> cloud.mipushServer
+
+        XMPushService.handleIntent --ACTION_BATCH_SEND_MESSAGE--> XMPushService.sendMessages
+        XMPushService.sendMessages --> XMPushService.batchSendPacket
+        XMPushService.batchSendPacket --> cloud.mipushServer
+
+        XMPushService.handleIntent --ACTION_OPEN_CHANNEL--> XMPushService.BindJob/ReBindJob --> cloud.mipushServer
+        XMPushService.handleIntent --ACTION_CLOSE_CHANNEL--> XMPushService.UnbindJob --> cloud.mipushServer
+
+        XMPushService.handleIntent --MIPUSH_ACTION_REGISTER_APP--> XMPushService.registerForMiPushApp
+        --> MIPushClientManager.registerApp --XMPP--> cloud.mipushServer
+
+        MIPushClientManager.registerApp --> XMPushService.MIPushAppRegisterJob
+        --> MIPushAccountUtils.register --register mipush account on server by HTTP.POST--> cloud.mipushServer
+        MIPushAccountUtils.register --reconnect XMPP--> cloud.mipushServer
+
+        XMPushService.handleIntent --ACTION_UNINSTALL--> MIPushHelper.contructAppAbsentMessage --> cloud.mipushServer
+        XMPushService.handleIntent --MIPUSH_ACTION_ENABLE_PUSH_MESSAGE--> XMPushService.MIPushAppRegisterJob
+
+        XMPushService.PacketListener --> XMPushService.BlobReceiveJob --> PacketSync.onBlobReceive
+        XMPushService.PacketListener --> XMPushService.PacketReceiveJob --> PacketSync.onPacketReceive
     end
 end
 end
