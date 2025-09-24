@@ -1,7 +1,6 @@
 package com.xiaomi.push.service;
 
 import android.content.Intent;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,7 +10,6 @@ import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.nihility.XMPushUtils;
 import com.nihility.service.RegistrationRecorder;
-import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.push.service.clientReport.ReportConstants;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
@@ -25,9 +23,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 
-import java.lang.reflect.InvocationTargetException;
-
-import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
 import top.trumeet.mipush.provider.entities.Event;
@@ -43,26 +38,6 @@ public class MIPushEventProcessorAspect {
         RegisteredApplicationDb.registerApplication(type.getPkg());
         logger.d("insertEvent -> " + type);
         EventDb.insertEvent(Event.ResultType.OK, type);
-    }
-
-    public static void mockProcessMIPushMessage(XMPushService pushService, XmPushActionContainer container) {
-        try {
-            MiPushMessageDuplicateAspect.markAsMock(container);
-            invokeProcessMiPushMessage(pushService, container);
-        } catch (Exception e) {
-            logger.e("mock notification failure: ", e);
-            Utils.makeText(pushService, "failure", Toast.LENGTH_SHORT);
-        }
-    }
-
-    private static void invokeProcessMiPushMessage(XMPushService pushService, XmPushActionContainer container) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
-        byte[] mockDecryptedContent = XMPushUtils.packToBytes(container);
-        invokeProcessMiPushMessage(pushService, mockDecryptedContent);
-    }
-
-    private static void invokeProcessMiPushMessage(XMPushService pushService, byte[] mockDecryptedContent) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
-        JavaCalls.<Boolean>callStaticMethodOrThrow(MIPushEventProcessor.class.getName(), "processMIPushMessage",
-                pushService, mockDecryptedContent, (long) mockDecryptedContent.length);
     }
 
     @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.buildIntent(..))")

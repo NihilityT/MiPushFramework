@@ -11,7 +11,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.nihility.XMPushUtils;
 import com.nihility.service.XMPushServiceAbility;
-import com.xiaomi.push.service.MIPushEventProcessorAspect;
+import com.nihility.utils.MockMIPushMessage;
 import com.xiaomi.xmpush.thrift.XmPushActionCommandResult;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmpush.thrift.XmPushActionNotification;
@@ -74,7 +74,7 @@ public class EventListPageUtils {
     }
 
     public static void mockMessage(XmPushActionContainer containerWithRegSec) {
-        MIPushEventProcessorAspect.mockProcessMIPushMessage(
+        MockMIPushMessage.mockProcessMIPushMessage(
                 XMPushServiceAbility.xmPushService, containerWithRegSec.deepCopy());
     }
 
