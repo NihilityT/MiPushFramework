@@ -63,7 +63,7 @@ public class MiPushFrameworkApp extends Application {
 
         tryToGetHighPrivilege();
 
-        initGlobalContext();
+        Utils.setApplicationContext(this);
         initBasicLogger();
 
         Hooker.setLogger(PushControllerUtils.wrapContext(this));
@@ -112,10 +112,6 @@ public class MiPushFrameworkApp extends Application {
 
     private static void tryToGetHighPrivilege() {
         Shell.getShell();
-    }
-
-    private void initGlobalContext() {
-        Utils.context = this;
     }
 
 
