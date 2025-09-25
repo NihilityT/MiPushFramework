@@ -97,6 +97,10 @@ public final class Utils {
         }
     }
 
+    public static void makeText(CharSequence str, int duration) {
+        makeText(getApplication(), str, duration);
+    }
+
     public static void makeText(Context context, CharSequence usedString, int duration) {
         new Handler(Looper.getMainLooper()).post(() -> {
             try {
