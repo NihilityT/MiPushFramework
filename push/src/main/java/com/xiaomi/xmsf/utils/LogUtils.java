@@ -32,7 +32,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import top.trumeet.common.BuildConfig;
 import top.trumeet.common.Constants;
 
 /**
@@ -52,10 +51,11 @@ public class LogUtils {
                 .enableThreadInfo().threadFormatter(data -> "TID: [" + data.getId() + "] TName: [" + data.getName() + "]")
                 .build();
         Printer androidPrinter = new AndroidPrinter();
+        int _7DaysInMillis = 7 * 24 * 60 * 60 * 1000;
         Printer filePrinter = new FilePrinter.Builder(LogUtils.getLogFolder(context))
                 .fileNameGenerator(new DateFileNameGenerator())
                 .backupStrategy(new NeverBackupStrategy())
-                .cleanStrategy(new FileLastModifiedCleanStrategy(7 * 24 * 60 * 60 * 1000 /* 7 days */))
+                .cleanStrategy(new FileLastModifiedCleanStrategy(_7DaysInMillis))
                 .flattener(new ClassicFlattener())
                 .build();
         XLog.init(configuration, androidPrinter, filePrinter);
