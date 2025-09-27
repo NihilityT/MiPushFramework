@@ -127,60 +127,75 @@ flowchart TB
 
 ``` mermaid
 
-graph TB;
-subgraph cloud
-    cloud.mipushServer["mipush server"]
-end
-
-Application --Context.startService()--> XMPushService.onStartCommand
-Application --Context.bindService()-->  XMPushService.Messenger
-
-subgraph app.that.support.mipush
-
-    Application
-end
-
-subgraph com.xiaomi.xmsf
-subgraph com.xiaomi.push.service
-    subgraph MIPushAccountUtils
-        MIPushAccountUtils.register
-    end
-    subgraph MIPushHelper
-        MIPushHelper.contructAppAbsentMessage
-    end
-    subgraph MIPushClientManager
-        MIPushClientManager.registerApp
-    end
-
-    subgraph XMPushService
-        XMPushService.Messenger --send(what:17)--> XMPushService.onStart
-        XMPushService.onStartCommand --> XMPushService.onStart
-        XMPushService.onStart --IntentJob--> XMPushService.handleIntent
-
-        XMPushService.handleIntent ==ACTION_SEND_MESSAGE==> XMPushService.sendMessage
-        XMPushService.handleIntent --MIPUSH_ACTION_UNREGISTER_APP/ACTION_SEND_IQ/ACTION_SEND_PRESENCE--> XMPushService.sendMessage
-        XMPushService.sendMessage --> XMPushService.sendPacket
-        XMPushService.sendPacket --> cloud.mipushServer
-
-        XMPushService.handleIntent --ACTION_BATCH_SEND_MESSAGE--> XMPushService.sendMessages
-        XMPushService.sendMessages --> XMPushService.batchSendPacket
-        XMPushService.batchSendPacket --> cloud.mipushServer
-
-        XMPushService.handleIntent --ACTION_OPEN_CHANNEL--> XMPushService.BindJob/ReBindJob --> cloud.mipushServer
-        XMPushService.handleIntent --ACTION_CLOSE_CHANNEL--> XMPushService.UnbindJob --> cloud.mipushServer
-
-        MIPushClientManager.registerApp --> XMPushService.MIPushAppRegisterJob
-        --> MIPushAccountUtils.register --register mipush account on server by HTTP.POST--> cloud.mipushServer
-        MIPushAccountUtils.register --reconnect XMPP--> cloud.mipushServer
-
-        XMPushService.handleIntent --ACTION_UNINSTALL--> MIPushHelper.contructAppAbsentMessage --> cloud.mipushServer
-        XMPushService.handleIntent --MIPUSH_ACTION_ENABLE_PUSH_MESSAGE--> XMPushService.MIPushAppRegisterJob
-
-        XMPushService.handleIntent --MIPUSH_ACTION_REGISTER_APP--> XMPushService.registerForMiPushApp
-        --> MIPushClientManager.registerApp --XMPP--> cloud.mipushServer
-    end
-end
-end
+---
+config:
+  layout: elk
+---
+flowchart TB
+ subgraph cloud["cloud"]
+        cloud.mipushServer["mipush server"]
+  end
+ subgraph APP["app.that.support.mipush"]
+        Application["Application"]
+  end
+ subgraph MIPushAccountUtils["MIPushAccountUtils"]
+        MIPushAccountUtils.register["register"]
+  end
+ subgraph MIPushHelper["MIPushHelper"]
+        MIPushHelper.contructAppAbsentMessage["contructAppAbsentMessage"]
+  end
+ subgraph MIPushClientManager["MIPushClientManager"]
+        MIPushClientManager.registerApp["registerApp"]
+  end
+ subgraph XMPushService["XMPushService"]
+        XMPushService.onStart["onStart"]
+        XMPushService.Messenger["Messenger"]
+        XMPushService.onStartCommand["onStartCommand"]
+        XMPushService.handleIntent["handleIntent"]
+        XMPushService.sendMessage["sendMessage"]
+        XMPushService.sendPacket["sendPacket"]
+        XMPushService.sendMessages["sendMessages"]
+        XMPushService.batchSendPacket["batchSendPacket"]
+        XMPushService.BindJob/ReBindJob["BindJob/ReBindJob"]
+        XMPushService.UnbindJob["UnbindJob"]
+        XMPushService.MIPushAppRegisterJob["MIPushAppRegisterJob"]
+        XMPushService.registerForMiPushApp["registerForMiPushApp"]
+  end
+ subgraph MiPushService["com.xiaomi.push.service"]
+        MIPushAccountUtils
+        MIPushHelper
+        MIPushClientManager
+        XMPushService
+  end
+ subgraph XMSF["com.xiaomi.xmsf"]
+        MiPushService
+  end
+    Application -- "Context.startService()" --> XMPushService.onStartCommand
+    Application -- "Context.bindService()" --> XMPushService.Messenger
+    XMPushService.Messenger -- send(what:17) --> XMPushService.onStart
+    XMPushService.onStartCommand --> XMPushService.onStart
+    XMPushService.onStart -- IntentJob --> XMPushService.handleIntent
+    XMPushService.handleIntent == ACTION_SEND_MESSAGE ==> XMPushService.sendMessage
+    XMPushService.handleIntent -- MIPUSH_ACTION_UNREGISTER_APP/ACTION_SEND_IQ/ACTION_SEND_PRESENCE --> XMPushService.sendMessage
+    XMPushService.sendMessage --> XMPushService.sendPacket
+    XMPushService.sendPacket --> cloud.mipushServer
+    XMPushService.handleIntent -- ACTION_BATCH_SEND_MESSAGE --> XMPushService.sendMessages
+    XMPushService.sendMessages --> XMPushService.batchSendPacket
+    XMPushService.batchSendPacket --> cloud.mipushServer
+    XMPushService.handleIntent -- ACTION_OPEN_CHANNEL --> XMPushService.BindJob/ReBindJob
+    XMPushService.BindJob/ReBindJob --> cloud.mipushServer
+    XMPushService.handleIntent -- ACTION_CLOSE_CHANNEL --> XMPushService.UnbindJob
+    XMPushService.UnbindJob --> cloud.mipushServer
+    MIPushClientManager.registerApp --> XMPushService.MIPushAppRegisterJob
+    XMPushService.MIPushAppRegisterJob --> MIPushAccountUtils.register
+    MIPushAccountUtils.register -- "register mipush account on server by HTTP.POST" --> cloud.mipushServer
+    MIPushAccountUtils.register -- reconnect XMPP --> cloud.mipushServer
+    XMPushService.handleIntent -- ACTION_UNINSTALL --> MIPushHelper.contructAppAbsentMessage
+    MIPushHelper.contructAppAbsentMessage --> cloud.mipushServer
+    XMPushService.handleIntent -- MIPUSH_ACTION_ENABLE_PUSH_MESSAGE --> XMPushService.MIPushAppRegisterJob
+    XMPushService.handleIntent -- MIPUSH_ACTION_REGISTER_APP --> XMPushService.registerForMiPushApp
+    XMPushService.registerForMiPushApp --> MIPushClientManager.registerApp
+    MIPushClientManager.registerApp -- XMPP --> cloud.mipushServer
 
 ```
 
