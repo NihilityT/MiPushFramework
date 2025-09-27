@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import com.com.xiaomi.channel.commonutils.android.AppInfoUtilsAspect;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.MiPushEventListener;
 import com.nihility.XMPushUtils;
 import com.nihility.service.RegistrationRecorder;
 import com.xiaomi.push.service.clientReport.ReportConstants;
@@ -124,6 +125,7 @@ public class MIPushEventProcessorAspect {
             return;
         }
         logger.d("buildContainer" + " " + ConvertUtils.toJson(buildContainer));
+        MiPushEventListener.instance().receiveFromServer(buildContainer);
         recordEvent(TypeFactory.createForStore(buildContainer));
     }
 
