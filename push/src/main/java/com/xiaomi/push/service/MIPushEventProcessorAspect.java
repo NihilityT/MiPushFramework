@@ -121,7 +121,15 @@ public class MIPushEventProcessorAspect {
         recordEvent(TypeFactory.createForStore(buildContainer));
     }
 
-    private static XmPushActionContainer decoratedContainer(String realTargetPackage, XmPushActionContainer container) {
+
+    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.postProcessMIPushMessage(..)) && args(pushService, pkgName, payload, newMessageIntent)")
+    public void postProcessMIPushMessage(
+            final ProceedingJoinPoint joinPoint,
+            XMPushService pushService, String pkgName, byte[] payload, Intent newMessageIntent) throws Throwable {
+        MethodHooker.instance().postProcessMIPushMessage(joinPoint, pushService, pkgName, payload, newMessageIntent);
+    }
+
+    public static XmPushActionContainer decoratedContainer(String realTargetPackage, XmPushActionContainer container) {
         XmPushActionContainer decorated = container.deepCopy();
         try {
             Configurations.getInstance().handle(realTargetPackage, decorated);

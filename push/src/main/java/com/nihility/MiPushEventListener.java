@@ -20,4 +20,8 @@ public class MiPushEventListener {
     public void receiveFromServer(XmPushActionContainer container) {
 
     }
+
+    public void transferToApplication(XmPushActionContainer container) {
+    }
+
 }

@@ -1,14 +1,25 @@
 package test.com.nihility;
 
+import static com.xiaomi.push.service.MIPushEventProcessor.postProcessMIPushMessage;
 import static com.xiaomi.push.service.PullAllApplicationDataFromServerJob.getPullAction;
 import static org.mockito.Mockito.verify;
 
+import android.content.Context;
+import android.content.Intent;
+
+import androidx.test.core.app.ApplicationProvider;
+
 import com.elvishew.xlog.XLog;
+import com.nihility.MethodHooker;
 import com.nihility.MiPushEventListener;
 import com.nihility.XMPushUtils;
 import com.nihility.utils.MockMIPushMessage;
+import com.xiaomi.push.service.MIPushEventProcessor;
+import com.xiaomi.push.service.XMPushService;
+import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,27 +31,55 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class MiPushEventListenerTest {
     @Mock
     MiPushEventListener eventListener;
+    XmPushActionContainer container = XMPushUtils.packToContainer(getPullAction("appId"), "");
 
     @Before
     public void setup() {
         XLog.init();
         MiPushEventListener.setInstance(eventListener);
+        MethodHooker.setInstance(new MethodHooker() {
+            @Override
+            public boolean shouldSendBroadcast(ProceedingJoinPoint joinPoint, XMPushService pushService, String packageName, XmPushActionContainer container, PushMetaInfo metaInfo) throws Throwable {
+                return true;
+            }
+        });
     }
 
     @After
     public void teardown() {
         MiPushEventListener.setInstance(null);
+        MethodHooker.setInstance(null);
     }
 
     @Test
     public void triggerReceiveFromServerAtProcessMIPushMessage() {
-        XmPushActionContainer container = XMPushUtils.packToContainer(getPullAction("appId"), "");
         try {
             MockMIPushMessage.invokeProcessMiPushMessage(null, container);
         } catch (Throwable ignored) {
         }
 
         verify(eventListener).receiveFromServer(container);
+    }
+
+    @Test
+    public void triggerTransferToApplicationAtPostProcessMIPushMessageSendBroadcast() {
+        XMPushService xmPushService = new XMPushService() {
+            @Override
+            public Context getApplicationContext() {
+                return ApplicationProvider.getApplicationContext();
+            }
+
+            @Override
+            public Context getBaseContext() {
+                return ApplicationProvider.getApplicationContext();
+            }
+        };
+        byte[] payload = XMPushUtils.packToBytes(container);
+        Intent intent = MIPushEventProcessor.buildIntent(payload, 0);
+
+        postProcessMIPushMessage(xmPushService, null, payload, intent);
+
+        verify(eventListener).transferToApplication(container);
     }
 
 }
