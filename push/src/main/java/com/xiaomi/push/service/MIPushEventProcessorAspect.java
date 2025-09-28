@@ -8,11 +8,11 @@ import androidx.annotation.Nullable;
 import com.com.xiaomi.channel.commonutils.android.AppInfoUtilsAspect;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.MethodHooker;
 import com.nihility.MiPushEventListener;
 import com.nihility.XMPushUtils;
 import com.nihility.service.RegistrationRecorder;
 import com.xiaomi.push.service.clientReport.ReportConstants;
-import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmsf.push.utils.Configurations;
@@ -100,19 +100,11 @@ public class MIPushEventProcessorAspect {
      * - the target application is not running
      */
     @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.shouldSendBroadcast(..)) && args(pushService, packageName, container, metaInfo)")
-    public boolean shouldSendBroadcast(final ProceedingJoinPoint joinPoint,
-                                       XMPushService pushService, String packageName, XmPushActionContainer container, PushMetaInfo metaInfo) throws Throwable {
-        joinPoint.proceed();
-        if (container.action == ActionType.Registration) {
-            return true;
-        }
-        if (container.packageName.startsWith("com.mi.")
-                || container.packageName.startsWith("com.miui.")
-                || container.packageName.startsWith("com.xiaomi.")) {
-            return true;
-        }
-        XmPushActionContainer decorated = decoratedContainer(container.packageName, container);
-        return AppInfoUtilsAspect.shouldSendBroadcast(pushService, packageName, decorated.metaInfo);
+    public boolean shouldSendBroadcast(
+            final ProceedingJoinPoint joinPoint,
+            XMPushService pushService, String packageName,
+            XmPushActionContainer container, PushMetaInfo metaInfo) throws Throwable {
+        return MethodHooker.instance().shouldSendBroadcast(joinPoint, pushService, packageName, container, metaInfo);
     }
 
     @Before("execution(* com.xiaomi.push.service.MIPushEventProcessor.processMIPushMessage(..)) && args(pushService, decryptedContent, packetBytesLen)")
