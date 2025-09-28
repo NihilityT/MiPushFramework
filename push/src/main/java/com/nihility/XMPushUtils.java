@@ -37,10 +37,14 @@ public class XMPushUtils {
     }
 
     public static @NonNull XmPushActionContainer packToContainer(XmPushActionNotification action, String packageName) {
+        return packToContainer(action, packageName, ActionType.Notification, action.appId);
+    }
+
+    public static @NonNull <T extends TBase<T, ?>> XmPushActionContainer packToContainer(T action, String packageName, ActionType actionType, String appId) {
         return JavaCalls.callStaticMethod(
                 PushContainerHelper.class.getName(), "generateRequestContainer",
-                Utils.getApplication(), action, ActionType.Notification,
-                false, packageName, action.appId);
+                Utils.getApplication(), action, actionType,
+                false, packageName, appId);
     }
 
     public static <T extends TBase<T, ?>> byte[] packToBytes(T container) {
