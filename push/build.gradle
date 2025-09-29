@@ -63,6 +63,7 @@ android {
         exclude 'kotlin.jvm', 'kotlin.internal'
         exclude 'kotlinx.coroutines.internal', 'kotlinx.coroutines.android'
         exclude 'top.trumeet'
+        exclude 'test.', 'Test'
         debug = true
     }
 

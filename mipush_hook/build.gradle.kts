@@ -36,6 +36,7 @@ android {
         // 移除kotlin相关，编译错误和提升速度
         exclude("kotlin.jvm", "kotlin.internal")
         exclude("kotlinx.coroutines.internal", "kotlinx.coroutines.android")
+        exclude("test.", "Test")
         ajcArgs("-inpath", mipushLib.path)
         debug = true
     }
