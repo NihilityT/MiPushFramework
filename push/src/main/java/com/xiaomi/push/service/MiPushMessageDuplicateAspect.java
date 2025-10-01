@@ -2,9 +2,12 @@ package com.xiaomi.push.service;
 
 import android.text.TextUtils;
 
+import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
+import com.xiaomi.xmsf.utils.ConvertUtils;
 
+import org.apache.thrift.TBase;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -20,7 +23,7 @@ public class MiPushMessageDuplicateAspect {
     static String getMessageId(XmPushActionContainer container) {
         PushMetaInfo metaInfo = container.metaInfo;
         if (metaInfo == null) {
-            return null;
+            return getMessageIdFromPushAction(container);
         }
         if (metaInfo.extra != null) {
             String jobId = metaInfo.extra.get(PushConstants.EXTRA_JOB_KEY);
@@ -29,6 +32,15 @@ public class MiPushMessageDuplicateAspect {
             }
         }
         return metaInfo.getId();
+    }
+
+    private static String getMessageIdFromPushAction(XmPushActionContainer container) {
+        try {
+            TBase pushAction = ConvertUtils.getResponseMessageBodyFromContainer(container, null);
+            return JavaCalls.getField(pushAction, "id");
+        } catch (Throwable ignored) {
+            return null;
+        }
     }
 
     static boolean isMockMessage(XmPushActionContainer container) {
