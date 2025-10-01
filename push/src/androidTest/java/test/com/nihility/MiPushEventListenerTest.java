@@ -93,4 +93,18 @@ public class MiPushEventListenerTest {
         verify(eventListener).transferToApplication(container);
     }
 
+    @Test
+    public void triggerReceiveFromApplicationAtXMPushServiceOnStart() {
+        XMPushService xmPushService = new XMPushService() {
+            @Override
+            public void executeJob(Job job) {
+            }
+        };
+        Intent intent = new Intent("test");
+
+        xmPushService.onStart(intent, 1);
+
+        verify(eventListener).receiveFromApplication(intent);
+    }
+
 }

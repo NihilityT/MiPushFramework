@@ -1,5 +1,7 @@
 package com.nihility;
 
+import android.content.Intent;
+
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 
 public class MiPushEventListener {
@@ -22,6 +24,9 @@ public class MiPushEventListener {
     }
 
     public void transferToApplication(XmPushActionContainer container) {
+    }
+
+    public void receiveFromApplication(Intent intent) {
     }
 
 }
