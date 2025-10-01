@@ -15,6 +15,7 @@ import com.nihility.MiPushEventListener;
 import com.nihility.XMPushUtils;
 import com.nihility.utils.MockMIPushMessage;
 import com.xiaomi.push.service.MIPushEventProcessor;
+import com.xiaomi.push.service.MIPushNotificationHelper;
 import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
@@ -78,6 +79,16 @@ public class MiPushEventListenerTest {
         Intent intent = MIPushEventProcessor.buildIntent(payload, 0);
 
         postProcessMIPushMessage(xmPushService, null, payload, intent);
+
+        verify(eventListener).transferToApplication(container);
+    }
+
+    @Test
+    public void triggerTransferToApplicationAtNotifyPushMessage() {
+        try {
+            MIPushNotificationHelper.notifyPushMessage(null, container, null);
+        } catch (Throwable ignored) {
+        }
 
         verify(eventListener).transferToApplication(container);
     }
