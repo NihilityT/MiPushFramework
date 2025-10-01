@@ -13,3 +13,4 @@ release/
 .classpath
 .project
 org.eclipse.buildship.core.prefs
+.idea
