@@ -32,7 +32,12 @@ public final class MyMigrationHelper {
     private static final String SQLITE_MASTER = "sqlite_master";
     private static final String SQLITE_TEMP_MASTER = "sqlite_temp_master";
 
-    private static WeakReference<com.github.yuweiguocn.library.greendao.MigrationHelper.ReCreateAllTableListener> weakListener;
+    private static WeakReference<ReCreateAllTableListener> weakListener;
+
+    public interface ReCreateAllTableListener{
+        void onCreateAllTables(Database db, boolean ifNotExists);
+        void onDropAllTables(Database db, boolean ifExists);
+    }
 
     public static void migrate(SQLiteDatabase db, Class<? extends AbstractDao<?, ?>>... daoClasses) {
         printLog("【The Old Database Version】" + db.getVersion());
@@ -40,12 +45,12 @@ public final class MyMigrationHelper {
         migrate(database, daoClasses);
     }
 
-    public static void migrate(SQLiteDatabase db, com.github.yuweiguocn.library.greendao.MigrationHelper.ReCreateAllTableListener listener, Class<? extends AbstractDao<?, ?>>... daoClasses) {
+    public static void migrate(SQLiteDatabase db, ReCreateAllTableListener listener, Class<? extends AbstractDao<?, ?>>... daoClasses) {
         weakListener = new WeakReference<>(listener);
         migrate(db, daoClasses);
     }
 
-    public static void migrate(Database database, com.github.yuweiguocn.library.greendao.MigrationHelper.ReCreateAllTableListener listener, Class<? extends AbstractDao<?, ?>>... daoClasses) {
+    public static void migrate(Database database, ReCreateAllTableListener listener, Class<? extends AbstractDao<?, ?>>... daoClasses) {
         weakListener = new WeakReference<>(listener);
         migrate(database, daoClasses);
     }
@@ -55,7 +60,7 @@ public final class MyMigrationHelper {
         generateTempTables(database, daoClasses);
         printLog("【Generate temp table】complete");
 
-        com.github.yuweiguocn.library.greendao.MigrationHelper.ReCreateAllTableListener listener = weakListener.get();
+        ReCreateAllTableListener listener = weakListener.get();
         if (listener != null) {
             listener.onDropAllTables(database, true);
             printLog("【Drop all table by listener】");

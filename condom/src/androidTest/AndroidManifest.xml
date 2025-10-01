@@ -2,6 +2,6 @@
     <application>
         <provider
             android:authorities="com.oasisfeng.condom.test"
-            android:name=".CondomContextBlockingTest$TestProvider" />
+            android:name="com.oasisfeng.condom.CondomContextBlockingTest$TestProvider" />
     </application>
 </manifest>

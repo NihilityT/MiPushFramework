@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.nihility.XMPushUtils;
 import com.nihility.notification.NotificationManagerEx;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 
@@ -39,7 +40,7 @@ public class NotificationChannelManager {
 
     private static NotificationChannel createChannelWithPackage(@NonNull PushMetaInfo metaInfo,
                                                                 @NonNull String packageName) {
-        CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
+        CustomConfiguration configuration = XMPushUtils.getConfiguration(metaInfo);
         String channelName = configuration.channelName("未分类");
         String channelDescription = configuration.channelDescription(null);
         String sound = configuration.soundUrl(null);
@@ -60,7 +61,7 @@ public class NotificationChannelManager {
 
     public static String getChannelId(@NonNull PushMetaInfo metaInfo,
                                       @NonNull String packageName) {
-        CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
+        CustomConfiguration configuration = XMPushUtils.getConfiguration(metaInfo);
         return getChannelIdByPkg(packageName) + "_" + configuration.channelId("");
     }
 

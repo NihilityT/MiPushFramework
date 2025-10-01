@@ -18,8 +18,8 @@ import androidx.core.content.ContextCompat;
 import com.catchingnow.icebox.sdk_client.IceBox;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.XMPushUtils;
 import com.topjohnwu.superuser.Shell;
-import com.xiaomi.push.service.MIPushEventProcessor;
 import com.xiaomi.push.service.MIPushNotificationHelper;
 import com.xiaomi.push.service.MyMIPushNotificationHelper;
 import com.xiaomi.push.service.PushConstants;
@@ -29,10 +29,6 @@ import com.xiaomi.xmsf.push.notification.NotificationController;
 import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.utils.ConfigCenter;
 
-import org.json.JSONException;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.function.Consumer;
 
 import top.trumeet.common.Constants;
@@ -40,8 +36,6 @@ import top.trumeet.common.ita.ITopActivity;
 import top.trumeet.common.ita.TopActivityFactory;
 import top.trumeet.common.utils.CustomConfiguration;
 import top.trumeet.common.utils.Utils;
-import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
-import top.trumeet.mipush.provider.register.RegisteredApplication;
 
 /**
  * @author zts1993
@@ -69,7 +63,7 @@ public class MyPushMessageHandler extends IntentService {
             return;
         }
 
-        final XmPushActionContainer container = MIPushEventProcessor.buildContainer(payload);
+        final XmPushActionContainer container = XMPushUtils.packToContainer(payload);
         if (container == null) {
             return;
         }
@@ -91,7 +85,7 @@ public class MyPushMessageHandler extends IntentService {
             return;
         }
 
-        final XmPushActionContainer container = MIPushEventProcessor.buildContainer(payload);
+        final XmPushActionContainer container = XMPushUtils.packToContainer(payload);
         if (container == null) {
             return;
         }
@@ -106,8 +100,7 @@ public class MyPushMessageHandler extends IntentService {
         } catch (Exception e) {
             logger.e("cancelNotification", e);
         }
-        CustomConfiguration custom = new CustomConfiguration(container.metaInfo != null ?
-                container.metaInfo.extra : new HashMap<>());
+        CustomConfiguration custom = XMPushUtils.getConfiguration(container);
 
         NotificationController.cancel(context, container,
                 notificationId, notificationGroup, custom.clearGroup(false));
@@ -136,7 +129,7 @@ public class MyPushMessageHandler extends IntentService {
     }
 
     public static ComponentName forwardToTargetApplication(Context context, byte[] payload) {
-        XmPushActionContainer container = MIPushEventProcessor.buildContainer(payload);
+        XmPushActionContainer container = XMPushUtils.packToContainer(payload);
         PushMetaInfo metaInfo = container.getMetaInfo();
         String targetPackage = container.getPackageName();
 

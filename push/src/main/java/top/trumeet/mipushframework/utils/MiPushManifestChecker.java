@@ -91,10 +91,10 @@ public class MiPushManifestChecker {
                         boolean enabled = checkInfo.enabled;
                         boolean exported = checkInfo.exported;
                         String permission = checkInfo.permission;
-                        if (enabled != info.enabled) {
+                        if (enabled && !info.enabled) {
                             throw new ManifestChecker.IllegalManifestException(String.format("<service android:name=\"%1$s\" .../> in AndroidManifest had the wrong enabled attribute, which should be android:enabled=%2$b.", info.name, Boolean.valueOf(enabled)));
                         }
-                        if (exported != info.exported) {
+                        if (exported && !info.exported) {
                             throw new ManifestChecker.IllegalManifestException(String.format("<service android:name=\"%1$s\" .../> in AndroidManifest had the wrong exported attribute, which should be android:exported=%2$b.", info.name, Boolean.valueOf(exported)));
                         }
                         if (!TextUtils.isEmpty(permission) && !TextUtils.equals(permission, info.permission)) {

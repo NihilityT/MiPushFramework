@@ -2,53 +2,35 @@ package top.trumeet.mipushframework.wizard;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
-import android.widget.TextView;
 
-import com.android.setupwizardlib.SetupWizardLayout;
-import com.android.setupwizardlib.view.NavigationBar;
-import com.xiaomi.xmsf.R;
-
-import top.trumeet.mipushframework.settings.MainActivity;
+import top.trumeet.mipushframework.main.MainPage;
 
 /**
  * Created by Trumeet on 2017/8/24.
  * Wizard welcome page
  */
 
-public class WelcomeActivity extends AppCompatActivity implements NavigationBar.NavigationBarListener {
+public class WelcomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!WizardSPUtils.shouldShowWizard(this)) {
-            startActivity (new Intent(this,
-                    MainActivity.class));
-            finish();
-            return;
+        if (WizardSPUtils.shouldShowWizard(this)) {
+            jumpToRequestPermissionPage();
+        } else {
+            jumpToMainActivity();
         }
-        SetupWizardLayout layout = new SetupWizardLayout(this);
-        layout.getNavigationBar()
-                .setNavigationBarListener(this);
-        TextView textView = new TextView(this);
-        textView.setText(Html.fromHtml(getString(R.string.wizard_descr)));
-        int padding = (int) getResources().getDimension(R.dimen.suw_glif_margin_sides);
-        textView.setPadding(padding, padding, padding, padding);
-        textView.setMovementMethod(LinkMovementMethod.getInstance());
-        layout.addView(textView);
-        layout.setHeaderText(R.string.app_name);
-        setContentView(layout);
+        finish();
     }
 
-    @Override
-    public void onNavigateBack() {
-        onBackPressed();
+    private void jumpToRequestPermissionPage() {
+        startActivity(new Intent(this, RequestPermissionPage.class));
     }
 
-    @Override
-    public void onNavigateNext() {
-        startActivity(new Intent(this, CheckRunInBackgroundActivity.class));
+    private void jumpToMainActivity() {
+        startActivity (new Intent(this,
+                MainPage.class));
     }
 }

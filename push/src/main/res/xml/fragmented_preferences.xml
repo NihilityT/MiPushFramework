@@ -52,6 +52,17 @@
                 android:title="@string/settings_debug_mode"
                 android:summary="@string/settings_debug_mode_summary" />
 
+        <SwitchPreference
+                android:defaultValue="false"
+                android:key="ShowAllEvents"
+                android:title="@string/settings_show_all_events" />
+
+        <SwitchPreference
+                android:defaultValue="false"
+                android:key="StartForegroundService"
+                android:title="@string/settings_start_foreground_service"
+                android:summary="@string/settings_start_foreground_service_summary" />
+
         <!-- TODO: entryValues's height is insufficient for 'en' locale. -->
         <ListPreference
             android:defaultValue="0"

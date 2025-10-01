@@ -1,23 +1,10 @@
 <resources>
     <style name="BaseTheme" parent="Theme.Material3.DynamicColors.DayNight">
         <item name="actionBarTheme">@style/AppTheme</item>
-        <item name="preferenceTheme">@style/AppTheme</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
     <style name="AppTheme" parent="BaseTheme">
-    </style>
-
-    <style name="SimpleMenuPreference" parent="Preference.SimpleMenuPreference">
-        <item name="popupStyle">@style/SimpleMenuPreference.Popup</item>
-    </style>
-    <style name="SimpleMenuPreference.Popup" parent="Preference.SimpleMenuPreference.Popup">
-        <item name="listElevation">40dp</item>
-    </style>
-
-    <style name="AppTheme.Wizard" parent="@style/SuwThemeMaterial.Light">
-        <item name="colorPrimaryDark">@color/suw_color_accent_light</item>
-        <item name="android:statusBarColor">@color/suw_color_accent_light</item>
     </style>
 
     <style name="Widget.Design.BottomNavigationView" parent="">

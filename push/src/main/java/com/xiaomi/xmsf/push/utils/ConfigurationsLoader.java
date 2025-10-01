@@ -144,6 +144,10 @@ public class ConfigurationsLoader {
         return false;
     }
 
+    public void load(String json) throws JSONException {
+        parse(json);
+    }
+
     private void parse(String json) throws JSONException {
         JSONObject jsonObject = new JSONObject(json);
         version = jsonObject.getString("version");

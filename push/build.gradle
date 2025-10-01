@@ -4,13 +4,6 @@ apply plugin: 'io.github.wurensen.android-aspectjx'
 apply plugin: 'org.greenrobot.greendao'
 
 
-allprojects {
-    repositories {
-        mavenCentral()
-        maven { url 'https://jitpack.io' }
-    }
-}
-
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
@@ -48,24 +41,45 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    testOptions {
+        unitTests.all {
+            jvmArgs '-noverify'
+        }
+    }
+
+    flavorDimensions "versionCode"
+    productFlavors {
+        normal {
+            dimension "versionCode"
+        }
+        vc105 {
+            dimension "versionCode"
+            versionCode = 105
+        }
+    }
 
     aspectjx {
         // 移除kotlin相关，编译错误和提升速度
         exclude 'kotlin.jvm', 'kotlin.internal'
         exclude 'kotlinx.coroutines.internal', 'kotlinx.coroutines.android'
+        exclude 'top.trumeet'
         debug = true
     }
 
-    greendao{
+    greendao {
         // Must upgrade version code!
-        schemaVersion 16
+        schemaVersion 17
         daoPackage 'top.trumeet.mipush.provider.gen.db'
-        targetGenDir 'src/main/java'
     }
     namespace 'top.trumeet.mipush.provider'
 
     signingConfigs {
         debug {
+            v1SigningEnabled true
+            v2SigningEnabled true
+            enableV3Signing = true
+            enableV4Signing = true
+
             def locale = project.rootProject.file(".yuuta.jks")
             def keystorePwd = System.getenv("KEYSTORE_PASS")
             def alias = System.getenv("ALIAS_NAME")
@@ -86,13 +100,6 @@ android {
                 keyPassword pwd
             }
         }
-        release {
-            // 满足下面两个条件时需要此配置
-            // 1. Gradle版本 >= 2.14.1
-            // 2. Android Gradle Plugin 版本 >= 2.2.0
-            // 作用是只使用旧版签名，禁用V2版签名模式
-            v2SigningEnabled false
-        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -103,6 +110,14 @@ android {
         // Or, if you prefer, you can continue to check for errors in release builds,
         // but continue the build even when errors are found:
         abortOnError false
+    }
+
+
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion "1.4.0"
     }
     namespace 'com.xiaomi.xmsf'
 }
@@ -116,63 +131,61 @@ android.applicationVariants.all { variant ->
 }
 
 dependencies {
+// modules {
+    implementation project(':common')
+    implementation project(':condom')
+    implementation project(':mipush_hook')
+    compileOnly files(project(':mipush_hook').ext.mipushLib)
+// }
 
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+// feature dependencies {
     // Log
     implementation('com.elvishew:xlog:1.11.0', {
         exclude group: 'com.android.support'
     })
-    implementation 'com.google.android.material:material:1.6.1'
-    // Hook
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    implementation project(':common')
-    implementation project(':condom')
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.palette:palette:1.0.0'
 
     implementation 'com.github.heruoxin:IceBox-SDK:55dd857d74'
-
-    implementation('com.github.AndroidSnippet:SetupWizardLibCompat:0.3', {
-        exclude group: 'com.android.support'
-    })
-    // Recycler
-    implementation('com.github.drakeet:MultiType:v3.3.0', {
-        exclude group: 'com.android.support'
-    })
-    // Support
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation 'androidx.appcompat:appcompat:1.5.0'
-    // Preference
-    implementation 'moe.shizuku.preference:preference:2.2.3'
-    implementation 'moe.shizuku.preference:preference-switchcompat:2.2.3'
-    implementation 'moe.shizuku.preference:preference-simplemenu:2.2.3'
-
-    // Help
-    implementation('com.github.yfdyh000.RikkaX:helplib:mipush_helplib-SNAPSHOT', {
-        exclude group: 'moe.shizuku.preference'
-        exclude group: 'com.android.support'
-    }) // same to moe.shizuku.support:helplib:1.1.0
-    // RxActivityResult
-    implementation('com.github.VictorAlbertos:RxActivityResult:0.4.5-2.x', {
-        exclude group: 'com.android.support'
-    })
-
     implementation 'com.google.code.gson:gson:2.10'
+
+    // The core module that provides APIs to a shell
+    implementation "com.github.topjohnwu.libsu:core:5.0.5"
 
     // https://mvnrepository.com/artifact/com.github.promeg/tinypinyin
     implementation 'com.github.promeg:tinypinyin:2.0.3'
 
-    implementation 'org.greenrobot:greendao:3.3.0'
-
-    def libsuVersion = '5.0.5'
-
-    // The core module that provides APIs to a shell
-    implementation "com.github.topjohnwu.libsu:core:${libsuVersion}"
-
     // GreenDao
     implementation 'org.greenrobot:greendao:3.3.0'
-    implementation 'com.github.yuweiguocn:GreenDaoUpgradeHelper:v2.0.0'
+// }
+
+// Test {
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    androidTestImplementation("org.mockito:mockito-android:4.11.0")
+    testImplementation("org.mockito:mockito-core:4.11.0")
+    testImplementation("org.mockito:mockito-inline:4.11.0")
+// }
+
+// Base {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.palette:palette:1.0.0'
+
+
+    implementation "androidx.compose.ui:ui:1.4.0"
+    implementation "androidx.compose.material3:material3:1.0.0"
+    implementation "androidx.compose.ui:ui-tooling-preview:1.4.0"
+    implementation "androidx.compose.ui:ui-tooling:1.4.0"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.1"
+    implementation "androidx.activity:activity-compose:1.7.0"
+    implementation 'androidx.navigation:navigation-compose:2.6.0'
+    implementation "org.jetbrains:markdown:0.7.3"
+    implementation "com.google.accompanist:accompanist-swiperefresh:0.30.1"
+
+    // Support
+    implementation 'androidx.appcompat:appcompat:1.5.0'
+// }
+
+
 }

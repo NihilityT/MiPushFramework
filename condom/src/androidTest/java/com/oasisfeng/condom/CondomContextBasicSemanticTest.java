@@ -20,7 +20,7 @@ package com.oasisfeng.condom;
 import android.app.Application;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 
 import org.junit.Test;
 

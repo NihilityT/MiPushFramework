@@ -29,12 +29,15 @@ public class ConfigCenter {
     public static ConfigCenter getInstance() {
         return LazyHolder.INSTANCE;
     }
+    public static void setInstance(ConfigCenter configCenter) {
+        LazyHolder.INSTANCE = configCenter;
+    }
 
-    private ConfigCenter() {
+    public ConfigCenter() {
     }
 
     //using MODE_MULTI_PROCESS emmm.....
-    private SharedPreferences getSharedPreferences(Context context) {
+    public static SharedPreferences getSharedPreferences(Context context) {
         return context.getSharedPreferences(BuildConfig.APPLICATION_ID + "_preferences", Context.MODE_MULTI_PROCESS);
     }
 
@@ -78,6 +81,14 @@ public class ConfigCenter {
 
     public boolean isDebugMode() {
         return getSharedPreferences(Utils.getApplication()).getBoolean("DebugMode", false);
+    }
+
+    public boolean isShowAllEvents() {
+        return getSharedPreferences(Utils.getApplication()).getBoolean("ShowAllEvents", false);
+    }
+
+    public boolean isStartForegroundService() {
+        return getSharedPreferences(Utils.getApplication()).getBoolean("StartForegroundService", false);
     }
 
     public void loadConfigurations(Context context) {

@@ -1,1 +1,2 @@
-include  ':condom', ':push', ':common', ':extenders'
+include  ':condom', ':push', ':common'
+include ':mipush_hook'

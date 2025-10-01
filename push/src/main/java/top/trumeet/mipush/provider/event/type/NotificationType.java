@@ -5,9 +5,12 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import top.trumeet.mipush.provider.event.Event;
-import top.trumeet.mipush.provider.event.EventType;
+import com.nihility.XMPushUtils;
+import com.xiaomi.xmpush.thrift.XmPushActionContainer;
+
 import top.trumeet.common.R;
+import top.trumeet.mipush.provider.entities.Event;
+import top.trumeet.mipush.provider.event.EventType;
 
 /**
  * 对应 {@link top.trumeet.common.event.Event.Type#SendMessage}
@@ -19,10 +22,16 @@ public class NotificationType extends EventType {
     private final String mNotificationTitle;
     private final String mNotificationDetail;
 
-    public NotificationType(String mInfo, String pkg, String mNotificationTitle, String mNotificationDetail, byte[] payload) {
+    public NotificationType(String mInfo, String pkg, byte[] payload) {
         super(Event.Type.Notification, mInfo, pkg, payload);
-        this.mNotificationTitle = mNotificationTitle;
-        this.mNotificationDetail = mNotificationDetail;
+        XmPushActionContainer container = XMPushUtils.packToContainer(payload);
+        if (container != null && container.getMetaInfo() != null) {
+            this.mNotificationTitle = container.getMetaInfo().getTitle();
+            this.mNotificationDetail = container.getMetaInfo().getDescription();
+        } else {
+            this.mNotificationTitle = null;
+            this.mNotificationDetail = null;
+        }
     }
 
     @Override
@@ -40,19 +49,4 @@ public class NotificationType extends EventType {
                 mNotificationDetail;
     }
 
-    public String getNotificationTitle() {
-        return mNotificationTitle;
-    }
-
-    public String getNotificationDetail() {
-        return mNotificationDetail;
-    }
-
-    @NonNull
-    @Override
-    public Event fillEvent (@NonNull Event original) {
-        original.setNotificationTitle(mNotificationTitle);
-        original.setNotificationSummary(mNotificationDetail);
-        return original;
-    }
 }

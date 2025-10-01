@@ -1,14 +1,14 @@
 package top.trumeet.mipushframework.wizard;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import top.trumeet.common.Constants;
-import top.trumeet.mipushframework.settings.MainActivity;
+import top.trumeet.mipushframework.main.MainPage;
 
 /**
  * Created by Trumeet on 2017/8/24.
@@ -34,10 +34,10 @@ final class WizardSPUtils {
                 .apply();
     }
 
-    static void finishWizard (AppCompatActivity context) {
+    static void finishWizard (Activity context) {
         setShouldShowWizard(false, context);
         ActivityCompat.finishAffinity(context);
         context.startActivity(new Intent(context,
-                MainActivity.class));
+                MainPage.class));
     }
 }

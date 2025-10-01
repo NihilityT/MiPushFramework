@@ -40,8 +40,8 @@
     <string name="settings_clear">Clean up</string>
 
     <string name="title_activity_advance_setting">Advanced</string>
-    <string name="settings_clear_history_summary">Cleanup logs for more than 7 days.</string>
-    <string name="settings_clear_history">Cleanup logs</string>
+    <string name="settings_clear_history_summary">Cleanup event records older than 7 days.</string>
+    <string name="settings_clear_history">Cleanup event records</string>
 
     <string name="settings_clear_log">Clear logs</string>
     <string name="settings_clear_log_summary">Delete logs file.</string>
@@ -84,7 +84,10 @@
     <string name="settings_notify_on_register">Notify On App Register</string>
     <string name="settings_show_loaded_file_after_configurations_loaded">Show Loaded File After Configurations Loaded</string>
     <string name="settings_debug_mode">Enable debug mode</string>
-    <string name="settings_debug_mode_summary">Display the debug button in the notification, display all types of messages in the event list, print full log</string>
+    <string name="settings_debug_mode_summary">Display the debug button in the notification, print full log</string>
+    <string name="settings_show_all_events">Display all events</string>
+    <string name="settings_start_foreground_service">Keep MiPush alive</string>
+    <string name="settings_start_foreground_service_summary">show a foreground notification to keep alive, you can hide it by disable notification channel</string>
 
 
 
@@ -126,6 +129,9 @@ Please grant the <b>Run in the background or wake up</b> permissions.
     <string name="wizard_title_alert_window_permission">Display over other apps</string>
     <string name="wizard_title_alert_window_text">You need to grant \"Display over other apps\" permission or you will not be able to auto open app by configuration.</string>
 
+    <string name="wizard_title_ignore_battery_optimizations_permission">Ignore Battery optimizations</string>
+    <string name="wizard_title_ignore_battery_optimizations_text">You need to grant \"Ignore Battery optimizations\" permission or you may will not be able to run mipush service on background.</string>
+
     <string name="wizard_descr_finish">Everything is ready. Enjoy!</string>
 
     <string name="status_ok">OK</string>
@@ -162,7 +168,7 @@ Please grant the <b>Run in the background or wake up</b> permissions.
     <string name="date_format_long">%1$s</string>
 
     <string name="action_edit_permission_title">Edit Permissions (Save by ----></string>
-    <string name="action_edit_permission">Edit Permissions</string>
+    <string name="action_app_info">App Info</string>
     <string name="action_notify">send notification</string>
     <string name="action_configurate">run configuration</string>
 
@@ -174,7 +180,6 @@ Please grant the <b>Run in the background or wake up</b> permissions.
     <string name="permission_notification_on_register">Show notification when registering</string>
     <string name="permission_summary_notification_on_register">In order to use, you need to enable global register notification switch in Advance Setting as well</string>
 
-    <string name="permission_register_type">Register mode</string>
     <string name="register_type_allow">Allow registration, automatic</string>
     <string name="register_type_deny">Block registration</string>
     <string name="register_type_ask">Ask me (Default)</string>
@@ -221,7 +226,7 @@ Please grant the <b>Run in the background or wake up</b> permissions.
 
 
     <!-- Help -->
-    <string name="about_version">Version %1$s</string>
+    <string name="about_version">Version %1$s (%2$s)</string>
     <string name="app_registered">Registered</string>
     <string name="app_registered_error">Unregistered</string>
 
@@ -243,7 +248,7 @@ Registration is determined and initiated by the application and generally begins
     <string name="helplib_action_about">About</string>
     <string name="helplib_action_issue">Feedback</string>
     <string name="helplib_action_telegram_group">Join Telegram group</string>
-    <string name="helplib_action_qq_group">Join QQ group</string>
+    <string name="helplib_action_qq_group">Join QQ channel</string>
     <string name="helplib_title"><![CDATA[Help & Support]]></string>
     <string name="helplib_title_contact">Contact us</string>
     <string name="helplib_title_faq">Frequently asked questions</string>
@@ -276,7 +281,7 @@ This could be the application doing a reverse registration, or the registration 
     <string name="show_pass_through">show \"pass through\" message as notification</string>
     <string name="action_search">Search</string>
     <string name="last_receive">last receive: </string>
-    <string name="mipush_services_not_found">MiPush Services not found, may affect push or notification click</string>
+    <string name="mipush_services_not_found">Services Not Found</string>
     <string name="try_to_force_register_all_applications">Try to force register all applications</string>
 
 

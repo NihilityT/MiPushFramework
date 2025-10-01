@@ -1,7 +1,11 @@
 package top.trumeet.common.utils;
 
+import androidx.annotation.Nullable;
+
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class CustomConfiguration {
     private static String Config(String name) {
@@ -21,6 +25,7 @@ public class CustomConfiguration {
     private static final String CONVERSATION_MESSAGE = Config("conversation_message");
     private static final String CLEAR_GROUP = Config("clear_group");
     private static final String BORROW_CHANNEL_ID = Config("borrow_channel_id");
+    private static final String TEXT_ICON = Config("text_icon");
 
     private static final String NOTIFICATION_LARGE_ICON_URI = "notification_large_icon_uri";
     private static final String CHANNEL_ID = "channel_id";
@@ -31,10 +36,11 @@ public class CustomConfiguration {
     private static final String USE_CLICKED_ACTIVITY = "use_clicked_activity";
     private static final String NOTIFICATION_GROUP = "notification_group";
     private static final String NOTIFICATION_BIGPIC_URI = "notification_bigPic_uri";
+    private static final String FOCUS_PARAM = "miui.focus.param";
 
     private Map<String, String> mExtra = new HashMap<>();
 
-    public CustomConfiguration(Map<String, String> extra) {
+    public CustomConfiguration(@Nullable Map<String, String> extra) {
         if (extra != null) {
             mExtra = extra;
         }
@@ -127,6 +133,14 @@ public class CustomConfiguration {
         return get(BORROW_CHANNEL_ID, defaultValue);
     }
 
+    public String focusParam(String defaultValue) {
+        return get(FOCUS_PARAM, defaultValue);
+    }
+
+    public String textIcon(String defaultValue) {
+        return get(TEXT_ICON, defaultValue);
+    }
+
     public boolean get(String key, boolean defaultValue) {
         if (getExtraField(mExtra, key, null) != null) {
             return true;
@@ -136,6 +150,13 @@ public class CustomConfiguration {
 
     public String get(String key, String defaultValue) {
         return getExtraField(mExtra, key, defaultValue);
+    }
+
+    public Set<String> keys() {
+        if (mExtra == null) {
+            return new HashSet<>();
+        }
+        return mExtra.keySet();
     }
 
     private static String getExtraField(Map<String, String> extra, String extraChannelName, String defaultValue) {

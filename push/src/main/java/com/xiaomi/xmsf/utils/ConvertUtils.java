@@ -11,13 +11,14 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.nihility.XMPushUtils;
+import com.xiaomi.channel.commonutils.android.DataCryptUtils;
 import com.xiaomi.channel.commonutils.string.Base64Coder;
 import com.xiaomi.mipush.sdk.DecryptException;
 import com.xiaomi.mipush.sdk.PushContainerHelper;
-import com.xiaomi.push.service.MIPushEventProcessor;
 import com.xiaomi.push.service.PushConstants;
 import com.xiaomi.xmpush.thrift.*;
-import com.xiaomi.xmsf.push.utils.Utils;
+import com.xiaomi.xmsf.push.utils.RegSecUtils;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -32,7 +33,7 @@ public class ConvertUtils {
     private static final Logger logger = XLog.tag(TAG).build();
 
     public static JsonElement toJson(XmPushActionContainer container) {
-        return toJson(container, Utils.getRegSec(container));
+        return toJson(container, RegSecUtils.getRegSec(container));
     }
 
     public static JsonElement toJson(XmPushActionContainer container, String regSec) {
@@ -91,7 +92,7 @@ public class ConvertUtils {
             byte[] payload = intent.getByteArrayExtra(PushConstants.MIPUSH_EXTRA_PAYLOAD);
             if (payload != null) {
                 extras.add(PushConstants.MIPUSH_EXTRA_PAYLOAD, toJson(
-                        MIPushEventProcessor.buildContainer(payload)));
+                        XMPushUtils.packToContainer(payload)));
             }
             json.add("extras", extras);
         }
@@ -107,7 +108,7 @@ public class ConvertUtils {
             Objects.requireNonNull(regSec, "register secret is null");
             byte[] keyBytes = Base64Coder.decode(regSec);
             try {
-                oriMsgBytes = PushContainerHelper.MIPushDecrypt(keyBytes, container.getPushAction());
+                oriMsgBytes = DataCryptUtils.mipushDecrypt(keyBytes, container.getPushAction());
             } catch (Exception e) {
                 throw new DecryptException("the aes decrypt failed.", e);
             }

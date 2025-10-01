@@ -46,6 +46,9 @@ public class Configurations {
     public boolean init(Context context, Uri treeUri) {
         return loader.init(context, treeUri);
     }
+    public void load(String json) throws JSONException {
+            loader.load(json);
+    }
 
     public Set<String> handle(String packageName, XmPushActionContainer data)
             throws JSONException, NoSuchFieldException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {

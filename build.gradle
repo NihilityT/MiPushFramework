@@ -1,15 +1,21 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.6.21'
+    ext.kotlin_version = '1.8.0'
 
     repositories {
-        google()
-        jcenter()
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+
         mavenCentral()
+        maven { url 'https://jitpack.io' }
+        gradlePluginPortal()
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.1'
+        classpath 'com.android.tools.build:gradle:7.4.2'
         classpath 'org.greenrobot:greendao-gradle-plugin:3.3.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'io.github.wurensen:gradle-android-plugin-aspectjx:3.3.2'
@@ -19,9 +25,14 @@ buildscript {
 
 allprojects {
     repositories {
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+
         mavenCentral()
-        jcenter()
         maven { url 'https://jitpack.io' }
+        gradlePluginPortal()
         google()
     }
 
@@ -56,23 +67,38 @@ def getVersionCode = { ->
 }
 
 def getVersionName = { ->
+    String versionName  = project.findProperty('versionName') ?: getVersionNameFromGit() ?: "VersionNameError"
+    versionName = increaseVersionForPreRelease(versionName)
+    return versionName.replaceFirst("^v", "")
+}
+
+private static String increaseVersionForPreRelease(String versionName) {
+    if (isPreReleaseVersion(versionName)) {
+        return versionName.replaceFirst("(\\d+\\.\\d+\\.)(\\d+)", {
+            return it[1] + (it[2].toInteger() + 1)
+        })
+    }
+    return versionName
+}
+
+private static boolean isPreReleaseVersion(String versionName) {
+    versionName.contains('-')
+}
+
+private String getVersionNameFromGit() {
     try {
         def stdout = new ByteArrayOutputStream()
         exec {
-            commandLine 'git', 'describe', '--tags', '--dirty'
+            // v0.3.10-187-gef4be8c9-dirty
+            commandLine 'git', 'describe', '--tags', '--dirty', '--exclude', 'v*-*'
             standardOutput = stdout
         }
-
-        def versionName = stdout.toString().trim()
-        if (versionName.startsWith("v")) {
-            return versionName.substring(1)
-        } else {
-            return versionName
-        }
+        return stdout.toString().trim()
     } catch (ignored) {
-        return null;
+        return null
     }
 }
+
 ext {
     minSdkVersion = 21
     compileSdkVersion = 33

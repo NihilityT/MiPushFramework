@@ -26,11 +26,11 @@ import androidx.core.graphics.drawable.IconCompat;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.XMPushUtils;
 import com.nihility.notification.NotificationManagerEx;
 import com.xiaomi.push.service.MyNotificationIconHelper;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
-import com.xiaomi.xmsf.ManageSpaceActivity;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.push.utils.IconConfigurations;
@@ -40,6 +40,7 @@ import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.cache.IconCache;
 import top.trumeet.common.utils.CustomConfiguration;
 import top.trumeet.common.utils.ImgUtils;
+import top.trumeet.mipushframework.main.AdvancedSettingsPage;
 
 /**
  * @author Trumeet
@@ -117,7 +118,7 @@ public class NotificationController {
 
     @NonNull
     public static String getExistsChannelId(Context context, PushMetaInfo metaInfo, String packageName) {
-        CustomConfiguration custom = new CustomConfiguration(metaInfo.extra);
+        CustomConfiguration custom = XMPushUtils.getConfiguration(metaInfo);
         String channelId = custom.borrowChannelId(null);
         if (TextUtils.isEmpty(channelId) ||
                 getNotificationManagerEx().getNotificationChannel(packageName, channelId) == null) {
@@ -139,16 +140,35 @@ public class NotificationController {
         // Set small icon
         processIcon(context, packageName, notificationBuilder);
 
-        CustomConfiguration configuration = new CustomConfiguration(metaInfo.getExtra());
+        CustomConfiguration configuration = XMPushUtils.getConfiguration(metaInfo);
         String iconUri = configuration.notificationLargeIconUri(null);
         Bitmap largeIcon = getLargeIcon(context, metaInfo, iconUri);
         if (largeIcon != null) {
             notificationBuilder.setLargeIcon(largeIcon);
         }
 
-        CustomConfiguration custom = new CustomConfiguration(metaInfo.getExtra());
-        String subText = custom.subText(null);
+        String subText = configuration.subText(null);
         buildExtraSubText(context, packageName, notificationBuilder, subText);
+
+        String focusParam = configuration.focusParam(null);
+        if (focusParam != null) {
+            Bundle focusBundle = new Bundle();
+            focusBundle.putString("miui.focus.param", focusParam);
+
+            Bundle picsBundle = new Bundle();
+            for (String key : configuration.keys()) {
+                if (key.startsWith("miui.focus.pic_")) {
+                    String url = configuration.get(key, null);
+                    focusBundle.putString(key, url);
+                    picsBundle.putParcelable(key,
+                            getBitmapFromUri(context, iconUri, 200 * KiB));
+                }
+            }
+            if (!picsBundle.isEmpty()) {
+                focusBundle.putBundle("miui.focus.pics", picsBundle);
+            }
+            notificationBuilder.addExtras(focusBundle);
+        }
 
         notificationBuilder.setAutoCancel(true);
         Notification notification = notificationBuilder.build();
@@ -162,10 +182,15 @@ public class NotificationController {
         Bitmap largeIcon = IconCache.getInstance().getBitmap(context, iconUri,
                 (context1, iconUri1) -> getBitmapFromUri(context1, iconUri1, 200 * KiB));
         if (largeIcon != null) {
-            CustomConfiguration custom = new CustomConfiguration(metaInfo.getExtra());
-            if (custom.roundLargeIcon(false)) {
-                largeIcon = ImgUtils.trimImgToCircle(largeIcon, Color.TRANSPARENT);
-            }
+            largeIcon = roundLargeIconIfConfigured(metaInfo, largeIcon);
+        }
+        return largeIcon;
+    }
+
+    public static Bitmap roundLargeIconIfConfigured(PushMetaInfo metaInfo, Bitmap largeIcon) {
+        CustomConfiguration custom = XMPushUtils.getConfiguration(metaInfo);
+        if (custom.roundLargeIcon(false)) {
+            largeIcon = ImgUtils.trimImgToCircle(largeIcon, Color.TRANSPARENT);
         }
         return largeIcon;
     }
@@ -326,7 +351,7 @@ public class NotificationController {
         localBuilder.setWhen(System.currentTimeMillis());
         localBuilder.setShowWhen(true);
 
-        Intent notifyIntent = new Intent(context, ManageSpaceActivity.class);
+        Intent notifyIntent = new Intent(context, AdvancedSettingsPage.class);
         // Set the Activity to start in a new, empty task
         notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
