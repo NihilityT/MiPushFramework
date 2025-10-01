@@ -29,4 +29,7 @@ public class MiPushEventListener {
     public void receiveFromApplication(Intent intent) {
     }
 
+    public void transferToServer(Intent intent) {
+    }
+
 }

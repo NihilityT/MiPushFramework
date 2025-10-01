@@ -14,6 +14,7 @@ import com.nihility.MethodHooker;
 import com.nihility.MiPushEventListener;
 import com.nihility.XMPushUtils;
 import com.nihility.utils.MockMIPushMessage;
+import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.push.service.MIPushEventProcessor;
 import com.xiaomi.push.service.MIPushNotificationHelper;
 import com.xiaomi.push.service.XMPushService;
@@ -105,6 +106,26 @@ public class MiPushEventListenerTest {
         xmPushService.onStart(intent, 1);
 
         verify(eventListener).receiveFromApplication(intent);
+    }
+
+    @Test
+    public void triggerTransferToServerAtSendMessage() {
+        XMPushService xmPushService = new XMPushService();
+
+        {
+            Intent intent = new Intent("test");
+
+            JavaCalls.callMethod(xmPushService, "sendMessage", intent);
+
+            verify(eventListener).transferToServer(intent);
+        }
+        {
+            Intent intent = new Intent("qwe");
+
+            JavaCalls.callMethod(xmPushService, "sendMessages", intent);
+
+            verify(eventListener).transferToServer(intent);
+        }
     }
 
 }

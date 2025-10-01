@@ -58,4 +58,9 @@ public class LogXMPushServiceAspect {
         logger.d("Intent" + " " + ConvertUtils.toJson(intent));
     }
 
+    @Before("execution(* com.xiaomi.push.service.XMPushService.sendMessage*(..)) && args(intent)")
+    public void sendMessage(final JoinPoint joinPoint, Intent intent) {
+        logger.d(joinPoint.getSignature());
+        MiPushEventListener.instance().transferToServer(intent);
+    }
 }
