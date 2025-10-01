@@ -22,9 +22,9 @@ import androidx.core.app.NotificationManagerCompat;
 import com.elvishew.xlog.XLog;
 import com.nihility.notification.NotificationManagerEx;
 import com.nihility.utils.Hooker;
+import com.nihility.utils.PrivilegeElevator;
 import com.oasisfeng.condom.CondomOptions;
 import com.oasisfeng.condom.CondomProcess;
-import com.topjohnwu.superuser.Shell;
 import com.xiaomi.xmsf.push.control.PushControllerUtils;
 import com.xiaomi.xmsf.push.control.XMOutbound;
 import com.xiaomi.xmsf.push.service.MiuiPushActivateService;
@@ -41,21 +41,6 @@ public class MiPushFrameworkApp extends Application {
 
     private static final String MIPUSH_EXTRA = "mipush_extra";
 
-    private static MiPushFrameworkApp instance;
-
-
-    static {
-        // Set settings before the main shell can be created
-        Shell.enableVerboseLogging = BuildConfig.DEBUG;
-        Shell.setDefaultBuilder(Shell.Builder.create()
-                .setFlags(Shell.FLAG_REDIRECT_STDERR)
-                .setTimeout(10)
-        );
-    }
-
-    public static Context getContext(){
-        return instance;
-    }
 
     @Override
     public void attachBaseContext(Context context) {
@@ -67,9 +52,9 @@ public class MiPushFrameworkApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        tryToGetHighPrivilege();
+        PrivilegeElevator.tryToElevate();
 
-        initGlobalContext();
+        Utils.setApplicationContext(this);
         initBasicLogger();
 
         Hooker.setLogger(PushControllerUtils.wrapContext(this));
@@ -114,15 +99,6 @@ public class MiPushFrameworkApp extends Application {
         CondomOptions options = XMOutbound.create(this, TAG_CONDOM + "_PROCESS",
                 false);
         CondomProcess.installExceptDefaultProcess(this, options);
-    }
-
-    private static void tryToGetHighPrivilege() {
-        Shell.getShell();
-    }
-
-    private void initGlobalContext() {
-        instance = this;
-        Utils.context = this;
     }
 
 

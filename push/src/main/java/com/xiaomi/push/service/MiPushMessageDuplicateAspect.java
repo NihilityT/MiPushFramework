@@ -13,7 +13,7 @@ import org.aspectj.lang.annotation.Aspect;
 public class MiPushMessageDuplicateAspect {
     public static String mockId;
 
-    static void markAsMock(XmPushActionContainer container) {
+    public static void markAsMock(XmPushActionContainer container) {
         mockId = getMessageId(container);
     }
 

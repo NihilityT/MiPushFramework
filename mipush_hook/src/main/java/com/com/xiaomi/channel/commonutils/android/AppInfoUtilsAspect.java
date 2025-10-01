@@ -42,8 +42,7 @@ public class AppInfoUtilsAspect {
     private static boolean isSystemApp(Context context, String packageName) {
         try {
             return isSystemApp(getPackageFlags(context, packageName));
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+        } catch (PackageManager.NameNotFoundException ignored) {
         }
         return false;
     }

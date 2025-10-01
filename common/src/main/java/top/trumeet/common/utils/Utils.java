@@ -26,6 +26,10 @@ import top.trumeet.common.override.AppOpsManagerOverride;
 public final class Utils {
     public static Context context;
 
+    public static void setApplicationContext(Context context) {
+        Utils.context = context.getApplicationContext();
+    }
+
     public static int myUid() {
         return Process.myUserHandle().hashCode();
     }
