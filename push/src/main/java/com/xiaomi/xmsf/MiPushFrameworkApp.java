@@ -56,6 +56,7 @@ public class MiPushFrameworkApp extends Application {
 
         Utils.setApplicationContext(this);
         initBasicLogger();
+        CrashHandler.installCrashLogger();
 
         Hooker.setLogger(PushControllerUtils.wrapContext(this));
         Hooker.hook(this);
