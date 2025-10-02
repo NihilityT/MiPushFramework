@@ -96,7 +96,7 @@ flowchart TB
     MIPushEventProcessor.processMIPushMessage -- Intent(MIPUSH_ACTION_NEW_MESSAGE) --> MIPushEventProcessor.postProcessMIPushMessage
     MIPushEventProcessor.postProcessMIPushMessage --> MIPushNotificationHelper.notifyPushMessage
     MIPushNotificationHelper.notifyPushMessage --> NotificationManagerHelper.notify
-    MIPushEventProcessor.postProcessMIPushMessage == broadcast<br>MIPUSH_ACTION_MESSAGE_ARRIVED for notification<br>MIPUSH_ACTION_NEW_MESSAGE for passthrough ==> PushMessageReceiver.onReceive
+    MIPushEventProcessor.postProcessMIPushMessage == broadcast<br>MIPUSH_ACTION_MESSAGE_ARRIVED for notification (the receiver will do nothing)<br>MIPUSH_ACTION_NEW_MESSAGE for passthrough ==> PushMessageReceiver.onReceive
     NotificationManagerHelper.notify == notification ==> PushMessageHandler.onStart
     PushMessageHelper.sendCommandMessageBroadcast --> PushServiceReceiver.onReceive
     PushMessageHelper.sendQuitMessageBroadcast --> PushServiceReceiver.onReceive
