@@ -47,14 +47,24 @@ android {
         }
     }
 
-    flavorDimensions "versionCode"
+    flavorDimensions = ["version"]
     productFlavors {
         normal {
-            dimension "versionCode"
+            dimension "version"
         }
         vc105 {
-            dimension "versionCode"
+            dimension "version"
             versionCode = 105
+        }
+        prebuilt {
+            dimension "version"
+        }
+    }
+    androidComponents {
+        onVariants(selector().all()) { variant ->
+            if(variant.name.startsWith("prebuilt")) {
+                variant.androidResources.noCompress.add('dex')
+            }
         }
     }
 

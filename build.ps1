@@ -32,6 +32,13 @@ foreach ($task in $gradleTasks) {
 	}
 }
 
+Write-Host "Ensure dex files remain uncompressed in prebuilt variant" -ForegroundColor Green
+$compressed = & ./build_scripts/check_dex_compressed.ps1 prebuilt
+if ($compressed) {
+	Write-Host "Found compressed dex files in prebuilt variant".PadRight($width) -BackgroundColor Red -ForegroundColor White
+	return
+}
+
 Write-Host "BUILD SUCCESSFUL".PadRight($width) -BackgroundColor Green -ForegroundColor Black
 
 }
