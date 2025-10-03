@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.android.settings.widget.RegistrationHelper;
+import com.nihility.utils.RegistrationHelper;
 import com.catchingnow.icebox.sdk_client.IceBox;
 import com.nihility.InternalMessenger;
 import com.xiaomi.push.service.PushConstants;

@@ -1,3 +1,15 @@
+function Write-Line($Object) {
+	$width = $Host.UI.RawUI.WindowSize.Width
+	Write-Host "$Object".PadRight($width) @args
+}
+
+function Write-Failed($Object) {
+	Write-Host $Object -BackgroundColor Red -ForegroundColor White
+}
+
+function Write-Successful($Object) {
+	Write-Line $Object -BackgroundColor Green -ForegroundColor Black
+}
 
 function build {
 
@@ -19,7 +31,6 @@ $gradleTasks = @(
 	)
 )
 
-$width = $Host.UI.RawUI.WindowSize.Width
 foreach ($task in $gradleTasks) {
 	$task = @() + $task
 	Write-Host
@@ -27,12 +38,19 @@ foreach ($task in $gradleTasks) {
 	Write-Host "Run Tasks: $((@('') + $task) -join "`n    ")" -ForegroundColor Green
 	./gradlew @task
 	if ($LASTEXITCODE -ne 0) {
-		Write-Host "BUILD FAILED".PadRight($width) -BackgroundColor Red -ForegroundColor White
+		Write-Failed "BUILD FAILED"
 		return
 	}
 }
 
-Write-Host "BUILD SUCCESSFUL".PadRight($width) -BackgroundColor Green -ForegroundColor Black
+Write-Host "Ensure dex files remain uncompressed in prebuilt variant" -ForegroundColor Green
+$compressed = & ./build_scripts/check_dex_compressed.ps1 prebuilt
+if ($compressed) {
+	Write-Failed "Found compressed dex files in prebuilt variant"
+	return
+}
+
+Write-Successful "BUILD SUCCESSFUL"
 
 }
 
