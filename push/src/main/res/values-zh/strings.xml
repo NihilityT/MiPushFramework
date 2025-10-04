@@ -88,7 +88,11 @@
     <string name="settings_icebox_permission_summary">点击通知栏时自动解冻冻结的App。
          需要安装的冰箱版本号 >= 3.6.0
     </string>
-
+    
+    <string name="settings_via_freeform">以自由形式 (小窗) 打开通知</string>
+    <string name="settings_via_freeform_summary">暂时只支持系统级小窗( AOSP原生、桌面模式、Sun OS或Rising OS) 米窗及其 forks 由于是以广播形式打开，暂不支持
+    </string>
+    
 
     <string name="icebox_permission_granted">已赋权冰箱自动解冻</string>
     <string name="icebox_permission_not_granted">未赋权冰箱自动解冻</string>

@@ -152,6 +152,13 @@ private fun ExperimentalBlock() {
             iceBoxGranted = !iceBoxGranted
             setIceBoxSupported(context, iceBoxGranted)
         }
+        
+        SettingsItem(
+            title = stringResource(R.string.settings_via_freeform),
+            summary = stringResource(R.string.settings_via_freeform_summary),
+            key = "ViaFreeform",
+            defaultValue = false,
+        )
     }
 }
 

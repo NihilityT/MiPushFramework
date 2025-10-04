@@ -8,7 +8,7 @@
     <string name="deny">Reject</string>
 
     <!-- Log -->
-    <!-- TOOD: See the "wake-up intercep-tion" shown, why?-->
+    <!-- TOOD: See the "wake-up intercep-tion" shown, why? -->
     <string name="log_push_err">Push service failed. Please try to disable the wake-up interception for the manager application, turn off some optimization feature of ROMs.</string>
     <string name="log_none">No logs yet.</string>
     <string name="log_share_error">Cannot share logs：%1$s</string>
@@ -71,10 +71,14 @@
     <string name="settings_icebox_not_installed">IceBox not installed</string>
     <string name="settings_icebox_permission">Auto enable app by IceBox</string>
     <string name="settings_icebox_permission_summary">Auto enable app by IceBox SDK.
-        require IceBox( version > 3.6.0) installed </string>
+        require IceBox( version > 3.6.0) installed</string>
     <string name="icebox_permission_granted">IceBox permission granted</string>
     <string name="icebox_permission_not_granted">IceBox permission not granted</string>
 
+    <string name="settings_via_freeform">Open Notifications via Freeform</string>
+    <string name="settings_via_freeform_summary">Only support framework freeform (like AOSP original Freeform, AOSP desktop mode, Sun OS, Rising OS etc. ).
+        MiFreeform with its forks won\'t work due to it\'s board cast mode.
+    </string>
 
     <string name="settings_mock_notification">Simulate received a message</string>
     <string name="settings_mock_notification_summary">Tap to send a simulated test message.</string>
@@ -88,7 +92,6 @@
     <string name="settings_show_all_events">Display all events</string>
     <string name="settings_start_foreground_service">Keep MiPush alive</string>
     <string name="settings_start_foreground_service_summary">show a foreground notification to keep alive, you can hide it by disable notification channel</string>
-
 
 
     <string name="app_name">MiPush Framework</string>
@@ -110,7 +113,9 @@
     <string name="action_about">About</string>
 
     <!-- Wizard -->
-    <string name="wizard_descr"><![CDATA[This project allows any devices to use XiaoMi system-level Push, it can control notifications from other apps to save more battery. For more details, visit the GitHub project:<a href="https://github.com/MiPushFramework/MiPushFramework">MiPushFramework</a>]]></string>
+    <string name="wizard_descr">
+        <![CDATA[This project allows any devices to use XiaoMi system-level Push, it can control notifications from other apps to save more battery. For more details, visit the GitHub project:<a href="https://github.com/MiPushFramework/MiPushFramework">MiPushFramework</a>]]>
+    </string>
 
     <string name="wizard_connect">Connecting</string>
 
@@ -118,10 +123,14 @@
     <string name="wizard_descr_run_in_background">You have disabled the Push service to run in the background, it will not be able to push in the background, you %1$s, then tap Next button.</string>
 
     <string name="run_in_background_appops_root">Need to use Root access to solve. (we will handle it automatically)</string>
-    <string name="run_in_background_rikka_appops"><![CDATA[ need to open <b>App Ops</b> tool, and grant the <b>Run in the background or wake up</b> permissions ]]></string>
-    <string name="rikka_appops_help_toast"><![CDATA[
+    <string name="run_in_background_rikka_appops">
+        <![CDATA[ need to open <b>App Ops</b> tool, and grant the <b>Run in the background or wake up</b> permissions ]]>
+    </string>
+    <string name="rikka_appops_help_toast">
+        <![CDATA[
 Please grant the <b>Run in the background or wake up</b> permissions.
-    ]]></string>
+    ]]>
+    </string>
 
     <string name="wizard_title_stats_permission">Usage stats</string>
     <string name="wizard_title_stats_permission_text">You need to grant \"Usage stats\" permission or you will not be able to receive notifications.</string>
@@ -234,12 +243,32 @@ Please grant the <b>Run in the background or wake up</b> permissions.
 
     <string name="status_app_not_registered">not registered</string>
     <string name="footer_app_ignored_not_registered">%1$s apps without MiPush SDK</string>
-    <string name="status_app_not_registered_detail_without_fake_suggest"><![CDATA[
-Registration is determined and initiated by the application and generally begins automatically when the application is launched. Some apps are only registered when finding a XiaoMi devices. See also: <b><a href="https://github.com/MiPushFramework/MiPushFramework/wiki/%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BC%8F%E6%B3%A8%E5%86%8C%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">应用程式注册问题解决方案</a></b> and <b><a href="https://github.com/MiPushFramework/MiPushFramework/wiki/%5B%E5%B8%AE%E5%8A%A9%5D-%E5%BA%94%E7%94%A8%E6%B3%A8%E5%86%8C%E9%97%AE%E9%A2%98">[帮助] 应用注册问题</a></b>.
-    ]]></string>
-    <string name="status_app_not_registered_detail_with_fake_suggest"><![CDATA[
-Registration is determined and initiated by the application and generally begins automatically when the application is launched. Some apps are only registered when finding a XiaoMi devices, you can try <b><a href="https://github.com/Magisk-Modules-Repo/MiPushFake">Magisk global-level module</a></b> or <b><a href="https://github.com/TimothyZhang023/Riru-MiPushFake">Magisk apps-level module</a></b> to increase success. See also: <b><a href="https://github.com/MiPushFramework/MiPushFramework/wiki/%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BC%8F%E6%B3%A8%E5%86%8C%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">应用程式注册问题解决方案</a></b> and <b><a href="https://github.com/MiPushFramework/MiPushFramework/wiki/%5B%E5%B8%AE%E5%8A%A9%5D-%E5%BA%94%E7%94%A8%E6%B3%A8%E5%86%8C%E9%97%AE%E9%A2%98">[帮助] 应用注册问题</a></b>.
-    ]]></string>
+    <string name="status_app_not_registered_detail_without_fake_suggest">
+        <![CDATA[
+Registration is determined and initiated by the application and generally begins automatically when the application is launched. Some apps are only registered when finding a XiaoMi devices. See also: <b>
+<a
+  href="https://github.com/MiPushFramework/MiPushFramework/wiki/%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BC%8F%E6%B3%A8%E5%86%8C%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">应用程式注册问题解决方案</a>
+</b> and <b>
+<a
+  href="https://github.com/MiPushFramework/MiPushFramework/wiki/%5B%E5%B8%AE%E5%8A%A9%5D-%E5%BA%94%E7%94%A8%E6%B3%A8%E5%86%8C%E9%97%AE%E9%A2%98">[帮助] 应用注册问题</a>
+</b>.
+    ]]>
+    </string>
+    <string name="status_app_not_registered_detail_with_fake_suggest">
+        <![CDATA[
+Registration is determined and initiated by the application and generally begins automatically when the application is launched. Some apps are only registered when finding a XiaoMi devices, you can try <b>
+<a href="https://github.com/Magisk-Modules-Repo/MiPushFake">Magisk global-level module</a>
+</b> or <b>
+<a href="https://github.com/TimothyZhang023/Riru-MiPushFake">Magisk apps-level module</a>
+</b> to increase success. See also: <b>
+<a
+  href="https://github.com/MiPushFramework/MiPushFramework/wiki/%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BC%8F%E6%B3%A8%E5%86%8C%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">应用程式注册问题解决方案</a>
+</b> and <b>
+<a
+  href="https://github.com/MiPushFramework/MiPushFramework/wiki/%5B%E5%B8%AE%E5%8A%A9%5D-%E5%BA%94%E7%94%A8%E6%B3%A8%E5%86%8C%E9%97%AE%E9%A2%98">[帮助] 应用注册问题</a>
+</b>.
+    ]]>
+    </string>
     <string name="status_app_not_registered_title">Unregistered</string>
 
     <string name="group_notifications_for_same_session_title">Group all notifications for the same session</string>
@@ -249,23 +278,34 @@ Registration is determined and initiated by the application and generally begins
     <string name="helplib_action_issue">Feedback</string>
     <string name="helplib_action_telegram_group">Join Telegram group</string>
     <string name="helplib_action_qq_group">Join QQ channel</string>
-    <string name="helplib_title"><![CDATA[Help & Support]]></string>
+    <string name="helplib_title">
+        <![CDATA[Help & Support]]>
+    </string>
     <string name="helplib_title_contact">Contact us</string>
     <string name="helplib_title_faq">Frequently asked questions</string>
     <string name="status_app_registered_error_title">Abnormal registration</string>
-    <string name="status_app_registered_error_desc"><![CDATA[
-This could be the application doing a reverse registration, or the registration mismatch with the Push service. See also <b><a href="https://github.com/MiPushFramework/MiPushFramework/wiki/%5B%E5%B8%AE%E5%8A%A9%5D-%E6%B3%A8%E5%86%8C%E5%BC%82%E5%B8%B8">[帮助] 注册异常</a></b>.
-    ]]></string>
+    <string name="status_app_registered_error_desc">
+        <![CDATA[
+This could be the application doing a reverse registration, or the registration mismatch with the Push service. See also <b>
+<a
+  href="https://github.com/MiPushFramework/MiPushFramework/wiki/%5B%E5%B8%AE%E5%8A%A9%5D-%E6%B3%A8%E5%86%8C%E5%BC%82%E5%B8%B8">[帮助] 注册异常</a>
+</b>.
+    ]]>
+    </string>
 
 
-    <string-array name="register_entries" translatable="false">
+    <string-array
+        name="register_entries"
+        translatable="false">
         <item>0</item>
         <item>2</item>
         <item>3</item>
     </string-array>
 
     <!-- Help -->
-    <string-array name="help_articles" translatable="false">
+    <string-array
+        name="help_articles"
+        translatable="false">
         <item>help_article_can_not_receive_push|can_not_receive_push</item>
         <item>help_article_register_error|register_error</item>
         <item>help_article_no_register|no_register</item>
@@ -280,7 +320,7 @@ This could be the application doing a reverse registration, or the registration 
     <string name="group_notifications_for_same_session_clear_title">clear all notifications of session when the notification of session was clicked</string>
     <string name="show_pass_through">show \"pass through\" message as notification</string>
     <string name="action_search">Search</string>
-    <string name="last_receive">last receive: </string>
+    <string name="last_receive">last receive:</string>
     <string name="mipush_services_not_found">Services Not Found</string>
     <string name="try_to_force_register_all_applications">Try to force register all applications</string>
 

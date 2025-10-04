@@ -31,7 +31,13 @@
             android:key="IceboxSupported"
             android:title="@string/settings_icebox_permission"
             android:summary="@string/settings_icebox_permission_summary" />
-
+            
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="ViaFreeform"
+            android:title="@string/settings_via_freeform"
+            android:summary="@string/settings_via_freeform_summary" />
+            
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/settings_options">

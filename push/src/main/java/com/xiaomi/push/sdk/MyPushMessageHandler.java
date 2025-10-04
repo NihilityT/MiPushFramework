@@ -3,6 +3,7 @@ package com.xiaomi.push.sdk;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Build.VERSION_CODES.P;
 
+import android.app.ActivityOptions;
 import android.app.IntentService;
 import android.content.ComponentName;
 import android.content.Context;
@@ -226,8 +227,12 @@ public class MyPushMessageHandler extends IntentService {
                     throw new RuntimeException("can not get default activity for " + targetPackage);
                 } else {
                     intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-                    context.startActivity(intent);
+                    ActivityOptions activityOptions = ActivityOptions.makeBasic();
+                    Bundle startBundle = activityOptions.toBundle();
+                    if (ConfigCenter.getInstance().isViaFreeform(context)) {
+                            startBundle.putInt("android.activity.windowingMode", 5);
+                    }                  
+                    context.startActivity(intent, startBundle);
                     logger.d(packageInfo(targetPackage, "start activity"));
                 }
 
@@ -244,7 +249,12 @@ public class MyPushMessageHandler extends IntentService {
                     if (i == (APP_CHECK_FRONT_MAX_RETRY / 2)) {
                         intent = getJumpIntentFromPkg(context, targetPackage);
                         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                        context.startActivity(intent);
+                        ActivityOptions activityOptions = ActivityOptions.makeBasic();
+                        Bundle startBundle = activityOptions.toBundle();
+                        if (ConfigCenter.getInstance().isViaFreeform(context)) {
+                            startBundle.putInt("android.activity.windowingMode", 5);
+                        }
+                        context.startActivity(intent, startBundle);
                     }
                 }
 
