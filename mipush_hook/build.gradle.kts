@@ -38,7 +38,7 @@ android {
         exclude("kotlinx.coroutines.internal", "kotlinx.coroutines.android")
         exclude("test.", "Test")
         ajcArgs("-inpath", mipushLib.path)
-        debug = true
+        debug = false
     }
 }
 
