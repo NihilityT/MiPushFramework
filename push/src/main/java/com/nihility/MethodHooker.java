@@ -106,4 +106,26 @@ public class MethodHooker {
     public void logCheckServices(final JoinPoint joinPoint, PackageInfo pkgInfo) {
         hookHandler().logCheckServices(joinPoint, pkgInfo);
     }
+    
+    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.buildIntent(..))")
+    public Intent buildIntent(final ProceedingJoinPoint joinPoint) throws Throwable {
+        return hookHandler().buildIntent(joinPoint);
+    }
+
+    @Around("execution(* com.nihility.XMPushUtils.packToContainer(..))" +
+            "|| execution(* com.xiaomi.push.service.MIPushEventProcessor.buildContainer(..))")
+    public XmPushActionContainer buildContainerHook(final ProceedingJoinPoint joinPoint) throws Throwable {
+        return hookHandler().buildContainerHook(joinPoint);
+    }
+
+    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.isIntentAvailable(..))")
+    public boolean isIntentAvailable(final ProceedingJoinPoint joinPoint) {
+        return hookHandler().isIntentAvailable(joinPoint);
+    }
+
+    @Before("execution(* com.xiaomi.push.service.MIPushEventProcessor.processMIPushMessage(..)) && args(pushService, decryptedContent, packetBytesLen)")
+    public void processMIPushMessage(final JoinPoint joinPoint,
+                                     XMPushService pushService, byte[] decryptedContent, long packetBytesLen) {
+        hookHandler().processMIPushMessage(joinPoint, pushService, decryptedContent, packetBytesLen);
+    }
 }

@@ -21,9 +21,6 @@ import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 
 import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
@@ -31,7 +28,6 @@ import top.trumeet.mipush.provider.entities.Event;
 import top.trumeet.mipush.provider.event.EventType;
 import top.trumeet.mipush.provider.event.type.TypeFactory;
 
-@Aspect
 public class MIPushEventProcessorAspect {
     private static final String TAG = MIPushEventProcessorAspect.class.getSimpleName();
     private static final Logger logger = XLog.tag(TAG).build();
@@ -42,7 +38,6 @@ public class MIPushEventProcessorAspect {
         EventDb.insertEvent(Event.ResultType.OK, type);
     }
 
-    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.buildIntent(..))")
     public Intent buildIntent(final ProceedingJoinPoint joinPoint) throws Throwable {
         Intent intent = (Intent) joinPoint.proceed();
         return ignoreMessageIdAndMessageTypeExtra(intent);
@@ -69,8 +64,6 @@ public class MIPushEventProcessorAspect {
         };
     }
 
-    @Around("execution(* com.nihility.XMPushUtils.packToContainer(..))" +
-            "|| execution(* com.xiaomi.push.service.MIPushEventProcessor.buildContainer(..))")
     public XmPushActionContainer buildContainerHook(final ProceedingJoinPoint joinPoint) throws Throwable {
         XmPushActionContainer container = (XmPushActionContainer) joinPoint.proceed();
         recordContainer(container);
@@ -86,7 +79,6 @@ public class MIPushEventProcessorAspect {
         AppInfoUtilsAspect.setLastMetaInfo(decorated.metaInfo);
     }
 
-    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.isIntentAvailable(..))")
     public boolean isIntentAvailable(final ProceedingJoinPoint joinPoint) {
         return true;
     }
@@ -117,7 +109,6 @@ public class MIPushEventProcessorAspect {
         return AppInfoUtilsAspect.shouldSendBroadcast(pushService, packageName, decorated.metaInfo);
     }
 
-    @Before("execution(* com.xiaomi.push.service.MIPushEventProcessor.processMIPushMessage(..)) && args(pushService, decryptedContent, packetBytesLen)")
     public void processMIPushMessage(final JoinPoint joinPoint,
                                      XMPushService pushService, byte[] decryptedContent, long packetBytesLen) {
         logger.d(joinPoint.getSignature());

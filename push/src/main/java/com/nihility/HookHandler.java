@@ -89,4 +89,21 @@ public class HookHandler {
     public void logCheckServices(final JoinPoint joinPoint, PackageInfo pkgInfo) {
         Singleton.<ManifestCheckerAspectLog>instance().logCheckServices(joinPoint, pkgInfo);
     }
+
+    public Intent buildIntent(final ProceedingJoinPoint joinPoint) throws Throwable {
+        return Singleton.<MIPushEventProcessorAspect>instance().buildIntent(joinPoint);
+    }
+
+    public XmPushActionContainer buildContainerHook(final ProceedingJoinPoint joinPoint) throws Throwable {
+        return Singleton.<MIPushEventProcessorAspect>instance().buildContainerHook(joinPoint);
+    }
+
+    public boolean isIntentAvailable(final ProceedingJoinPoint joinPoint) {
+        return Singleton.<MIPushEventProcessorAspect>instance().isIntentAvailable(joinPoint);
+    }
+
+    public void processMIPushMessage(final JoinPoint joinPoint,
+                                     XMPushService pushService, byte[] decryptedContent, long packetBytesLen) {
+        Singleton.<MIPushEventProcessorAspect>instance().processMIPushMessage(joinPoint, pushService, decryptedContent, packetBytesLen);
+    }
 }
