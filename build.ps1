@@ -4,7 +4,7 @@ function Write-Line($Object) {
 }
 
 function Write-Failed($Object) {
-	Write-Host $Object -BackgroundColor Red -ForegroundColor White
+	Write-Line $Object -BackgroundColor Red -ForegroundColor White
 }
 
 function Write-Successful($Object) {
