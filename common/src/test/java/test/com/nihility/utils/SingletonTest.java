@@ -35,11 +35,14 @@ public class SingletonTest {
     public void supportUserDefinedInstance() {
         Foo foo = Singleton.instance();
 
+        // set
         Foo tmp = new Foo();
         Singleton.reset(tmp);
         assertEquals(tmp, Singleton.<Foo>instance());
 
+        // reset
         Singleton.<Foo>reset();
+        Singleton.reset((Foo)null);
         assertEquals(foo, Singleton.<Foo>instance());
     }
 

@@ -49,7 +49,7 @@ public class Singleton {
     public static <T> AutoReset reset(T... reified) {
         Class<T> klass = getClassOf(reified);
 
-        if (reified.length == 0) {
+        if (reified.length == 0 || reified[0] == null) {
             userInstances.remove(klass);
         } else {
             userInstances.put(klass, reified[0]);
