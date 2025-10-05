@@ -5,13 +5,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 
+import com.nihility.Global;
 import com.nihility.InternalMessenger;
 import com.nihility.service.XMPushServiceListener;
 import com.xiaomi.channel.commonutils.android.DeviceInfo;
 import com.xiaomi.channel.commonutils.android.MIUIUtils;
 import com.xiaomi.push.service.XMPushServiceMessenger;
 import com.xiaomi.smack.ConnectionConfiguration;
-import com.xiaomi.xmsf.utils.ConfigCenter;
 
 public class MainPageUtils {
     private static final String TAG = MainPageUtils.class.getSimpleName();
@@ -36,7 +36,7 @@ public class MainPageUtils {
 
         printHookResultForCheck();
 
-        ConfigCenter.getInstance().loadConfigurations(context);
+        Global.ConfigCenter().loadConfigurations(context);
 
         messenger.send(new Intent(XMPushServiceMessenger.IntentGetConnectionStatus));
     }

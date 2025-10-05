@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
-import com.nihility.utils.Singleton;
 import com.xiaomi.mipush.sdk.PushContainerHelper;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
@@ -17,14 +16,6 @@ public class RegistrationRecorder {
     private static final Logger logger = XLog.tag(TAG).build();
 
     Context context;
-
-    public static RegistrationRecorder getInstance() {
-        return Singleton.instance();
-    }
-
-    public static void setInstance(RegistrationRecorder instance) {
-        Singleton.reset(instance);
-    }
 
     public void initContext(Context context) {
         this.context = context;

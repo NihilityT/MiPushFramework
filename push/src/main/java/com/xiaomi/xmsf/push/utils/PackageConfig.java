@@ -4,6 +4,8 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 
+import com.nihility.Global;
+
 import org.apache.thrift.TBase;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -119,7 +121,7 @@ public class PackageConfig {
             String cfgKey = cfgKeys.next();
             final Field field = data.getClass().getDeclaredField(cfgKey);
             String[] newPath = concat(path, new String[]{cfgKey});
-            Object value = ConfigValueConverter.getInstance().convert(root, newPath, field.get(data));
+            Object value = Global.ConfigValueConverter().convert(root, newPath, field.get(data));
 
             boolean isMap = value instanceof Map;
             boolean isTBase = value instanceof TBase;
@@ -143,7 +145,7 @@ public class PackageConfig {
                     String cfgSubKey = cfgSubKeys.next();
                     String[] subPath = concat(newPath, new String[]{cfgSubKey});
                     if (mismatchField(cfgSubObj, cfgSubKey,
-                            ConfigValueConverter.getInstance().convert(root, subPath, subMap.get(cfgSubKey)),
+                            Global.ConfigValueConverter().convert(root, subPath, subMap.get(cfgSubKey)),
                             matchGroup)) {
                         return null;
                     }

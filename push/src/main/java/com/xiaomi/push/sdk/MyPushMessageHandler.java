@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat;
 import com.catchingnow.icebox.sdk_client.IceBox;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.Global;
 import com.nihility.XMPushUtils;
 import com.topjohnwu.superuser.Shell;
 import com.xiaomi.push.service.MIPushNotificationHelper;
@@ -27,7 +28,6 @@ import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmsf.push.notification.NotificationController;
 import com.xiaomi.xmsf.push.utils.Configurations;
-import com.xiaomi.xmsf.utils.ConfigCenter;
 
 import java.util.function.Consumer;
 
@@ -108,7 +108,7 @@ public class MyPushMessageHandler extends IntentService {
 
     public static void launchApp(Context context, XmPushActionContainer container) {
         if (iTopActivity == null) {
-            iTopActivity = TopActivityFactory.newInstance(ConfigCenter.getInstance().getAccessMode(context));
+            iTopActivity = TopActivityFactory.newInstance(Global.ConfigCenter().getAccessMode(context));
         }
 
         if (!iTopActivity.isEnabled(context)) {
@@ -144,7 +144,7 @@ public class MyPushMessageHandler extends IntentService {
     }
 
     private static void activeApp(Context context, String targetPackage) {
-        if (ConfigCenter.getInstance().isIceboxSupported(context) &&
+        if (Global.ConfigCenter().isIceboxSupported(context) &&
                 Utils.isAppInstalled(IceBox.PACKAGE_NAME)) {
             try {
                 if (ContextCompat.checkSelfPermission(context, IceBox.SDK_PERMISSION) == PackageManager.PERMISSION_GRANTED) {

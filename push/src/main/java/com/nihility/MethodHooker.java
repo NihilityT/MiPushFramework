@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 import com.com.xiaomi.channel.commonutils.android.AppInfoUtilsAspect;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
-import com.nihility.utils.Singleton;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.push.service.MIPushEventProcessorAspect;
 import com.xiaomi.push.service.PushConstants;
@@ -22,14 +21,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 public class MethodHooker {
     private static final String TAG = MethodHooker.class.getSimpleName();
     private static final Logger logger = XLog.tag(TAG).build();
-
-    public static MethodHooker instance() {
-        return Singleton.instance();
-    }
-
-    public static void setInstance(MethodHooker methodHooker) {
-        Singleton.reset(methodHooker);
-    }
 
     public boolean shouldSendBroadcast(
             final ProceedingJoinPoint joinPoint,
@@ -77,7 +68,7 @@ public class MethodHooker {
                     public void sendBroadcast(Intent intent, @Nullable String receiverPermission) {
                         if (isPostProcessMIPushMessage) {
                             byte[] payload = intent.getByteArrayExtra(PushConstants.MIPUSH_EXTRA_PAYLOAD);
-                            MiPushEventListener.instance().transferToApplication(XMPushUtils.packToContainer(payload));
+                            Global.MiPushEventListener().transferToApplication(XMPushUtils.packToContainer(payload));
                         }
                         super.sendBroadcast(intent, receiverPermission);
                     }

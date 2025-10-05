@@ -9,11 +9,12 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.nihility.Global;
+
 import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.List;
 
-import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.gen.db.RegisteredApplicationDao;
 import top.trumeet.mipush.provider.entities.RegisteredApplication;
@@ -53,7 +54,7 @@ public class RegisteredApplicationDb {
                         , RegisteredApplication.Type.ASK
                         , true
                         , RegisteredApplication.RegisteredType.NotRegistered
-                        , ApplicationNameCache.getInstance()
+                        , Global.ApplicationNameCache()
                         .getAppName(Utils.getApplication(), pkg).toString()
 
                 );

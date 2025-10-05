@@ -10,8 +10,6 @@ import android.graphics.drawable.Drawable;
 import androidx.collection.LruCache;
 import androidx.core.graphics.drawable.IconCompat;
 
-import com.nihility.utils.Singleton;
-
 import top.trumeet.common.utils.ImgUtils;
 
 /**
@@ -32,10 +30,6 @@ public class IconCache {
         appColorCache = new LruCache<>(100);
         bitmapCache = new LruCache<>(100);
         //TODO check cacheSizes is correct ?
-    }
-
-    public static IconCache getInstance() {
-        return Singleton.instance();
     }
 
     public Bitmap getRawIconBitmapWithoutLoader(final Context ctx, final String pkg) {

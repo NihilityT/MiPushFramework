@@ -4,7 +4,7 @@ import android.content.Intent;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
-import com.nihility.MiPushEventListener;
+import com.nihility.Global;
 import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import org.aspectj.lang.JoinPoint;
@@ -33,7 +33,7 @@ public class LogXMPushServiceAspect {
     public void onStart(final JoinPoint joinPoint, Intent intent, int startId) {
         logger.d(joinPoint.getSignature());
         logIntent(intent);
-        MiPushEventListener.instance().receiveFromApplication(intent);
+        Global.MiPushEventListener().receiveFromApplication(intent);
     }
 
     @Before("execution(* com.xiaomi.push.service.XMPushService.onBind(..)) && args(intent)")
@@ -61,6 +61,6 @@ public class LogXMPushServiceAspect {
     @Before("execution(* com.xiaomi.push.service.XMPushService.sendMessage*(..)) && args(intent)")
     public void sendMessage(final JoinPoint joinPoint, Intent intent) {
         logger.d(joinPoint.getSignature());
-        MiPushEventListener.instance().transferToServer(intent);
+        Global.MiPushEventListener().transferToServer(intent);
     }
 }

@@ -7,12 +7,11 @@ import android.widget.Toast;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.Global;
 import com.xiaomi.push.service.PushConstants;
 import com.xiaomi.xmsf.R;
-import com.xiaomi.xmsf.utils.ConfigCenter;
 
 import top.trumeet.common.Constants;
-import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.db.EventDb;
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
@@ -74,13 +73,13 @@ public class RegisterRecorder {
     }
 
     void showRegisterNotification(RegisteredApplication application) {
-        CharSequence appName = ApplicationNameCache.getInstance().getAppName(context, application.getPackageName());
+        CharSequence appName = Global.ApplicationNameCache().getAppName(context, application.getPackageName());
         CharSequence usedString = context.getString(R.string.notification_registerAllowed, appName);
         Utils.makeText(context, usedString, Toast.LENGTH_SHORT);
     }
 
     boolean canShowRegisterNotification(RegisteredApplication application) {
-        boolean notificationOnRegister = ConfigCenter.getInstance().isNotificationOnRegister(context);
+        boolean notificationOnRegister = Global.ConfigCenter().isNotificationOnRegister(context);
         notificationOnRegister = notificationOnRegister && application.isNotificationOnRegister();
         return notificationOnRegister;
     }

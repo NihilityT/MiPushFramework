@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.nihility.Global;
 import com.nihility.XMPushUtils;
 import com.nihility.service.XMPushServiceAbility;
 import com.nihility.utils.MockMIPushMessage;
@@ -20,7 +21,6 @@ import com.xiaomi.xmsf.push.notification.NotificationChannelManager;
 import com.xiaomi.xmsf.push.notification.NotificationController;
 import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.push.utils.RegSecUtils;
-import com.xiaomi.xmsf.utils.ConfigCenter;
 import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import org.apache.thrift.TBase;
@@ -44,7 +44,7 @@ public class EventListPageUtils {
 
     static List<Event> getEventsById(@Nullable Long lastId, int size, String packetName, String query) {
         Set<Integer> types = null;
-        if (!ConfigCenter.getInstance().isShowAllEvents()) {
+        if (!Global.ConfigCenter().isShowAllEvents()) {
             types = Set.of(
                     Event.Type.SendMessage,
                     Event.Type.Registration,
@@ -56,7 +56,7 @@ public class EventListPageUtils {
 
     static List<Event> getEvents(int pageIndex, int pageSize, String packetName, String query) {
         Set<Integer> types = null;
-        if (!ConfigCenter.getInstance().isShowAllEvents()) {
+        if (!Global.ConfigCenter().isShowAllEvents()) {
             types = Set.of(
                     Event.Type.SendMessage,
                     Event.Type.Registration,

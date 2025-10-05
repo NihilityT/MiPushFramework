@@ -4,8 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.Global;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
-import com.xiaomi.xmsf.utils.ConfigCenter;
 import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -34,7 +34,7 @@ public class LogDebugAspect {
             " || execution(* com.xiaomi.push.service.NotificationManagerHelper*.*(..))" +
             ") && !within(is(FinalType))")
     public Object logger(final ProceedingJoinPoint joinPoint) throws Throwable {
-        if (!ConfigCenter.getInstance().isDebugMode()) {
+        if (!Global.ConfigCenter().isDebugMode()) {
             return joinPoint.proceed();
         }
 

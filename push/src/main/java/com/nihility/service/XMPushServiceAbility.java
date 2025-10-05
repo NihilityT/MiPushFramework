@@ -7,6 +7,7 @@ import static top.trumeet.common.Constants.TAG_CONDOM;
 import android.content.Context;
 import android.os.Build;
 
+import com.nihility.Global;
 import com.oasisfeng.condom.CondomContext;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.push.revival.NotificationsRevivalForSelfUpdated;
@@ -21,7 +22,7 @@ public class XMPushServiceAbility extends XMPushServiceListenerNotifier {
 
     public XMPushServiceAbility(XMPushService pushService) {
         xmPushService = pushService;
-        RegistrationRecorder.getInstance().initContext(pushService);
+        Global.RegistrationRecorder().initContext(pushService);
         condomContext(pushService);
         initListeners(pushService);
     }

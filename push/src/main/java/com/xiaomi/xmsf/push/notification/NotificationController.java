@@ -26,6 +26,7 @@ import androidx.core.graphics.drawable.IconCompat;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.Global;
 import com.nihility.XMPushUtils;
 import com.nihility.notification.NotificationManagerEx;
 import com.xiaomi.push.service.MyNotificationIconHelper;
@@ -36,8 +37,6 @@ import com.xiaomi.xmsf.push.utils.Configurations;
 import com.xiaomi.xmsf.push.utils.IconConfigurations;
 import com.xiaomi.xmsf.utils.ColorUtil;
 
-import top.trumeet.common.cache.ApplicationNameCache;
-import top.trumeet.common.cache.IconCache;
 import top.trumeet.common.utils.CustomConfiguration;
 import top.trumeet.common.utils.ImgUtils;
 import top.trumeet.mipushframework.main.AdvancedSettingsPage;
@@ -179,7 +178,7 @@ public class NotificationController {
 
     @Nullable
     public static Bitmap getLargeIcon(Context context, PushMetaInfo metaInfo, String iconUri) {
-        Bitmap largeIcon = IconCache.getInstance().getBitmap(context, iconUri,
+        Bitmap largeIcon = Global.IconCache().getBitmap(context, iconUri,
                 (context1, iconUri1) -> getBitmapFromUri(context1, iconUri1, 200 * KiB));
         if (largeIcon != null) {
             largeIcon = roundLargeIconIfConfigured(metaInfo, largeIcon);
@@ -243,7 +242,7 @@ public class NotificationController {
      * @return 0 if not processed
      */
     public static int getIconColor(final Context ctx, final String pkg) {
-        return IconCache.getInstance().getAppColor(ctx, pkg, (ctx1, iconBitmap) -> {
+        return Global.IconCache().getAppColor(ctx, pkg, (ctx1, iconBitmap) -> {
             if (iconBitmap == null) {
                 return Notification.COLOR_DEFAULT;
             }
@@ -280,7 +279,7 @@ public class NotificationController {
 
         notificationBuilder.setColor(getIconColor(context, packageName));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            IconConfigurations.IconConfig iconConfig = IconConfigurations.getInstance().get(packageName);
+            IconConfigurations.IconConfig iconConfig = Global.IconConfigurations().get(packageName);
             if (iconConfig != null && iconConfig.isEnabled && iconConfig.isEnabledAll) {
                 Bitmap iconBitmap = iconConfig.bitmap();
                 if (iconBitmap != null) {
@@ -306,7 +305,7 @@ public class NotificationController {
                 return;
             }
 
-            IconCompat iconCache = IconCache.getInstance().getIconCache(context, packageName, (ctx, b) -> IconCompat.createWithBitmap(b));
+            IconCompat iconCache = Global.IconCache().getIconCache(context, packageName, (ctx, b) -> IconCompat.createWithBitmap(b));
             if (iconCache != null) {
                 notificationBuilder.setSmallIcon(iconCache);
                 return;
@@ -320,7 +319,7 @@ public class NotificationController {
             return;
         }
         if (text == null) {
-            text = ApplicationNameCache.getInstance().getAppName(context, packageName);
+            text = Global.ApplicationNameCache().getAppName(context, packageName);
         }
         int color = localBuilder.getColor();
         if (color == Notification.COLOR_DEFAULT) {

@@ -8,10 +8,8 @@ import androidx.annotation.Nullable;
 import com.com.xiaomi.channel.commonutils.android.AppInfoUtilsAspect;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
-import com.nihility.MethodHooker;
-import com.nihility.MiPushEventListener;
+import com.nihility.Global;
 import com.nihility.XMPushUtils;
-import com.nihility.service.RegistrationRecorder;
 import com.xiaomi.push.service.clientReport.ReportConstants;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
@@ -80,7 +78,7 @@ public class MIPushEventProcessorAspect {
         if (container == null) {
             return;
         }
-        RegistrationRecorder.getInstance().recordRegSec(container);
+        Global.RegistrationRecorder().recordRegSec(container);
         XmPushActionContainer decorated = decoratedContainer(container.packageName, container);
         AppInfoUtilsAspect.setLastMetaInfo(decorated.metaInfo);
     }
@@ -104,7 +102,7 @@ public class MIPushEventProcessorAspect {
             final ProceedingJoinPoint joinPoint,
             XMPushService pushService, String packageName,
             XmPushActionContainer container, PushMetaInfo metaInfo) throws Throwable {
-        return MethodHooker.instance().shouldSendBroadcast(joinPoint, pushService, packageName, container, metaInfo);
+        return Global.MethodHooker().shouldSendBroadcast(joinPoint, pushService, packageName, container, metaInfo);
     }
 
     @Before("execution(* com.xiaomi.push.service.MIPushEventProcessor.processMIPushMessage(..)) && args(pushService, decryptedContent, packetBytesLen)")
@@ -117,7 +115,7 @@ public class MIPushEventProcessorAspect {
             return;
         }
         logger.d("buildContainer" + " " + ConvertUtils.toJson(buildContainer));
-        MiPushEventListener.instance().receiveFromServer(buildContainer);
+        Global.MiPushEventListener().receiveFromServer(buildContainer);
         recordEvent(TypeFactory.createForStore(buildContainer));
     }
 
@@ -126,7 +124,7 @@ public class MIPushEventProcessorAspect {
     public void postProcessMIPushMessage(
             final ProceedingJoinPoint joinPoint,
             XMPushService pushService, String pkgName, byte[] payload, Intent newMessageIntent) throws Throwable {
-        MethodHooker.instance().postProcessMIPushMessage(joinPoint, pushService, pkgName, payload, newMessageIntent);
+        Global.MethodHooker().postProcessMIPushMessage(joinPoint, pushService, pkgName, payload, newMessageIntent);
     }
 
     public static XmPushActionContainer decoratedContainer(String realTargetPackage, XmPushActionContainer container) {

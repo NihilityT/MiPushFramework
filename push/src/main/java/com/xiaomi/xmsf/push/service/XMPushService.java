@@ -9,11 +9,10 @@ import androidx.core.content.ContextCompat;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.Global;
 import com.xiaomi.xmsf.R;
 import com.xiaomi.xmsf.push.control.PushControllerUtils;
 import com.xiaomi.xmsf.push.utils.Configurations;
-import com.xiaomi.xmsf.push.utils.IconConfigurations;
-import com.xiaomi.xmsf.utils.ConfigCenter;
 import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import top.trumeet.common.Constants;
@@ -32,9 +31,9 @@ public class XMPushService extends IntentService {
         if (Constants.CONFIGURATIONS_UPDATE_ACTION.equals(intent.getAction())) {
             if (!PushControllerUtils.isAppMainProc(this)) {
                 boolean success = Configurations.getInstance().init(this,
-                        ConfigCenter.getInstance().getConfigurationDirectory(this)) &&
-                        IconConfigurations.getInstance().init(this,
-                                ConfigCenter.getInstance().getConfigurationDirectory(this));
+                        Global.ConfigCenter().getConfigurationDirectory(this)) &&
+                        Global.IconConfigurations().init(this,
+                                Global.ConfigCenter().getConfigurationDirectory(this));
             }
             return;
         }

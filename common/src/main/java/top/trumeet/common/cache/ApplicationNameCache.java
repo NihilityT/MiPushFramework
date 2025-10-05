@@ -7,8 +7,6 @@ import android.content.res.Resources;
 import androidx.annotation.Nullable;
 import androidx.collection.LruCache;
 
-import com.nihility.utils.Singleton;
-
 /**
  * @author zts
  */
@@ -19,10 +17,6 @@ public class ApplicationNameCache {
 
     private ApplicationNameCache() {
         cacheInstance = new LruCache<>(100);
-    }
-
-    public static ApplicationNameCache getInstance() {
-        return Singleton.instance();
     }
 
     public CharSequence getAppName(final Context ctx, final String pkg) {

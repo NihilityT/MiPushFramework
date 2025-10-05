@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.nihility.Global;
 import com.nihility.utils.RegistrationHelper;
 import com.catchingnow.icebox.sdk_client.IceBox;
 import com.nihility.InternalMessenger;
@@ -20,7 +21,6 @@ import com.xiaomi.push.service.PushServiceConstants;
 import com.xiaomi.push.service.XMPushServiceMessenger;
 import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.xmsf.push.notification.NotificationController;
-import com.xiaomi.xmsf.utils.ConfigCenter;
 import com.xiaomi.xmsf.utils.LogUtils;
 
 import java.util.Date;
@@ -91,7 +91,7 @@ public class SettingUtils {
     }
 
     public static void setXMPPServer(Context context, String newHost) {
-        ConfigCenter.getInstance().setXMPPServer(context, newHost);
+        Global.ConfigCenter().setXMPPServer(context, newHost);
     }
 
     public static @NonNull String getXMPPServerHint() {
@@ -99,11 +99,11 @@ public class SettingUtils {
     }
 
     public static String getXMPPServer(Context context) {
-        return ConfigCenter.getInstance().getXMPPServer(context);
+        return Global.ConfigCenter().getXMPPServer(context);
     }
 
     public static Uri getConfigurationDirectory(Context context) {
-        return ConfigCenter.getInstance().getConfigurationDirectory(context);
+        return Global.ConfigCenter().getConfigurationDirectory(context);
     }
 
     public static void shareLogs(Context context) {
@@ -122,8 +122,8 @@ public class SettingUtils {
         context.getContentResolver().takePersistableUriPermission(uri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION
                         | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        ConfigCenter.getInstance().setConfigurationDirectory(context, uri);
-        ConfigCenter.getInstance().loadConfigurations(context);
+        Global.ConfigCenter().setConfigurationDirectory(context, uri);
+        Global.ConfigCenter().loadConfigurations(context);
     }
 
 }

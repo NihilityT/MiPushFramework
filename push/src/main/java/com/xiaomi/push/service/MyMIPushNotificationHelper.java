@@ -37,6 +37,7 @@ import androidx.core.graphics.drawable.IconCompat;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.Global;
 import com.nihility.XMPushUtils;
 import com.nihility.notification.NotificationManagerEx;
 import com.xiaomi.channel.commonutils.android.AppInfoUtils;
@@ -61,7 +62,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import top.trumeet.common.Constants;
-import top.trumeet.common.cache.IconCache;
 import top.trumeet.common.utils.CustomConfiguration;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.db.RegisteredApplicationDb;
@@ -153,7 +153,7 @@ public class MyMIPushNotificationHelper {
         if (!tryLoadConfigurations) {
             tryLoadConfigurations = true;
             try {
-                ConfigCenter configCenter = ConfigCenter.getInstance();
+                ConfigCenter configCenter = Global.ConfigCenter();
                 Uri configurationDirectory = configCenter.getConfigurationDirectory(context);
                 loadConfigurations(context, configurationDirectory);
             } catch (Exception e) {
@@ -165,7 +165,7 @@ public class MyMIPushNotificationHelper {
     private static void loadConfigurations(Context context, Uri configurationDirectory) {
         Configurations configurations = Configurations.getInstance();
         if (configurations.init(context, configurationDirectory)) {
-            IconConfigurations iconConfigurations = IconConfigurations.getInstance();
+            IconConfigurations iconConfigurations = Global.IconConfigurations();
             iconConfigurations.init(context, configurationDirectory);
         }
     }
@@ -324,7 +324,7 @@ public class MyMIPushNotificationHelper {
     private static Bitmap getBigPic(Context context, PushMetaInfo metaInfo) {
         CustomConfiguration configuration = XMPushUtils.getConfiguration(metaInfo);
         String bigPicUri = configuration.notificationBigPicUri(null);
-        return IconCache.getInstance().getBitmap(context, bigPicUri,
+        return Global.IconCache().getBitmap(context, bigPicUri,
                 (context1, iconUri) -> getBitmapFromUri(
                         context1, iconUri, 1 * MiB));
     }
@@ -509,7 +509,7 @@ public class MyMIPushNotificationHelper {
     }
 
     private static void addDebugAction(Context xmPushService, XmPushActionContainer buildContainer, byte[] var1, PushMetaInfo metaInfo, String packageName, NotificationCompat.Builder localBuilder) {
-        if (ConfigCenter.getInstance().isDebugMode()) {
+        if (Global.ConfigCenter().isDebugMode()) {
             int i = R.drawable.ic_notifications_black_24dp;
 
             PendingIntent pendingIntentOpenActivity = openActivityPendingIntent(xmPushService, buildContainer, metaInfo, var1);

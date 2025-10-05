@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 
 import android.content.Intent;
 
+import com.nihility.Global;
 import com.nihility.XMPushUtils;
 import com.nihility.service.RegistrationRecorder;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
@@ -42,7 +43,7 @@ public class MIPushEventProcessorAspectTest {
     @Test
     public void recordRegisterInfoInBuildContainer() {
         RegistrationRecorder recorder = mock();
-        RegistrationRecorder.setInstance(recorder);
+        Global.setRegistrationRecorder(recorder);
         try {
             postProcessMIPushMessage(null, null, XMPushUtils.packToBytes(container), null);
         } catch (Throwable ignored) {
