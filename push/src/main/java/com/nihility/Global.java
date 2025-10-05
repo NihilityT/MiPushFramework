@@ -10,12 +10,12 @@ import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.cache.IconCache;
 
 public class Global {
-    public static MethodHooker MethodHooker() {
+    public static HookHandler HookHandler() {
         return Singleton.instance();
     }
 
-    public static void setMethodHooker(MethodHooker methodHooker) {
-        Singleton.reset(methodHooker);
+    public static void setHookHandler(HookHandler hookHandler) {
+        Singleton.reset(hookHandler);
     }
 
     public static MiPushEventListener MiPushEventListener() {

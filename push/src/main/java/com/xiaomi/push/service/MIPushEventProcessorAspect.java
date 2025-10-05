@@ -11,6 +11,7 @@ import com.elvishew.xlog.XLog;
 import com.nihility.Global;
 import com.nihility.XMPushUtils;
 import com.xiaomi.push.service.clientReport.ReportConstants;
+import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmsf.push.utils.Configurations;
@@ -97,12 +98,21 @@ public class MIPushEventProcessorAspect {
      * - metaInfo.EXTRA_PARAM_AWAKE is false
      * - the target application is not running
      */
-    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.shouldSendBroadcast(..)) && args(pushService, packageName, container, metaInfo)")
     public boolean shouldSendBroadcast(
             final ProceedingJoinPoint joinPoint,
             XMPushService pushService, String packageName,
             XmPushActionContainer container, PushMetaInfo metaInfo) throws Throwable {
-        return Global.MethodHooker().shouldSendBroadcast(joinPoint, pushService, packageName, container, metaInfo);
+        joinPoint.proceed();
+        if (container.action == ActionType.Registration) {
+            return true;
+        }
+        if (container.packageName.startsWith("com.mi.")
+                || container.packageName.startsWith("com.miui.")
+                || container.packageName.startsWith("com.xiaomi.")) {
+            return true;
+        }
+        XmPushActionContainer decorated = MIPushEventProcessorAspect.decoratedContainer(container.packageName, container);
+        return AppInfoUtilsAspect.shouldSendBroadcast(pushService, packageName, decorated.metaInfo);
     }
 
     @Before("execution(* com.xiaomi.push.service.MIPushEventProcessor.processMIPushMessage(..)) && args(pushService, decryptedContent, packetBytesLen)")
@@ -124,7 +134,7 @@ public class MIPushEventProcessorAspect {
     public void postProcessMIPushMessage(
             final ProceedingJoinPoint joinPoint,
             XMPushService pushService, String pkgName, byte[] payload, Intent newMessageIntent) throws Throwable {
-        Global.MethodHooker().postProcessMIPushMessage(joinPoint, pushService, pkgName, payload, newMessageIntent);
+        Global.HookHandler().postProcessMIPushMessage(joinPoint, pushService, pkgName, payload, newMessageIntent);
     }
 
     public static XmPushActionContainer decoratedContainer(String realTargetPackage, XmPushActionContainer container) {

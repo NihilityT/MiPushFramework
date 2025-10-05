@@ -11,7 +11,7 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.elvishew.xlog.XLog;
 import com.nihility.Global;
-import com.nihility.MethodHooker;
+import com.nihility.HookHandler;
 import com.nihility.MiPushEventListener;
 import com.nihility.XMPushUtils;
 import com.nihility.utils.MockMIPushMessage;
@@ -40,7 +40,7 @@ public class MiPushEventListenerTest {
     public void setup() {
         XLog.init();
         Global.setMiPushEventListener(eventListener);
-        Global.setMethodHooker(new MethodHooker() {
+        Global.setHookHandler(new HookHandler() {
             @Override
             public boolean shouldSendBroadcast(ProceedingJoinPoint joinPoint, XMPushService pushService, String packageName, XmPushActionContainer container, PushMetaInfo metaInfo) throws Throwable {
                 return true;
@@ -51,7 +51,7 @@ public class MiPushEventListenerTest {
     @After
     public void teardown() {
         Global.setMiPushEventListener(null);
-        Global.setMethodHooker(null);
+        Global.setHookHandler(null);
     }
 
     @Test
