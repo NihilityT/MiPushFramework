@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.utils.Singleton;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 
 import org.json.JSONArray;
@@ -25,16 +26,9 @@ import java.util.concurrent.Callable;
 public class Configurations {
     private static final Logger logger = XLog.tag(Configurations.class.getSimpleName()).build();
     private ConfigurationsLoader loader = new ConfigurationsLoader();
-    private static Configurations instance = null;
 
     public static Configurations getInstance() {
-        if (instance == null) {
-            synchronized (Configurations.class) {
-                if (instance == null) {
-                    instance = new Configurations();
-                }
-            }
-        }
+        Configurations instance = Singleton.instance();
         instance.loader.reInitIfDirectoryUpdated();
         return instance;
     }

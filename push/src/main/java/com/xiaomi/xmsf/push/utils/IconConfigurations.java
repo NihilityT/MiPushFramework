@@ -18,6 +18,7 @@ import androidx.documentfile.provider.DocumentFile;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.google.gson.Gson;
+import com.nihility.utils.Singleton;
 import com.xiaomi.xmsf.utils.ConfigCenter;
 
 import org.json.JSONArray;
@@ -61,17 +62,8 @@ public class IconConfigurations {
 
     private Map<String, IconConfig> iconConfigs = new HashMap<>();
 
-    private static IconConfigurations instance = null;
-
     public static IconConfigurations getInstance() {
-        if (instance == null) {
-            synchronized (IconConfigurations.class) {
-                if (instance == null) {
-                    instance = new IconConfigurations();
-                }
-            }
-        }
-        return instance;
+        return Singleton.instance();
     }
 
     private IconConfigurations() {

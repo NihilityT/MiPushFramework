@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import com.com.xiaomi.channel.commonutils.android.AppInfoUtilsAspect;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
+import com.nihility.utils.Singleton;
 import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.push.service.MIPushEventProcessorAspect;
 import com.xiaomi.push.service.PushConstants;
@@ -22,18 +23,12 @@ public class MethodHooker {
     private static final String TAG = MethodHooker.class.getSimpleName();
     private static final Logger logger = XLog.tag(TAG).build();
 
-    private static class LazyHolder {
-        static MethodHooker INSTANCE = new MethodHooker();
-    }
-
-    private static MethodHooker instance;
-
     public static MethodHooker instance() {
-        return instance != null ? instance : LazyHolder.INSTANCE;
+        return Singleton.instance();
     }
 
     public static void setInstance(MethodHooker methodHooker) {
-        instance = methodHooker;
+        Singleton.reset(methodHooker);
     }
 
     public boolean shouldSendBroadcast(

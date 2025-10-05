@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
+import com.nihility.utils.Singleton;
 import com.xiaomi.xmsf.BuildConfig;
 import com.xiaomi.xmsf.push.service.XMPushService;
 import com.xiaomi.xmsf.push.utils.Configurations;
@@ -21,16 +22,11 @@ import top.trumeet.common.utils.Utils;
  */
 public class ConfigCenter {
 
-    private static class LazyHolder {
-        volatile static ConfigCenter INSTANCE = new ConfigCenter();
-    }
-
-
     public static ConfigCenter getInstance() {
-        return LazyHolder.INSTANCE;
+        return Singleton.instance();
     }
     public static void setInstance(ConfigCenter configCenter) {
-        LazyHolder.INSTANCE = configCenter;
+        Singleton.reset(configCenter);
     }
 
     public ConfigCenter() {
