@@ -1,6 +1,7 @@
 package com.nihility;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 
 import androidx.annotation.NonNull;
 
@@ -99,5 +100,10 @@ public class MethodHooker {
     @Before("execution(* com.xiaomi.push.service.XMPushService.sendMessage*(..)) && args(intent)")
     public void sendMessage(final JoinPoint joinPoint, Intent intent) {
         hookHandler().sendMessage(joinPoint, intent);
+    }
+
+    @Before("execution(* com.xiaomi.mipush.sdk.ManifestChecker.checkServices(..)) && args(context, pkgInfo)")
+    public void logCheckServices(final JoinPoint joinPoint, PackageInfo pkgInfo) {
+        hookHandler().logCheckServices(joinPoint, pkgInfo);
     }
 }

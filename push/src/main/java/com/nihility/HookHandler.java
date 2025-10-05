@@ -1,11 +1,13 @@
 package com.nihility;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.nihility.utils.Singleton;
 import com.xiaomi.mipush.sdk.LogPushMessageProcessorAspect;
+import com.xiaomi.mipush.sdk.ManifestCheckerAspectLog;
 import com.xiaomi.network.Fallback;
 import com.xiaomi.network.LogFallbackAspect;
 import com.xiaomi.push.service.LogClientEventDispatcherAspect;
@@ -82,5 +84,9 @@ public class HookHandler {
 
     public void sendMessage(final JoinPoint joinPoint, Intent intent) {
         Singleton.<LogXMPushServiceAspect>instance().sendMessage(joinPoint, intent);
+    }
+
+    public void logCheckServices(final JoinPoint joinPoint, PackageInfo pkgInfo) {
+        Singleton.<ManifestCheckerAspectLog>instance().logCheckServices(joinPoint, pkgInfo);
     }
 }
