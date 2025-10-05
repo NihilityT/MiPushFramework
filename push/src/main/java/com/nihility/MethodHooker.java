@@ -128,4 +128,9 @@ public class MethodHooker {
                                      XMPushService pushService, byte[] decryptedContent, long packetBytesLen) {
         hookHandler().processMIPushMessage(joinPoint, pushService, decryptedContent, packetBytesLen);
     }
+    
+    @Around("execution(* com.xiaomi.push.service.MiPushMessageDuplicate.isDuplicateMessage(..)) &&" + "args(pushService, packageName, messageId)")
+    public boolean isDuplicateMessage(final ProceedingJoinPoint joinPoint, XMPushService pushService, String packageName, String messageId) throws Throwable {
+        return hookHandler().isDuplicateMessage(joinPoint, pushService, packageName, messageId);
+    }
 }

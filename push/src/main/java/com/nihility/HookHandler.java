@@ -14,6 +14,7 @@ import com.xiaomi.push.service.LogClientEventDispatcherAspect;
 import com.xiaomi.push.service.LogDebugAspect;
 import com.xiaomi.push.service.LogXMPushServiceAspect;
 import com.xiaomi.push.service.MIPushEventProcessorAspect;
+import com.xiaomi.push.service.MiPushMessageDuplicateAspect;
 import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
@@ -105,5 +106,9 @@ public class HookHandler {
     public void processMIPushMessage(final JoinPoint joinPoint,
                                      XMPushService pushService, byte[] decryptedContent, long packetBytesLen) {
         Singleton.<MIPushEventProcessorAspect>instance().processMIPushMessage(joinPoint, pushService, decryptedContent, packetBytesLen);
+    }
+
+    public boolean isDuplicateMessage(final ProceedingJoinPoint joinPoint, XMPushService pushService, String packageName, String messageId) throws Throwable {
+        return Singleton.<MiPushMessageDuplicateAspect>instance().isDuplicateMessage(joinPoint, pushService, packageName, messageId);
     }
 }
