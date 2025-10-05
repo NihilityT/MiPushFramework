@@ -5,6 +5,8 @@ import android.content.Intent;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.nihility.utils.Singleton;
+import com.xiaomi.network.Fallback;
+import com.xiaomi.network.LogFallbackAspect;
 import com.xiaomi.push.service.LogClientEventDispatcherAspect;
 import com.xiaomi.push.service.LogDebugAspect;
 import com.xiaomi.push.service.MIPushEventProcessorAspect;
@@ -41,5 +43,9 @@ public class HookHandler {
 
     public Object debugLog(final ProceedingJoinPoint joinPoint) throws Throwable {
         return Singleton.<LogDebugAspect>instance().logger(joinPoint);
+    }
+
+    public void logFallback(final JoinPoint joinPoint, Fallback fallback, boolean usePort) {
+        Singleton.<LogFallbackAspect>instance().logFallback(joinPoint, fallback, usePort);
     }
 }

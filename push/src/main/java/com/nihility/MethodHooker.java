@@ -4,6 +4,7 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
+import com.xiaomi.network.Fallback;
 import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
@@ -50,5 +51,10 @@ public class MethodHooker {
             ") && !within(is(FinalType))")
     public Object debugLog(final ProceedingJoinPoint joinPoint) throws Throwable {
         return hookHandler().debugLog(joinPoint);
+    }
+
+    @Before("execution(* com.xiaomi.network.Fallback.getHosts(..)) && target(fallback) && args(usePort)")
+    public void logFallback(final JoinPoint joinPoint, Fallback fallback, boolean usePort) {
+        hookHandler().logFallback(joinPoint, fallback, usePort);
     }
 }
