@@ -23,7 +23,11 @@ import org.aspectj.lang.annotation.Before;
 public class MethodHooker implements HookedMethodHandler {
 
     private static @NonNull HookedMethodHandler hookHandler() {
-        return Global.HookHandler();
+        HookedMethodHandler handler = Dependencies.instance().hookedMethodHandler();
+        if (handler != null) {
+            return handler;
+        }
+        return new DefaultHookedMethodHandler();
     }
 
     @Override
@@ -122,7 +126,7 @@ public class MethodHooker implements HookedMethodHandler {
     public void logCheckServices(final JoinPoint joinPoint, PackageInfo pkgInfo) {
         hookHandler().logCheckServices(joinPoint, pkgInfo);
     }
-    
+
     @Override
     @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.buildIntent(..))")
     public Intent buildIntent(final ProceedingJoinPoint joinPoint) throws Throwable {
@@ -138,7 +142,7 @@ public class MethodHooker implements HookedMethodHandler {
 
     @Override
     @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.isIntentAvailable(..))")
-    public boolean isIntentAvailable(final ProceedingJoinPoint joinPoint) {
+    public boolean isIntentAvailable(final ProceedingJoinPoint joinPoint) throws Throwable {
         return hookHandler().isIntentAvailable(joinPoint);
     }
 
@@ -148,7 +152,7 @@ public class MethodHooker implements HookedMethodHandler {
                                      XMPushService pushService, byte[] decryptedContent, long packetBytesLen) {
         hookHandler().processMIPushMessage(joinPoint, pushService, decryptedContent, packetBytesLen);
     }
-    
+
     @Override
     @Around("execution(* com.xiaomi.push.service.MiPushMessageDuplicate.isDuplicateMessage(..)) &&" + "args(pushService, packageName, messageId)")
     public boolean isDuplicateMessage(final ProceedingJoinPoint joinPoint, XMPushService pushService, String packageName, String messageId) throws Throwable {
@@ -159,7 +163,8 @@ public class MethodHooker implements HookedMethodHandler {
     @Around("execution(* com.xiaomi.push.service.MIPushNotificationHelper.notifyPushMessage(..)) &&" +
             "args(context, container, decryptedContent)")
     public MIPushNotificationHelper.NotifyPushMessageInfo notifyPushMessage(
-            final ProceedingJoinPoint joinPoint, Context context, XmPushActionContainer container, byte[] decryptedContent) {
+            final ProceedingJoinPoint joinPoint, Context context, XmPushActionContainer container, byte[] decryptedContent) throws Throwable {
         return hookHandler().notifyPushMessage(joinPoint, context, container, decryptedContent);
     }
+
 }

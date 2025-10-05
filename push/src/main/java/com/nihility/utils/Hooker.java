@@ -9,6 +9,7 @@ import com.elvishew.xlog.XLog;
 import com.nihility.Configurations;
 import com.nihility.Dependencies;
 import com.nihility.Global;
+import com.nihility.HookedMethodHandler;
 import com.nihility.OuterDependencies;
 import com.nihility.service.XMPushServiceAbility;
 import com.nihility.service.XMPushServiceListener;
@@ -54,6 +55,11 @@ public class Hooker {
             @Override
             public XMPushServiceListener serviceListener(XMPushService pushService) {
                 return new XMPushServiceAbility(pushService);
+            }
+
+            @Override
+            public HookedMethodHandler hookedMethodHandler() {
+                return Global.HookHandler();
             }
         });
     }

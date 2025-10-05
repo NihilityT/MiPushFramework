@@ -6,10 +6,8 @@ import androidx.annotation.NonNull;
 
 import com.nihility.Configurations;
 import com.nihility.Dependencies;
-import com.nihility.OuterDependencies;
-import com.nihility.service.XMPushServiceListener;
+import com.nihility.EmptyOuterDependencies;
 import com.xiaomi.network.Fallback;
-import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.smack.ConnectionConfiguration;
 
 import org.junit.Test;
@@ -27,15 +25,10 @@ public class FallbackAspectTest {
                 return expectedHost;
             }
         };
-        Dependencies.set(new OuterDependencies() {
+        Dependencies.set(new EmptyOuterDependencies() {
             @Override
             public Configurations configuration() {
                 return configurations;
-            }
-
-            @Override
-            public XMPushServiceListener serviceListener(XMPushService pushService) {
-                return null;
             }
         });
         Fallback fallback = getXmppServerFallback();

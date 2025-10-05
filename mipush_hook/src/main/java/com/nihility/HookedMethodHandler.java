@@ -52,7 +52,7 @@ public interface HookedMethodHandler {
 
     XmPushActionContainer buildContainerHook(ProceedingJoinPoint joinPoint) throws Throwable;
 
-    boolean isIntentAvailable(ProceedingJoinPoint joinPoint);
+    boolean isIntentAvailable(ProceedingJoinPoint joinPoint) throws Throwable;
 
     void processMIPushMessage(JoinPoint joinPoint,
                               XMPushService pushService, byte[] decryptedContent, long packetBytesLen);
@@ -60,5 +60,5 @@ public interface HookedMethodHandler {
     boolean isDuplicateMessage(ProceedingJoinPoint joinPoint, XMPushService pushService, String packageName, String messageId) throws Throwable;
 
     MIPushNotificationHelper.NotifyPushMessageInfo notifyPushMessage(
-            ProceedingJoinPoint joinPoint, Context context, XmPushActionContainer container, byte[] decryptedContent);
+            ProceedingJoinPoint joinPoint, Context context, XmPushActionContainer container, byte[] decryptedContent) throws Throwable;
 }

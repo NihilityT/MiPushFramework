@@ -7,4 +7,6 @@ public interface OuterDependencies {
     Configurations configuration();
 
     XMPushServiceListener serviceListener(XMPushService pushService);
+
+    HookedMethodHandler hookedMethodHandler();
 }
