@@ -11,25 +11,27 @@ function Write-Successful($Object) {
 	Write-Line $Object -BackgroundColor Green -ForegroundColor Black
 }
 
+$arguments = $args
+
 function build {
 
-$gradleTasks = @(
-	,@(
+$gradleTasks = @()
+	$gradleTasks += ,@(
 # build apks
 		,"build"
 
 # run unit tests
 		,"test"
 	)
-
-	,@(
+if ($arguments[0] -ne 'quick') {
+	$gradleTasks += ,@(
 # run android tests
 		,":common:connectedAndroidTest"
 		,":mipush_hook:connectedAndroidTest"
 		#,":push:connectedVc105DebugAndroidTest",
 		,":push:connectedNormalDebugAndroidTest"
 	)
-)
+}
 
 foreach ($task in $gradleTasks) {
 	$task = @() + $task

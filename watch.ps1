@@ -2,9 +2,11 @@
 
     [bool]$isBuilding = $false
     [bool]$pendingBuild = $false
+    $arguments
     $debounceTimer
 
-    BuildManager($debounceTimer) {
+    BuildManager($arguments, $debounceTimer) {
+        $this.arguments = $arguments
         $this.debounceTimer = $debounceTimer
     }
 
@@ -21,8 +23,9 @@
 
         Write-Host "Start Build" -ForegroundColor Green
 
+        $args = $this.arguments
         try {
-            & ./build
+            & ./build @args
         }
         catch {
             Write-Host "Build Error: $_" -ForegroundColor Red
@@ -148,7 +151,7 @@ $debounceTimer = New-Object System.Timers.Timer
 $debounceTimer.Interval = 1000
 $debounceTimer.AutoReset = $false
 
-$buildManager = [BuildManager]::new($debounceTimer)
+$buildManager = [BuildManager]::new($args, $debounceTimer)
 
 $data = @{
     buildManager = $buildManager
