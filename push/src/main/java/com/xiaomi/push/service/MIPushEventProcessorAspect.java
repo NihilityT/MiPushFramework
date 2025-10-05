@@ -124,7 +124,7 @@ public class MIPushEventProcessorAspect {
 
 
     public volatile boolean isPostProcessMIPushMessage = false;
-    volatile boolean XMPushServiceHooked = false;
+    volatile XMPushService hookedXMPushService;
     public void postProcessMIPushMessage(
             final ProceedingJoinPoint joinPoint,
             XMPushService pushService, String pkgName, byte[] payload, Intent newMessageIntent) throws Throwable {
@@ -140,11 +140,11 @@ public class MIPushEventProcessorAspect {
     }
 
     void hookXMPushService(XMPushService pushService) {
-        if (XMPushServiceHooked || pushService == null) {
+        if (hookedXMPushService == pushService || pushService == null) {
             return;
         }
         synchronized (this) {
-            if (XMPushServiceHooked) {
+            if (hookedXMPushService == pushService) {
                 return;
             }
             try {
@@ -159,7 +159,7 @@ public class MIPushEventProcessorAspect {
                     }
                 };
                 JavaCalls.setField(pushService, "mBase", wrapped);
-                XMPushServiceHooked = true;
+                hookedXMPushService = pushService;
             } catch (Throwable e) {
                 logger.e("hook xmpushservice failed", e);
             }
