@@ -1,11 +1,13 @@
 package com.nihility;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 
 import androidx.annotation.NonNull;
 
 import com.xiaomi.network.Fallback;
+import com.xiaomi.push.service.MIPushNotificationHelper;
 import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
@@ -132,5 +134,12 @@ public class MethodHooker {
     @Around("execution(* com.xiaomi.push.service.MiPushMessageDuplicate.isDuplicateMessage(..)) &&" + "args(pushService, packageName, messageId)")
     public boolean isDuplicateMessage(final ProceedingJoinPoint joinPoint, XMPushService pushService, String packageName, String messageId) throws Throwable {
         return hookHandler().isDuplicateMessage(joinPoint, pushService, packageName, messageId);
+    }
+
+    @Around("execution(* com.xiaomi.push.service.MIPushNotificationHelper.notifyPushMessage(..)) &&" +
+            "args(context, container, decryptedContent)")
+    public MIPushNotificationHelper.NotifyPushMessageInfo notifyPushMessage(
+            final ProceedingJoinPoint joinPoint, Context context, XmPushActionContainer container, byte[] decryptedContent) {
+        return hookHandler().notifyPushMessage(joinPoint, context, container, decryptedContent);
     }
 }

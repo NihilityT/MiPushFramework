@@ -1,5 +1,6 @@
 package com.nihility;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 
@@ -14,6 +15,8 @@ import com.xiaomi.push.service.LogClientEventDispatcherAspect;
 import com.xiaomi.push.service.LogDebugAspect;
 import com.xiaomi.push.service.LogXMPushServiceAspect;
 import com.xiaomi.push.service.MIPushEventProcessorAspect;
+import com.xiaomi.push.service.MIPushNotificationHelper;
+import com.xiaomi.push.service.MIPushNotificationHelperAspect;
 import com.xiaomi.push.service.MiPushMessageDuplicateAspect;
 import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
@@ -110,5 +113,10 @@ public class HookHandler {
 
     public boolean isDuplicateMessage(final ProceedingJoinPoint joinPoint, XMPushService pushService, String packageName, String messageId) throws Throwable {
         return Singleton.<MiPushMessageDuplicateAspect>instance().isDuplicateMessage(joinPoint, pushService, packageName, messageId);
+    }
+
+    public MIPushNotificationHelper.NotifyPushMessageInfo notifyPushMessage(
+            final ProceedingJoinPoint joinPoint, Context context, XmPushActionContainer container, byte[] decryptedContent) {
+        return Singleton.<MIPushNotificationHelperAspect>instance().notifyPushMessage(joinPoint, context, container, decryptedContent);
     }
 }
