@@ -1,5 +1,6 @@
 package com.xiaomi.push.service;
 
+import android.content.ContextWrapper;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,7 @@ import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.nihility.Global;
 import com.nihility.XMPushUtils;
+import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.push.service.clientReport.ReportConstants;
 import com.xiaomi.xmpush.thrift.ActionType;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
@@ -130,11 +132,47 @@ public class MIPushEventProcessorAspect {
     }
 
 
-    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.postProcessMIPushMessage(..)) && args(pushService, pkgName, payload, newMessageIntent)")
+    public volatile boolean isPostProcessMIPushMessage = false;
+    volatile boolean XMPushServiceHooked = false;
     public void postProcessMIPushMessage(
             final ProceedingJoinPoint joinPoint,
             XMPushService pushService, String pkgName, byte[] payload, Intent newMessageIntent) throws Throwable {
-        Global.HookHandler().postProcessMIPushMessage(joinPoint, pushService, pkgName, payload, newMessageIntent);
+        isPostProcessMIPushMessage = true;
+
+        hookXMPushService(pushService);
+
+        try {
+            joinPoint.proceed();
+        } finally {
+            isPostProcessMIPushMessage = false;
+        }
+    }
+
+    void hookXMPushService(XMPushService pushService) {
+        if (XMPushServiceHooked || pushService == null) {
+            return;
+        }
+        synchronized (this) {
+            if (XMPushServiceHooked) {
+                return;
+            }
+            try {
+                ContextWrapper wrapped = new ContextWrapper(pushService.getBaseContext()) {
+                    @Override
+                    public void sendBroadcast(Intent intent, @Nullable String receiverPermission) {
+                        if (isPostProcessMIPushMessage) {
+                            byte[] payload = intent.getByteArrayExtra(PushConstants.MIPUSH_EXTRA_PAYLOAD);
+                            Global.MiPushEventListener().transferToApplication(XMPushUtils.packToContainer(payload));
+                        }
+                        super.sendBroadcast(intent, receiverPermission);
+                    }
+                };
+                JavaCalls.setField(pushService, "mBase", wrapped);
+                XMPushServiceHooked = true;
+            } catch (Throwable e) {
+                logger.e("hook xmpushservice failed", e);
+            }
+        }
     }
 
     public static XmPushActionContainer decoratedContainer(String realTargetPackage, XmPushActionContainer container) {

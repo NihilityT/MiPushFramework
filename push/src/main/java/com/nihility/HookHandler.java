@@ -1,16 +1,11 @@
 package com.nihility;
 
-import android.content.ContextWrapper;
 import android.content.Intent;
-
-import androidx.annotation.Nullable;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.nihility.utils.Singleton;
-import com.xiaomi.channel.commonutils.reflect.JavaCalls;
 import com.xiaomi.push.service.MIPushEventProcessorAspect;
-import com.xiaomi.push.service.PushConstants;
 import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
@@ -20,8 +15,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 public class HookHandler {
     static final String TAG = HookHandler.class.getSimpleName();
     static final Logger logger = XLog.tag(TAG).build();
-    public volatile boolean isPostProcessMIPushMessage = false;
-    volatile boolean XMPushServiceHooked = false;
 
     public HookHandler() {
     }
@@ -35,41 +28,7 @@ public class HookHandler {
     public void postProcessMIPushMessage(
             final ProceedingJoinPoint joinPoint,
             XMPushService pushService, String pkgName, byte[] payload, Intent newMessageIntent) throws Throwable {
-        isPostProcessMIPushMessage = true;
-
-        hookXMPushService(pushService);
-
-        try {
-            joinPoint.proceed();
-        } finally {
-            isPostProcessMIPushMessage = false;
-        }
+        Singleton.<MIPushEventProcessorAspect>instance().postProcessMIPushMessage(joinPoint, pushService, pkgName, payload, newMessageIntent);
     }
 
-    void hookXMPushService(XMPushService pushService) {
-        if (XMPushServiceHooked || pushService == null) {
-            return;
-        }
-        synchronized (this) {
-            if (XMPushServiceHooked) {
-                return;
-            }
-            try {
-                ContextWrapper wrapped = new ContextWrapper(pushService.getBaseContext()) {
-                    @Override
-                    public void sendBroadcast(Intent intent, @Nullable String receiverPermission) {
-                        if (isPostProcessMIPushMessage) {
-                            byte[] payload = intent.getByteArrayExtra(PushConstants.MIPUSH_EXTRA_PAYLOAD);
-                            Global.MiPushEventListener().transferToApplication(XMPushUtils.packToContainer(payload));
-                        }
-                        super.sendBroadcast(intent, receiverPermission);
-                    }
-                };
-                JavaCalls.setField(pushService, "mBase", wrapped);
-                XMPushServiceHooked = true;
-            } catch (Throwable e) {
-                logger.e("hook xmpushservice failed", e);
-            }
-        }
-    }
 }

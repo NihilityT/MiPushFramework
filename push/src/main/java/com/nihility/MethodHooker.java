@@ -26,6 +26,7 @@ public class MethodHooker {
         return hookHandler().shouldSendBroadcast(joinPoint, pushService, packageName, container, metaInfo);
     }
 
+    @Around("execution(* com.xiaomi.push.service.MIPushEventProcessor.postProcessMIPushMessage(..)) && args(pushService, pkgName, payload, newMessageIntent)")
     public void postProcessMIPushMessage(
             final ProceedingJoinPoint joinPoint,
             XMPushService pushService, String pkgName, byte[] payload, Intent newMessageIntent) throws Throwable {
