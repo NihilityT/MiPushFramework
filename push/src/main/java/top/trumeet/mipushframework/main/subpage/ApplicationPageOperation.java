@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.github.promeg.pinyinhelper.Pinyin;
+import com.nihility.Global;
 import com.xiaomi.xmsf.R;
 
 import java.util.ArrayList;
@@ -24,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.utils.ElapsedTimer;
 import top.trumeet.common.utils.Utils;
 import top.trumeet.mipush.provider.db.EventDb;
@@ -81,7 +81,7 @@ public class ApplicationPageOperation {
             if (!TextUtils.isEmpty(application.appName)) {
                 continue;
             }
-            application.appName = ApplicationNameCache.getInstance()
+            application.appName = Global.ApplicationNameCache()
                     .getAppName(Utils.getApplication(), application.getPackageName()).toString();
         }
     }
@@ -233,7 +233,7 @@ public class ApplicationPageOperation {
 
         for (RegisteredApplication application : list) {
             String pkg = application.getPackageName();
-            application.appName = ApplicationNameCache.getInstance()
+            application.appName = Global.ApplicationNameCache()
                     .getAppName(context, pkg).toString();
             if (registrationInfo.registered.contains(pkg)) {
                 application.setRegisteredType(RegisteredApplication.RegisteredType.Registered);

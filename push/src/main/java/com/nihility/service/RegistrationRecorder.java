@@ -17,18 +17,6 @@ public class RegistrationRecorder {
 
     Context context;
 
-    private static class LazyHolder {
-        static RegistrationRecorder INSTANCE = new RegistrationRecorder();
-    }
-
-    public static RegistrationRecorder getInstance() {
-        return LazyHolder.INSTANCE;
-    }
-
-    public static void setInstance(RegistrationRecorder instance) {
-        LazyHolder.INSTANCE = instance;
-    }
-
     public void initContext(Context context) {
         this.context = context;
     }

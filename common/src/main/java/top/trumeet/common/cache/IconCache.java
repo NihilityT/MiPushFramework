@@ -32,17 +32,6 @@ public class IconCache {
         //TODO check cacheSizes is correct ?
     }
 
-    public static IconCache getInstance() {
-        if (cache == null) {
-            synchronized (IconCache.class) {
-                if (cache == null) {
-                    cache = new IconCache();
-                }
-            }
-        }
-        return cache;
-    }
-
     public Bitmap getRawIconBitmapWithoutLoader(final Context ctx, final String pkg) {
         return bitmapLruCache.get("raw_" + pkg);
     }

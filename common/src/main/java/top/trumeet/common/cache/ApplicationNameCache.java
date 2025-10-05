@@ -19,17 +19,6 @@ public class ApplicationNameCache {
         cacheInstance = new LruCache<>(100);
     }
 
-    public static ApplicationNameCache getInstance() {
-        if (cache == null) {
-            synchronized (ApplicationNameCache.class) {
-                if (cache == null) {
-                    cache = new ApplicationNameCache();
-                }
-            }
-        }
-        return cache;
-    }
-
     public CharSequence getAppName(final Context ctx, final String pkg) {
 
         return new AbstractCacheAspect<>(cacheInstance) {

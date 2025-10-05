@@ -18,7 +18,7 @@ import androidx.documentfile.provider.DocumentFile;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.google.gson.Gson;
-import com.xiaomi.xmsf.utils.ConfigCenter;
+import com.nihility.Global;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,19 +61,6 @@ public class IconConfigurations {
 
     private Map<String, IconConfig> iconConfigs = new HashMap<>();
 
-    private static IconConfigurations instance = null;
-
-    public static IconConfigurations getInstance() {
-        if (instance == null) {
-            synchronized (IconConfigurations.class) {
-                if (instance == null) {
-                    instance = new IconConfigurations();
-                }
-            }
-        }
-        return instance;
-    }
-
     private IconConfigurations() {
     }
 
@@ -87,7 +74,7 @@ public class IconConfigurations {
             List<DocumentFile> loadedFiles = new ArrayList<>();
             parseDirectory(context, treeUri, exceptions, loadedFiles);
 
-            if (!loadedFiles.isEmpty() && ConfigCenter.getInstance().isShowConfigurationListOnLoaded(context)) {
+            if (!loadedFiles.isEmpty() && Global.ConfigCenter().isShowConfigurationListOnLoaded(context)) {
                 StringBuilder loadedList = new StringBuilder("loaded icon configuration list:");
                 for (DocumentFile file : loadedFiles) {
                     loadedList.append('\n');

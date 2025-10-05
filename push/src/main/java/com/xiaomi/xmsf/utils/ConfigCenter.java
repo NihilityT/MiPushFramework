@@ -6,10 +6,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
+import com.nihility.Global;
 import com.xiaomi.xmsf.BuildConfig;
 import com.xiaomi.xmsf.push.service.XMPushService;
 import com.xiaomi.xmsf.push.utils.Configurations;
-import com.xiaomi.xmsf.push.utils.IconConfigurations;
 
 import top.trumeet.common.Constants;
 import top.trumeet.common.utils.Utils;
@@ -20,18 +20,6 @@ import top.trumeet.common.utils.Utils;
  * @author zts
  */
 public class ConfigCenter {
-
-    private static class LazyHolder {
-        volatile static ConfigCenter INSTANCE = new ConfigCenter();
-    }
-
-
-    public static ConfigCenter getInstance() {
-        return LazyHolder.INSTANCE;
-    }
-    public static void setInstance(ConfigCenter configCenter) {
-        LazyHolder.INSTANCE = configCenter;
-    }
 
     public ConfigCenter() {
     }
@@ -93,9 +81,9 @@ public class ConfigCenter {
 
     public void loadConfigurations(Context context) {
         Configurations.getInstance().init(context,
-                ConfigCenter.getInstance().getConfigurationDirectory(context));
-        IconConfigurations.getInstance().init(context,
-                ConfigCenter.getInstance().getConfigurationDirectory(context));
+                Global.ConfigCenter().getConfigurationDirectory(context));
+        Global.IconConfigurations().init(context,
+                Global.ConfigCenter().getConfigurationDirectory(context));
         Intent intent = new Intent();
         intent.setComponent(new ComponentName(context, XMPushService.class));
         intent.setAction(Constants.CONFIGURATIONS_UPDATE_ACTION);

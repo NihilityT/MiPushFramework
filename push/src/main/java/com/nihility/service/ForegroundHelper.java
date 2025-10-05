@@ -11,8 +11,8 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.ServiceCompat;
 
+import com.nihility.Global;
 import com.xiaomi.xmsf.R;
-import com.xiaomi.xmsf.utils.ConfigCenter;
 
 public class ForegroundHelper {
     public static final String CHANNEL_STATUS = "status";
@@ -25,7 +25,7 @@ public class ForegroundHelper {
 
     public void startForeground() {
         createNotificationGroupForPushStatus();
-        if (ConfigCenter.getInstance().isStartForegroundService()) {
+        if (Global.ConfigCenter().isStartForegroundService()) {
             showForegroundNotificationToKeepAlive();
         } else {
             stopForegroundNotification();

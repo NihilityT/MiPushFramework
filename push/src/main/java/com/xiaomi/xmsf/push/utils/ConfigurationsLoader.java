@@ -10,7 +10,7 @@ import androidx.documentfile.provider.DocumentFile;
 
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
-import com.xiaomi.xmsf.utils.ConfigCenter;
+import com.nihility.Global;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -62,7 +62,7 @@ public class ConfigurationsLoader {
             List<DocumentFile> loadedFiles = new ArrayList<>();
             parseDirectory(context, treeUri, exceptions, loadedFiles);
 
-            if (!loadedFiles.isEmpty() && ConfigCenter.getInstance().isShowConfigurationListOnLoaded(context)) {
+            if (!loadedFiles.isEmpty() && Global.ConfigCenter().isShowConfigurationListOnLoaded(context)) {
                 StringBuilder loadedList = new StringBuilder("loaded configuration list:");
                 for (DocumentFile file : loadedFiles) {
                     loadedList.append('\n');

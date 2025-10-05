@@ -5,7 +5,8 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import top.trumeet.common.cache.ApplicationNameCache;
+import com.nihility.Global;
+
 import top.trumeet.mipush.provider.entities.Event;
 
 /**
@@ -34,7 +35,7 @@ public abstract class EventType {
 
     @NonNull
     public CharSequence getTitle (Context context) {
-        return ApplicationNameCache.getInstance().getAppName(context, pkg);
+        return Global.ApplicationNameCache().getAppName(context, pkg);
     }
 
     @Nullable

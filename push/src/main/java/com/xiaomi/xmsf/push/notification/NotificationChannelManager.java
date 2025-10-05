@@ -17,13 +17,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.nihility.Global;
 import com.nihility.XMPushUtils;
 import com.nihility.notification.NotificationManagerEx;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 
 import java.util.Arrays;
 
-import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.common.utils.CustomConfiguration;
 
 public class NotificationChannelManager {
@@ -87,7 +87,7 @@ public class NotificationChannelManager {
             return null;
         }
 
-        CharSequence appName = ApplicationNameCache.getInstance().getAppName(context, packageName);
+        CharSequence appName = Global.ApplicationNameCache().getAppName(context, packageName);
         if (appName == null) {
             return null;
         }

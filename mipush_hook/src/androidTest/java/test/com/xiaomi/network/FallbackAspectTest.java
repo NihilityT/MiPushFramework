@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.nihility.Configurations;
 import com.nihility.Dependencies;
+import com.nihility.EmptyOuterDependencies;
 import com.xiaomi.network.Fallback;
 import com.xiaomi.smack.ConnectionConfiguration;
 
@@ -18,10 +19,16 @@ public class FallbackAspectTest {
     @Test
     public void useUserDefinedXmppServerHostFirst() {
         String expectedHost = "hooked.host";
-        Dependencies.getInstance().init(new Configurations() {
+        Configurations configurations = new Configurations() {
             @Override
             public String getXMPPServer() {
                 return expectedHost;
+            }
+        };
+        Dependencies.set(new EmptyOuterDependencies() {
+            @Override
+            public Configurations configuration() {
+                return configurations;
             }
         });
         Fallback fallback = getXmppServerFallback();

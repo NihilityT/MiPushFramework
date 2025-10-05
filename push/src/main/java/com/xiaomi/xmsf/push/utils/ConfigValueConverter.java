@@ -8,14 +8,6 @@ import com.xiaomi.xmsf.utils.ConvertUtils;
 public class ConfigValueConverter {
     private static final Logger logger = XLog.tag(ConfigValueConverter.class.getSimpleName()).build();
 
-    private static class LazyHolder {
-        volatile static ConfigValueConverter INSTANCE = new ConfigValueConverter();
-    }
-
-    public static ConfigValueConverter getInstance() {
-        return LazyHolder.INSTANCE;
-    }
-
     public <T> Object convert(Object root, String[] path, T value) {
         if (path.length == 1 && "pushAction".equals(path[0])) {
             try {

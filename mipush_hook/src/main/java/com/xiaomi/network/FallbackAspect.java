@@ -21,7 +21,7 @@ public class FallbackAspect {
         ArrayList<String> hosts = (ArrayList<String>) joinPoint.proceed();
 
         if (TextUtils.equals(fallback.host, ConnectionConfiguration.getXmppServerHost())) {
-            Configurations configurations = Dependencies.getInstance().configuration();
+            Configurations configurations = Dependencies.instance().configuration();
             String userHost = configurations.getXMPPServer();
             if (!TextUtils.isEmpty(userHost)) {
                 hosts.add(0, userHost);
