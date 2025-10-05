@@ -25,7 +25,7 @@ import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 
-public class HookHandler {
+public class HookHandler implements HookedMethodHandler {
     static final String TAG = HookHandler.class.getSimpleName();
     static final Logger logger = XLog.tag(TAG).build();
 
