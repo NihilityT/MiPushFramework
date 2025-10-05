@@ -10,6 +10,7 @@ import com.xiaomi.network.Fallback;
 import com.xiaomi.network.LogFallbackAspect;
 import com.xiaomi.push.service.LogClientEventDispatcherAspect;
 import com.xiaomi.push.service.LogDebugAspect;
+import com.xiaomi.push.service.LogXMPushServiceAspect;
 import com.xiaomi.push.service.MIPushEventProcessorAspect;
 import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
@@ -52,5 +53,34 @@ public class HookHandler {
 
     public void processIntent(final JoinPoint joinPoint, Intent intent) {
         Singleton.<LogPushMessageProcessorAspect>instance().processIntent(joinPoint, intent);
+    }
+
+    public void onCreate(final JoinPoint joinPoint, XMPushService pushService) throws Throwable {
+        Singleton.<LogXMPushServiceAspect>instance().onCreate(joinPoint, pushService);
+    }
+
+    public void onStartCommand(final JoinPoint joinPoint) {
+        Singleton.<LogXMPushServiceAspect>instance().onStartCommand(joinPoint);
+    }
+
+    public void onStart(final JoinPoint joinPoint, Intent intent, int startId) {
+        Singleton.<LogXMPushServiceAspect>instance().onStart(joinPoint, intent, startId);
+    }
+
+    public void onBind(final JoinPoint joinPoint, Intent intent) {
+        Singleton.<LogXMPushServiceAspect>instance().onBind(joinPoint, intent);
+    }
+
+    public void onDestroy(final JoinPoint joinPoint) {
+        Singleton.<LogXMPushServiceAspect>instance().onDestroy(joinPoint);
+    }
+
+    public void setConnectionStatus(final JoinPoint joinPoint,
+                                    int newStatus, int reason, Exception e) {
+        Singleton.<LogXMPushServiceAspect>instance().setConnectionStatus(joinPoint, newStatus, reason, e);
+    }
+
+    public void sendMessage(final JoinPoint joinPoint, Intent intent) {
+        Singleton.<LogXMPushServiceAspect>instance().sendMessage(joinPoint, intent);
     }
 }
