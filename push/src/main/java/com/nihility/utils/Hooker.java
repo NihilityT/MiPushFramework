@@ -9,12 +9,15 @@ import com.elvishew.xlog.XLog;
 import com.nihility.Configurations;
 import com.nihility.Dependencies;
 import com.nihility.Global;
+import com.nihility.OuterDependencies;
 import com.nihility.service.XMPushServiceAbility;
+import com.nihility.service.XMPushServiceListener;
 import com.xiaomi.channel.commonutils.android.Region;
 import com.xiaomi.channel.commonutils.logger.LoggerInterface;
 import com.xiaomi.channel.commonutils.logger.MyLog;
 import com.xiaomi.network.HostManager;
 import com.xiaomi.push.service.AppRegionStorage;
+import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.smack.ConnectionConfiguration;
 import com.xiaomi.smack.SmackConfiguration;
 
@@ -42,10 +45,17 @@ public class Hooker {
                 return Global.ConfigCenter().getXMPPServer(context.getApplicationContext());
             }
         };
-        Dependencies dependencies = Dependencies.getInstance();
-        dependencies.init(configurations);
-        dependencies.init(pushService -> new XMPushServiceAbility(pushService));
-        dependencies.check();
+        Dependencies.set(new OuterDependencies() {
+            @Override
+            public Configurations configuration() {
+                return configurations;
+            }
+
+            @Override
+            public XMPushServiceListener serviceListener(XMPushService pushService) {
+                return new XMPushServiceAbility(pushService);
+            }
+        });
     }
 
     private static void hookMiPushSDK(final Context context) {
