@@ -40,4 +40,15 @@ public class MethodHooker {
                                     XMPushService pushService, String chid, Object data) {
         hookHandler().notifyPacketArrival(joinPoint, pushService, chid, data);
     }
+
+    @Around("(execution(* com.xiaomi.push.service.XMPushService*.*(..))" +
+            " || execution(* com.xiaomi.push.service.PacketSync*.*(..))" +
+            " || execution(* com.xiaomi.push.service.ClientEventDispatcher*.*(..))" +
+            " || execution(* com.xiaomi.push.service.MIPushEventProcessor*.*(..))" +
+            " || execution(* com.xiaomi.push.service.MIPushNotificationHelper*.*(..))" +
+            " || execution(* com.xiaomi.push.service.NotificationManagerHelper*.*(..))" +
+            ") && !within(is(FinalType))")
+    public Object debugLog(final ProceedingJoinPoint joinPoint) throws Throwable {
+        return hookHandler().debugLog(joinPoint);
+    }
 }

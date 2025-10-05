@@ -9,12 +9,9 @@ import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
 
 import java.util.Collections;
 
-@Aspect
 public class LogDebugAspect {
     private static final String TAG = LogDebugAspect.class.getSimpleName();
     private static final Logger logger = XLog.tag(TAG).build();
@@ -25,14 +22,6 @@ public class LogDebugAspect {
         }
     };
 
-
-    @Around("(execution(* com.xiaomi.push.service.XMPushService*.*(..))" +
-            " || execution(* com.xiaomi.push.service.PacketSync*.*(..))" +
-            " || execution(* com.xiaomi.push.service.ClientEventDispatcher*.*(..))" +
-            " || execution(* com.xiaomi.push.service.MIPushEventProcessor*.*(..))" +
-            " || execution(* com.xiaomi.push.service.MIPushNotificationHelper*.*(..))" +
-            " || execution(* com.xiaomi.push.service.NotificationManagerHelper*.*(..))" +
-            ") && !within(is(FinalType))")
     public Object logger(final ProceedingJoinPoint joinPoint) throws Throwable {
         if (!Global.ConfigCenter().isDebugMode()) {
             return joinPoint.proceed();

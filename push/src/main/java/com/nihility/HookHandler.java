@@ -6,6 +6,7 @@ import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.nihility.utils.Singleton;
 import com.xiaomi.push.service.LogClientEventDispatcherAspect;
+import com.xiaomi.push.service.LogDebugAspect;
 import com.xiaomi.push.service.MIPushEventProcessorAspect;
 import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
@@ -36,5 +37,9 @@ public class HookHandler {
     public void notifyPacketArrival(final JoinPoint joinPoint,
                                     XMPushService pushService, String chid, Object data) {
         Singleton.<LogClientEventDispatcherAspect>instance().notifyPacketArrival(joinPoint, pushService, chid, data);
+    }
+
+    public Object debugLog(final ProceedingJoinPoint joinPoint) throws Throwable {
+        return Singleton.<LogDebugAspect>instance().logger(joinPoint);
     }
 }
