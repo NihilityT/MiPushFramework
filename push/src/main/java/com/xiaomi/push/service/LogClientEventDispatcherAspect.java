@@ -9,8 +9,6 @@ import com.xiaomi.smack.packet.Packet;
 import com.xiaomi.xmpush.thrift.ActionType;
 
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 
 import top.trumeet.common.BuildConfig;
 
@@ -41,12 +39,10 @@ import top.trumeet.common.BuildConfig;
  * 这里拦截没有任何作用，所以没有在这里处理，仅记录。
  */
 
-@Aspect
 public class LogClientEventDispatcherAspect {
     private static final String TAG = LogClientEventDispatcherAspect.class.getSimpleName();
     private static final Logger logger = XLog.tag(TAG).build();
 
-    @Before("execution(* com.xiaomi.push.service.ClientEventDispatcher.notifyPacketArrival(..)) && args(pushService, chid, data)")
     public void notifyPacketArrival(final JoinPoint joinPoint,
                                     XMPushService pushService, String chid, Object data) {
         logger.d(joinPoint.getSignature());

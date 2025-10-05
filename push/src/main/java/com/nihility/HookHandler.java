@@ -5,11 +5,13 @@ import android.content.Intent;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.nihility.utils.Singleton;
+import com.xiaomi.push.service.LogClientEventDispatcherAspect;
 import com.xiaomi.push.service.MIPushEventProcessorAspect;
 import com.xiaomi.push.service.XMPushService;
 import com.xiaomi.xmpush.thrift.PushMetaInfo;
 import com.xiaomi.xmpush.thrift.XmPushActionContainer;
 
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 
 public class HookHandler {
@@ -31,4 +33,8 @@ public class HookHandler {
         Singleton.<MIPushEventProcessorAspect>instance().postProcessMIPushMessage(joinPoint, pushService, pkgName, payload, newMessageIntent);
     }
 
+    public void notifyPacketArrival(final JoinPoint joinPoint,
+                                    XMPushService pushService, String chid, Object data) {
+        Singleton.<LogClientEventDispatcherAspect>instance().notifyPacketArrival(joinPoint, pushService, chid, data);
+    }
 }
