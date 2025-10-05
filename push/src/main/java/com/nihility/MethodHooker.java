@@ -57,4 +57,9 @@ public class MethodHooker {
     public void logFallback(final JoinPoint joinPoint, Fallback fallback, boolean usePort) {
         hookHandler().logFallback(joinPoint, fallback, usePort);
     }
+
+    @Before("execution(* com.xiaomi.mipush.sdk.PushMessageProcessor.processIntent(..)) && args(intent)")
+    public void processIntent(final JoinPoint joinPoint, Intent intent) {
+        hookHandler().processIntent(joinPoint, intent);
+    }
 }

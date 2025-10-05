@@ -7,15 +7,11 @@ import com.elvishew.xlog.XLog;
 import com.xiaomi.xmsf.utils.ConvertUtils;
 
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 
-@Aspect
 public class LogPushMessageProcessorAspect {
     private static final String TAG = LogPushMessageProcessorAspect.class.getSimpleName();
     private static final Logger logger = XLog.tag(TAG).build();
 
-    @Before("execution(* com.xiaomi.mipush.sdk.PushMessageProcessor.processIntent(..)) && args(intent)")
     public void processIntent(final JoinPoint joinPoint, Intent intent) {
         logger.d(joinPoint.getSignature());
         logger.d("Intent " + ConvertUtils.toJson(intent));
