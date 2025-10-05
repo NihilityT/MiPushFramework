@@ -28,7 +28,11 @@ public class ConfigCenter {
     public static SharedPreferences getSharedPreferences(Context context) {
         return context.getSharedPreferences(BuildConfig.APPLICATION_ID + "_preferences", Context.MODE_MULTI_PROCESS);
     }
-
+    
+    public boolean isViaFreeform(Context ctx) {
+        return getSharedPreferences(ctx).getBoolean("ViaFreeform", false);
+    }
+    
     public boolean isNotificationOnRegister(Context ctx) {
         return getSharedPreferences(ctx).getBoolean("NotificationOnRegister", false);
     }
